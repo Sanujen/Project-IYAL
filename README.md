@@ -3,11 +3,13 @@ CSE Final Year Research and Development Project
 
 ## Steps to start the development
 1. Clone the repository
-2. Create a virtual environment
+2. Create and activate a virtual environment
 ```bash
 python3 -m venv .venv
 # or
 python -m venv .venv
+
+.venv\Scripts\activate
 ```
 3. Install the requirements
 ```bash
