@@ -31,13 +31,13 @@ def single_word_quality_analyzer(input_word: str):
     """
     TODO: implement the algorithm to classify the input type
     TODO: implement the algorithm to find the english word
-    Normalizes a single word into Raw Tamil Unicode.
+    Normalizes a single word into Raw Tamil Unicode and tags the input type.
 
     Args:
-        input_word (str): The input word.
+        input_word (str): The input word to normalize.
 
     Returns:
-        str: Normalized Tamil Unicode word.
+        dict: A dictionary containing the input type and the normalized output.
     """
     result = {
         "inputType": "",
@@ -91,7 +91,6 @@ def quality_analyzer(input_text: str):
 
     Returns:
         tuple: A tuple containing the normalized Tamil Unicode text and a list of classification results.
-        
     """
     output_text = ""
     words = input_text.split()
