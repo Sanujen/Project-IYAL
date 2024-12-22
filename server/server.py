@@ -6,7 +6,7 @@ app = FastAPI()
 
 # Define the Pydantic model for the input format
 class InputRequest(BaseModel):
-    input_word: str
+    input_text: str
 
     model_config = ConfigDict(extra='allow')
 
@@ -23,8 +23,8 @@ async def analyze_input(request: InputRequest):
 
     """
     try:
-        # Use the quality_analyzer function to process the input word
-        outputText, result = quality_analyzer(request.input_word)
+        # Use the quality_analyzer function to process the input text
+        outputText, result = quality_analyzer(request.input_text)
         return {"output": outputText, "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
