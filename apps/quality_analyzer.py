@@ -27,7 +27,7 @@ def handle_mixed_input(input_word: str):
 
     return output_text
 
-def quality_analyzer(input_word: str):
+def single_word_quality_analyzer(input_word: str):
     """
     TODO: implement the algorithm to classify the input type
     TODO: implement the algorithm to find the english word
@@ -39,33 +39,66 @@ def quality_analyzer(input_word: str):
     Returns:
         str: Normalized Tamil Unicode word.
     """
+    result = {
+        "inputType": "",
+        "output": ""
+    }
     classification = classify_unicode(input_word)
 
     if classification == "raw_tamil":
         # Already normalized, return as is
-        return input_word
+        result["inputType"] = "raw_tamil"
+        result["output"] = input_word
+
     elif classification == "mixed":
         # Mixed input isn't possible for single-word input
-        return handle_mixed_input(input_word)
+        result["inputType"] = "mixed"
+        result["output"] = handle_mixed_input(input_word)
+
     elif classification == "english":
         # Could be English or Romanized Tamil or Legacy Tamil
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
             # English word, translate to Tamil
-            return translate_english_to_tamil(input_word)
+            result["inputType"] = "en"
+            result["output"] = translate_english_to_tamil(input_word)
+
         else:
             # Could be Romanized Tamil or Legacy Tamil
             # Using a classifier model to determine the type whether Romanized or Legacy
             input_type = classify_input_type(input_word)
+            result["inputType"] = input_type
             if input_type == "romanized":
                 # Romanized Tamil, transliterate to Tamil Unicode
-                return transliterate(input_word)
+                result["output"] = transliterate(input_word)
+
             elif input_type == "legacy":
                 # Legacy Tamil, convert to Tamil Unicode
-                return convert_legacy_to_unicode(input_word)
+                result["output"] = convert_legacy_to_unicode(input_word)
+
             else:
                 # handle other cases
-                return "Unknown input type"
-    else:
-        # handle other cases
-        return "Unknown input type"
+                result["output"] = "unknown"
+    
+    return result
+    
+def quality_analyzer(input_text: str):
+    """
+    Normalizes mixed Tamil and English input text into Raw Tamil Unicode.
+
+    Args:
+        input_text (str): The input text to normalize.
+
+    Returns:
+        tuple: A tuple containing the normalized Tamil Unicode text and a list of classification results.
+        
+    """
+    output_text = ""
+    words = input_text.split()
+    results = []
+    for word in words:
+        result = single_word_quality_analyzer(word)
+        results.append(result)
+        output_text += result["output"] + " "
+
+    return (output_text.strip(), results)
