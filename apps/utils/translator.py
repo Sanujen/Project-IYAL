@@ -1,5 +1,6 @@
 def translate_english_to_tamil(english_text):
     """
+    TODO: Use an API for translation (So far we planned to use an google API)
     Translates English words into Tamil.
 
     Args:

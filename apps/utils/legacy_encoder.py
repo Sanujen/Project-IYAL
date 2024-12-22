@@ -1,5 +1,6 @@
 def convert_legacy_to_unicode(legacy_text):
     """
+    TODO: implement the algorithm to convert legacy Tamil font-encoded text into Unicode.
     Converts legacy Tamil font-encoded text into Unicode.
 
     Args:
