@@ -13,17 +13,18 @@ class InputRequest(BaseModel):
 @app.post("/analyze/")
 async def analyze_input(request: InputRequest):
     """
-    Endpoint to analyze mixed Tamil and English input.
-
+    Analyzes the input text and returns tuple containing the normalized Tamil Unicode text and an array of dictionaries containing the classification results.
+    
     Args:
-        request (InputRequest): Request body containing the input_word.
+        request (InputRequest): The input request containing the text to analyze.
 
     Returns:
-        str: The normalized Tamil Unicode output.
+        dict: A dictionary containing the normalized Tamil Unicode text and the classification results.
+
     """
     try:
         # Use the quality_analyzer function to process the input word
-        result = quality_analyzer(request.input_word)
-        return {"normalized_input": result}
+        outputText, result = quality_analyzer(request.input_word)
+        return {"output": outputText, "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
