@@ -33,7 +33,7 @@ BASE_API_URL="http://127.0.0.1:8000"
 1. Run the FastAPI server
 ```bash
 # you may need to,
-pip show "fastapi[standard]"
+pip install "fastapi[standard]"
 
 fastapi dev .\server\server.py
 
