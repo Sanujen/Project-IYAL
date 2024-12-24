@@ -1,2 +1,5 @@
 fastapi=0.115.6
 pydantic=2.10.4
+requests=2.32.3
+streamlit=1.41.1
+python-dotenv=1.0.1
