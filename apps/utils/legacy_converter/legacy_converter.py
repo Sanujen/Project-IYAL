@@ -20,8 +20,8 @@
 #                                                                            #
 ##############################################################################
 
-from orddic import OrderedDict
-from encode2utf8 import (
+from collections import OrderedDict
+from apps.utils.legacy_converter.encode2utf8 import (
     anjal2utf8,
     bamini2utf8,
     boomi2utf8,
@@ -124,121 +124,14 @@ def encode2unicode(text, charmap):
             for key, val in charmap.items():
                 if key in line:
                     line = line.replace(key, val)
-                # end of if key in text:
             unitxt += line
-        # end of for line in text:
+
         return unitxt
     elif isinstance(text, str):
         for key, val in charmap.items():
             if key in text:
                 text = text.replace(key, val)
-            # end of if key in text:
-        # end of for key,val in charmap.items():
         return text
-    # end of if isinstance(text, (list, tuple)):
-
-
-# end of def encode2unicode(text, charmap):
-
-
-def anjal2unicode(text):
-    return encode2unicode(text, anjal2utf8)
-
-
-def bamini2unicode(text):
-    return encode2unicode(text, bamini2utf8)
-
-
-def boomi2unicode(text):
-    return encode2unicode(text, boomi2utf8)
-
-
-def dinakaran2unicode(text):
-    return encode2unicode(text, dinakaran2utf8)
-
-
-def dinamani2unicode(text):
-    return encode2unicode(text, dinamani2utf8)
-
-
-def dinathanthy2unicode(text):
-    return encode2unicode(text, dinathanthy2utf8)
-
-
-def kavipriya2unicode(text):
-    return encode2unicode(text, kavipriya2utf8)
-
-
-def murasoli2unicode(text):
-    return encode2unicode(text, murasoli2utf8)
-
-
-def mylai2unicode(text):
-    return encode2unicode(text, mylai2utf8)
-
-
-def nakkeeran2unicode(text):
-    return encode2unicode(text, nakkeeran2utf8)
-
-
-def roman2unicode(text):
-    return encode2unicode(text, roman2utf8)
-
-
-def tab2unicode(text):
-    return encode2unicode(text, tab2utf8)
-
-
-def tam2unicode(text):
-    return encode2unicode(text, tam2utf8)
-
-
-def tscii2unicode(text):
-    return encode2unicode(text, tscii2utf8)
-
-
-def pallavar2unicode(text):
-    return encode2unicode(text, pallavar2utf8)
-
-
-def indoweb2unicode(text):
-    return encode2unicode(text, indoweb2utf8)
-
-
-def koeln2unicode(text):
-    return encode2unicode(text, koeln2utf8)
-
-
-def libi2unicode(text):
-    return encode2unicode(text, libi2utf8)
-
-
-def oldvikatan2unicode(text):
-    return encode2unicode(text, oldvikatan2utf8)
-
-
-def webulagam2unicode(text):
-    return encode2unicode(text, webulagam2utf8)
-
-
-def diacritic2unicode(text):
-    return encode2unicode(text, diacritic2utf8)
-
-
-def shreelipi2unicode(text):
-    return encode2unicode(text, shreelipi2utf8)
-
-
-def softview2unicode(text):
-    return encode2unicode(text, softview2utf8)
-
-
-def tace2unicode(text):
-    return encode2unicode(text, tace2utf8)
-
-
-def vanavil2unicode(text):
-    return encode2unicode(text, vanavil2utf8)
 
 
 def _get_unique_ch(text, all_common_encodes):
@@ -413,9 +306,8 @@ def auto2unicode(text):
 # end of def auto2unicode(text):
 
 
-def convert_legacy_to_unicode(legacy_text):
+def convert_legacy_to_unicode(legacy_text: str, encoding: str = None):
     """
-    TODO: implement the algorithm to convert legacy Tamil font-encoded text into Unicode.
     Converts legacy Tamil font-encoded text into Unicode.
 
     Args:
@@ -424,14 +316,8 @@ def convert_legacy_to_unicode(legacy_text):
     Returns:
         str: Converted Unicode text.
     """
-    legacy_to_unicode_map = {
-        "fw;g": "\u0B95",  # Example mapping for legacy font
-        "jhu;": "\u0BA8",
-        # Add more mappings...
-    }
-
-    unicode_text = ""
-    for char in legacy_text:
-        unicode_text += legacy_to_unicode_map.get(char, char)
-
-    return unicode_text
+    if encoding in _all_encodes_:
+        encode = _all_encodes_[encoding]
+        return encode2unicode(legacy_text, encode)
+    else:
+        return auto2unicode(legacy_text)
