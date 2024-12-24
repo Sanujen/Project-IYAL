@@ -317,7 +317,9 @@ def convert_legacy_to_unicode(legacy_text: str, encoding: str = None):
         str: Converted Unicode text.
     """
     if encoding in _all_encodes_:
+        print("encoding: ", encoding)
         encode = _all_encodes_[encoding]
         return encode2unicode(legacy_text, encode)
     else:
+        print("No encoding specified. Trying to find automatically.")
         return auto2unicode(legacy_text)

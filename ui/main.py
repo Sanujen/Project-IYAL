@@ -43,36 +43,77 @@ API_URL_LEGACY2UNICODE = f"{base_api_url}/legacy2unicode/"
 # Streamlit UI
 st.title("Quality Analyzer")
 
-# Input text box
-input_text = st.text_area("Enter text to analyze:")
+tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode"])
 
-# Option selection
-option = st.radio("Choose an option:",
-                  ("Find Automatically", "Select Encoding"))
+# Analyze Text tab
+with tabs[0]:
+    st.subheader("Analyze Text")
 
-# Encoding selection (only visible if "Select Encoding" is chosen)
-selected_encoding = None
-if option == "Select Encoding":
-    selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    # Input text box
+    input_text = st.text_area("Enter text to analyze:")
 
-# Analyze button
-if st.button("Analyze"):
-    if input_text:
-        # Prepare the payload based on the selected option
-        payload = {"input_text": input_text}
-        if selected_encoding:
-            payload["encoding"] = selected_encoding
+    # Option selection
+    option1 = st.radio("Choose an option:", ("Find Automatically",
+                       "Select Encoding"), key="analyze_option")
 
-        # Make a request to the API
-        response = requests.post(API_URL_LEGACY2UNICODE, json=payload)
+    # Encoding selection (only visible if "Select Encoding" is chosen)
+    selected_encoding = None
+    if option1 == "Select Encoding":
+        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
 
-        if response.status_code == 200:
-            result = response.json()
-            st.write("Normalized Text:")
-            st.write(result["output"])
-            st.write("Classification Results:")
-            st.json(result["result"])
+    # Analyze button
+    if st.button("Analyze", key="analyze_button"):
+        if input_text:
+            # Prepare the payload based on the selected option
+            payload = {"input_text": input_text}
+            if selected_encoding:
+                payload["encoding"] = selected_encoding
+
+            # Make a request to the API
+            response = requests.post(API_URL_ANALYZE, json=payload)
+
+            if response.status_code == 200:
+                result = response.json()
+                st.write("Normalized Text:")
+                st.write(result["output"])
+                st.write("Classification Results:")
+                st.json(result["result"])
+            else:
+                st.error(f"Error: {response.status_code} - {response.text}")
         else:
-            st.error(f"Error: {response.status_code} - {response.text}")
-    else:
-        st.warning("Please enter some text to analyze.")
+            st.warning("Please enter some text to analyze.")
+
+# Convert Legacy to Unicode tab
+with tabs[1]:
+    st.subheader("Convert Legacy to Unicode")
+
+    # Input text box
+    input_text = st.text_area("Enter text to convert:")
+
+    option2 = st.radio("Choose an option:", ("Find Automatically",
+                       "Select Encoding"), key="convert_option")
+
+    # Encoding selection (only visible if "Select Encoding" is chosen)
+    selected_encoding = None
+    if option2 == "Select Encoding":
+        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+
+    # Convert button
+    if st.button("Convert", key="convert_button"):
+        if input_text:
+            # Prepare the payload based on the selected option
+            payload = {"input_text": input_text}
+            if selected_encoding:
+                payload["encoding"] = selected_encoding
+
+            # Make a request to the API
+            response = requests.post(API_URL_LEGACY2UNICODE, json=payload)
+
+            if response.status_code == 200:
+                result = response.json()
+                st.write("Converted Text:")
+                st.write(result["output"])
+            else:
+                st.error(f"Error: {response.status_code} - {response.text}")
+        else:
+            st.warning("Please enter some text to convert.")

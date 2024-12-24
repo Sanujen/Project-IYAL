@@ -1,13 +1,37 @@
+import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
 from apps.quality_analyzer import quality_analyzer
 from apps.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
+
+def enforce_dict(req, custom_type):
+    print("Request enforced as dictionary")
+    if isinstance(req, dict):
+        print("Request is already a dictionary: %s"%req)
+        return req
+    elif isinstance(req, str):
+        print("Request is a string")
+        req = json.loads(req)
+    elif isinstance(req, custom_type):
+        print("Request is a custom type")
+        req = req.model_dump()
+    else:
+        raise TypeError(f"Support not added for enforcing type to be a dictionary: {type(req)}")
+    print("Request: %s"%req)
+    return req
 
 app = FastAPI()
 
 # Define the Pydantic model for the input format
 class InputRequest(BaseModel):
     input_text: str
+
+    model_config = ConfigDict(extra='allow')
+
+# Define the Pydantic model for the input format
+class InputRequest(BaseModel):
+    input_text: str
+    encoding: str = None
 
     model_config = ConfigDict(extra='allow')
 
@@ -24,12 +48,16 @@ async def analyze_input(request: InputRequest):
 
     """
     try:
+        print("Request: %s"%request)
+        request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
-        outputText, result = quality_analyzer(request.input_text, request.encoding)
+        encoding = request_dict.get('encoding', None)
+        outputText, result = quality_analyzer(request_dict['input_text'], encoding)
+        print("outputText: ", outputText)
+        print("result: ", result)
         return {"output": outputText, "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
-    
 
 # api for legacy to unicode
 @app.post("/legacy2unicode/")
@@ -45,8 +73,12 @@ async def legacy2unicode(request: InputRequest):
 
     """
     try:
-        # Use the quality_analyzer function to process the input text
-        outputText, result = convert_legacy_to_unicode(request.input_text, request.encoding)
-        return {"output": outputText, "result": result}
+        print("request: ", request)
+        request_dict = enforce_dict(request, InputRequest)
+        # Use the convert_legacy_to_unicode function to process the input text
+        encoding = request_dict.get('encoding', None)
+        outputText = convert_legacy_to_unicode(request_dict['input_text'], encoding)
+        print("outputText: ", outputText)
+        return {"output": outputText}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
