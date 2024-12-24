@@ -38,8 +38,8 @@ pip install "fastapi[standard]"
 fastapi dev .\server\server.py
 
 # The default port is 8000
-# if you want to specify the port and host
-fastapi dev .\server\server.py --host 0.0.0.0 --port 8000
+# if you want to specify the port
+fastapi dev .\server\server.py --port 8000
 ```
 
 ## Streamlit
