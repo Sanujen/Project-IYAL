@@ -27,7 +27,7 @@ def handle_mixed_input(input_word: str):
 
     return output_text
 
-def single_word_quality_analyzer(input_word: str):
+def single_word_quality_analyzer(input_word: str, encoding: str = None):
     """
     TODO: implement the algorithm to classify the input type
     TODO: implement the algorithm to find the english word
@@ -74,7 +74,7 @@ def single_word_quality_analyzer(input_word: str):
 
             elif input_type == "legacy":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(input_word)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -82,7 +82,7 @@ def single_word_quality_analyzer(input_word: str):
     
     return result
     
-def quality_analyzer(input_text: str):
+def quality_analyzer(input_text: str, encoding: str = None):
     """
     Normalizes mixed Tamil and English input text into Raw Tamil Unicode.
 
@@ -96,7 +96,7 @@ def quality_analyzer(input_text: str):
     words = input_text.split()
     results = []
     for word in words:
-        result = single_word_quality_analyzer(word)
+        result = single_word_quality_analyzer(word, encoding)
         results.append(result)
         output_text += result["output"] + " "
 
