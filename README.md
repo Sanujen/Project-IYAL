@@ -1,6 +1,13 @@
 # Project-IYAL
 CSE Final Year Research and Development Project
 
+## Table of Contents
+[Steps to start the development](#steps-to-start-the-development)  
+[.env file](#env-file)
+[FastAPI](#fastapi)
+[Streamlit](#streamlit)
+[Notes on Translation and Transliteration](#notes-on-translation-and-transliteration)
+
 ## Steps to start the development
 1. Clone the repository
 2. Create and activate a virtual environment
@@ -51,3 +58,11 @@ streamlit run .\streamlit\app.py
 # if you want to specify the port
 streamlit run .\streamlit\app.py --server.port 8989
 ```
+
+
+## Notes on Translation and Transliteration
+1. We have use google APIs for translation and transliteration.
+2. Transliteration: https://github.com/narVidhai/Google-Transliterate-API/blob/master/Languages.md
+    - This is not Google’s official library since Google has deprecated Input Tools API.
+3. Translation: https://github.com/ssut/py-googletrans
+    - This is an unofficial library using the web API of translate.google.com and also is not associated with Google.
