@@ -1,23 +1,14 @@
+from google.transliteration import transliterate_text
+
 def transliterate(input_text):
     """
-    # TODO: Use an API for transliteration (So far we planned to use an google API)
-    Transliterates Tamil Romanized text into Tamil Unicode.
+    Transliterate the input text to Tamil Unicode.
 
     Args:
-        input_text (str): The Romanized Tamil text to transliterate.
+        input_text (str): The input text to transliterate.
 
     Returns:
-        str: Transliterated Tamil Unicode text.
+        str: The transliterated Tamil Unicode text.
+
     """
-    transliteration_map = {
-        "ka": "\u0B95",
-        "na": "\u0BA8",
-        # Add more mappings...
-    }
-
-    output_text = ""
-    words = input_text.split()
-    for word in words:
-        output_text += transliteration_map.get(word, word) + " "
-
-    return output_text.strip()
+    return transliterate_text(input_text, lang_code='ta')
