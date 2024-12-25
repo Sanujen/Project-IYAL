@@ -42,6 +42,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
 
     """
     result = {
+        "inputWord": input_word,
         "inputType": "",
         "output": ""
     }
@@ -70,11 +71,11 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
             # Using a classifier model to determine the type whether Romanized or Legacy
             input_type = model.inference(input_word)
             result["inputType"] = input_type
-            if input_type == "romanized":
+            if input_type == "Romanized Text Encoding":
                 # Romanized Tamil, transliterate to Tamil Unicode
                 result["output"] = transliterate(input_word)
 
-            elif input_type == "legacy":
+            elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
                 result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
