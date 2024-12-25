@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
 from apps.quality_analyzer import quality_analyzer
 from apps.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
+from apps.inference_base.inference import Inference
 
 def enforce_dict(req, custom_type):
     print("Request enforced as dictionary")
@@ -52,7 +53,8 @@ async def analyze_input(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get('encoding', None)
-        outputText, result = quality_analyzer(request_dict['input_text'], encoding)
+        inference_model = Inference()
+        outputText, result = quality_analyzer(inference_model, request_dict['input_text'], encoding)
         print("outputText: ", outputText)
         print("result: ", result)
         return {"output": outputText, "result": result}

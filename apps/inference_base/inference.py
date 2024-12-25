@@ -29,11 +29,13 @@ class Inference:
     -------
     inference(word)
         Performs inference on the given word and returns the predicted label.
+        
     """
-    def __init__(self, cache_dir = None, model_name = None, model_version = None):
+    def __init__(self, cache_dir = None, model_name = "sanujen/fyp_0", model_version = "version_0"):
         #"apps\\inference_base\\models\\version_0"
         # absolute path of this file directory + models + {model_version}
-        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(__file__), "models", model_version)
+        self.model_version = model_version
+        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(__file__), "models", self.model_version)
         self.model_name = model_name if model_name else "sanujen/fyp_0"
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
