@@ -6,6 +6,7 @@ CSE Final Year Research and Development Project
 [.env file](#env-file)
 [FastAPI](#fastapi)
 [Streamlit](#streamlit)
+[Usage for each functions](#usage-for-function)
 [Notes on Translation and Transliteration](#notes-on-translation-and-transliteration)
 
 ## Steps to start the development
@@ -59,6 +60,45 @@ streamlit run .\streamlit\app.py
 streamlit run .\streamlit\app.py --server.port 8989
 ```
 
+## Usage for each functions
+1. Import the required function
+```python
+from apps import convert_legacy_to_unicode
+from apps import classify_unicode
+from apps import transliterate
+from apps import translate_english_to_tamil
+from apps import Inference
+from apps import quality_analyzer
+from apps import single_word_quality_analyzer
+```
+
+2. Usage
+```python
+# convert_legacy_to_unicode
+convert_legacy_to_unicode("mfuk;", "bamini2utf2") # returns "அகரம்"
+classify_unicode("mfuk;") # returns "Legacy Font Encoding"
+transliterate("akaram") # returns "அகரம்"
+translate_english_to_tamil("Hello") # returns "வணக்கம்"
+
+# Inference
+inference = Inference()
+
+# quality_analyzer
+quality_analyzer(Inference, "Kaalai வணkkam உலகம் cyfk;", "bamini2utf2") # returns "காலை வணக்கம் உலகம் உலகம்"  AND also it will return an array of objects
+single_word_quality_analyzer(Inference, "வணkkam", "bamini2utf2") # returns "வணக்கம்" AND also it will return an object
+```
+
+##### Notes on Inference
+1. The Inference class is used to load the model
+2. The model can be created with a custom path specified for storing the model. If a custom path is not provided, the model will be saved in the default directory, which is the absolute path of the directory where the `Inference` class is located, appended with /models/{model_version}.
+```python
+inference = Inference(cache_dir="path/to/model_dir")
+```
+3. Also you can give custom model name and model version
+```python
+inference = Inference(model_name="model_name", model_version="model_version")
+``` 
+4. The `Inference` class initializes by checking the cache directory for the model. If the model is not found in the cache, it automatically downloads the model from the server.
 
 ## Notes on Translation and Transliteration
 1. We have use google APIs for translation and transliteration.
