@@ -4,3 +4,4 @@ __pycache__
 **/models/** 
 build
 dist
+apps.egg-info
