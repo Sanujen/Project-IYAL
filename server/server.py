@@ -1,9 +1,9 @@
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
-from apps.quality_analyzer import quality_analyzer
-from apps.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
-from apps.inference_base.inference import Inference
+from iyal_quality_analyzer.quality_analyzer import quality_analyzer
+from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
+from iyal_quality_analyzer.inference_base.inference import Inference
 
 def enforce_dict(req, custom_type):
     print("Request enforced as dictionary")

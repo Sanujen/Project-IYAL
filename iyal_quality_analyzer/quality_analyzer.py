@@ -1,5 +1,5 @@
-from apps.utils import *
-from apps.inference_base.inference import Inference
+from iyal_quality_analyzer.utils import *
+from iyal_quality_analyzer.inference_base.inference import Inference
 
 def single_word_quality_analyzer(model: Inference, input_word: str, encoding: str = None):
     """
