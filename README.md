@@ -67,6 +67,7 @@ from apps import convert_legacy_to_unicode
 from apps import classify_unicode
 from apps import transliterate
 from apps import translate_english_to_tamil
+from apps import is_english_word
 from apps import Inference
 from apps import quality_analyzer
 from apps import single_word_quality_analyzer
@@ -79,6 +80,7 @@ convert_legacy_to_unicode("mfuk;", "bamini2utf2") # returns "அகரம்"
 classify_unicode("mfuk;") # returns "Legacy Font Encoding"
 transliterate("akaram") # returns "அகரம்"
 translate_english_to_tamil("Hello") # returns "வணக்கம்"
+is_english_word("Hello") # returns True
 
 # Inference
 inference = Inference()
