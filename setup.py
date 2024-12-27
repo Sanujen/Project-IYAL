@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="apps",
+    name="iyal_quality_analyzer",
     version="0.1",
-    packages=find_packages(include=["apps", "apps.*"]),
+    packages=find_packages(include=["iyal_quality_analyzer", "iyal_quality_analyzer.*"]),
     install_requires=[
         "fastapi==0.115.6",
         "pydantic==2.10.4",

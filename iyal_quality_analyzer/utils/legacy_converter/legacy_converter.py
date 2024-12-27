@@ -21,7 +21,7 @@
 ##############################################################################
 
 from collections import OrderedDict
-from apps.utils.legacy_converter.encode2utf8 import (
+from iyal_quality_analyzer.utils.legacy_converter.encode2utf8 import (
     anjal2utf8,
     bamini2utf8,
     boomi2utf8,

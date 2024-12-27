@@ -63,14 +63,14 @@ streamlit run .\streamlit\app.py --server.port 8989
 ## Usage for each functions
 1. Import the required function
 ```python
-from apps import convert_legacy_to_unicode
-from apps import classify_unicode
-from apps import transliterate
-from apps import translate_english_to_tamil
-from apps import is_english_word
-from apps import Inference
-from apps import quality_analyzer
-from apps import single_word_quality_analyzer
+from iyal_quality_analyzer import convert_legacy_to_unicode
+from iyal_quality_analyzer import classify_unicode
+from iyal_quality_analyzer import transliterate
+from iyal_quality_analyzer import translate_english_to_tamil
+from iyal_quality_analyzer import is_english_word
+from iyal_quality_analyzer import Inference
+from iyal_quality_analyzer import quality_analyzer
+from iyal_quality_analyzer import single_word_quality_analyzer
 ```
 
 2. Usage
