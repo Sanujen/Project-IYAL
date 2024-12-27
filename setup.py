@@ -3,6 +3,9 @@ from setuptools import setup, find_packages
 setup(
     name="iyal_quality_analyzer",
     version="0.1",
+    description="A library for transforming Tamil text to a normalized unicode form.",
+    author="Sanujen Premkumar, Sathveegan Yogendrarajah, Nisanthan Sivarasa",
+    author_email="sanuprem6@gmail.com, sathvee2000@gmail.com, nisanthan.20@cse.mrt.ac.lk",
     packages=find_packages(include=["iyal_quality_analyzer", "iyal_quality_analyzer.*"]),
     install_requires=[
         "fastapi==0.115.6",
