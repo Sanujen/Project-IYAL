@@ -38,7 +38,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
         if is_english_word(input_word):
             # English word, translate to Tamil
             result["inputType"] = "en"
-            result["output"] = "translated as full sentence"
+            result["output"] = input_word
 
         else:
             # Could be Romanized Tamil or Legacy Tamil
