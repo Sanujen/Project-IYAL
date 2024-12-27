@@ -3,7 +3,6 @@ from iyal_quality_analyzer.inference_base.inference import Inference
 
 def single_word_quality_analyzer(model: Inference, input_word: str, encoding: str = None):
     """
-    TODO: function for finding the english word
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
 
     Args:
