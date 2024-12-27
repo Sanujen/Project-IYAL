@@ -5,3 +5,4 @@ from apps.utils.translator import translate_english_to_tamil
 from apps.inference_base.inference import Inference
 from apps.quality_analyzer import quality_analyzer
 from apps.quality_analyzer import single_word_quality_analyzer
+from apps.utils.english_word_check import is_english_word

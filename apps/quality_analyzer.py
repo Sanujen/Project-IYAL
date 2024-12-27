@@ -28,17 +28,17 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
         result["output"] = input_word
 
     elif classification == "mixed":
-        # Mixed input isn't possible for single-word input
+        # Mixed Tamil and English, transliterate to Tamil
         result["inputType"] = "mixed"
         result["output"] = transliterate(input_word)
 
     elif classification == "english":
         # Could be English or Romanized Tamil or Legacy Tamil
         # Check if it's English word by a simple check with corpus
-        if not (input_word):
+        if is_english_word(input_word):
             # English word, translate to Tamil
             result["inputType"] = "en"
-            result["output"] = translate_english_to_tamil(input_word)
+            result["output"] = input_word
 
         else:
             # Could be Romanized Tamil or Legacy Tamil
@@ -80,5 +80,10 @@ def quality_analyzer(model: Inference, input_text: str, encoding: str = None):
         result = single_word_quality_analyzer(model, word, encoding)
         results.append(result)
         output_text += result["output"] + " "
+
+    # Check the results arrays. If there's one or more objects with 'en' inputType, then the whole text needed to translate
+    # to Tamil. Otherwise, the text is already in Tamil and doesn't need further translation.
+    if any(result["inputType"] == "en" for result in results):
+        output_text = translate_english_to_tamil(output_text)
 
     return (output_text.strip(), results)

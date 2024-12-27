@@ -1,6 +1,6 @@
 import nltk
 from nltk.corpus import words
-nltk.download('words')
+
 
 def is_english_word(word):
     """
@@ -12,5 +12,6 @@ def is_english_word(word):
     Returns:
         True if the word is in the English vocabulary, False otherwise.
     """
+    nltk.download('words')
     english_vocab = set(words.words())
     return word.lower() in english_vocab
