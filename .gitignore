@@ -5,3 +5,4 @@ __pycache__
 build
 dist
 apps.egg-info
+iyal_quality_analyzer.egg-info
