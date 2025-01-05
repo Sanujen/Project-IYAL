@@ -3,6 +3,9 @@ TODO:
     - Add a function to handle multiple sentences by adding sentence segmentation
     - Add a function to only get the texts which are in legacy font, and then call the function for the legacy font detection which should be available in legacy_converter.py. This function only returns the encoding of the given text.
     - Add a warning in the docstring of the quality_analyzer function saying that if the user selects auto-detect for the legacy font, can't be sure about the accuracy of the result.
+    - After finding the english words, before transliterating the text, us RE to ignore special cases like words within quotes, brackets, etc.
+        - Also refine `output_text = translate_english_to_tamil(output_text)` to handle these special cases. (cuz the current implementation will translate the words within quotes, brackets, etc. as well)
+        - Also, map the inputType as <something> for these special cases.
 
 '''
 
