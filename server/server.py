@@ -1,3 +1,9 @@
+"""
+TODO:
+    1. API for find encoding automatically by given text. should return the font style. This function should be available in quality_analyzer.py
+
+"""
+
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict

@@ -1,3 +1,9 @@
+"""
+TODO: 
+    1. Rework on all the legacy to unicode mapping
+    2. bamini is done
+
+"""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -360,7 +366,6 @@ bamini2utf8 = OrderedDict(
         ("u;", "ர்"),
         ("h;", "ர்"),
         ("H", "ர்"),
-        ("\+", "10"),
         ("nfs", "கௌ"),
         ("Nfh", "கோ"),
         ("nfh", "கொ"),
@@ -458,7 +463,6 @@ bamini2utf8 = OrderedDict(
         ("jp", "தி"),
         ("jP", "தீ"),
         ("Jh", "தூ"),
-        ("Jh", "தூ"),
         ("J}", "தூ"),
         ("J", "து"),
         ("nj", "தெ"),
@@ -497,9 +501,9 @@ bamini2utf8 = OrderedDict(
         ("ngs", "பௌ"),
         ("Ngh", "போ"),
         ("ngh", "பொ"),
-        ("h", "பா"),
-        ("p", "பி"),
-        ("P", "பீ"),
+        ("gh", "பா"),
+        ("gp", "பி"),
+        ("gP", "பீ"),
         ("G", "பு"),
         ("ng", "பெ"),
         ("Ng", "பே"),
@@ -569,7 +573,7 @@ bamini2utf8 = OrderedDict(
         ("is", "ளை"),
         ("s;", "ள்"),
         ("s", "ள"),
-        ("ntt", "வௌ"),
+        ("nts", "வௌ"),
         ("Nth", "வோ"),
         ("nth", "வொ"),
         ("th", "வா"),
@@ -580,13 +584,13 @@ bamini2utf8 = OrderedDict(
         ("it", "வை"),
         ("t;", "வ்"),
         ("t", "வ"),
-        ("noo", "ழௌ"),
+        ("nos", "ழௌ"),
         ("Noh", "ழோ"),
         ("noh", "ழொ"),
         ("oh", "ழா"),
         ("op", "ழி"),
         ("oP", "ழீ"),
-        ("\*", "ழூ"),
+        ("o\*", "ழூ"),
         ("O", "ழு"),
         ("no", "ழெ"),
         ("No", "ழே"),
@@ -665,7 +669,6 @@ bamini2utf8 = OrderedDict(
     ]
 )
 # end of bamini2utf8 dictionary
-
 
 # begin of boomi2utf8 dictionary
 boomi2utf8 = OrderedDict(

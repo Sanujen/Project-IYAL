@@ -1,3 +1,11 @@
+'''
+TODO:
+    - Add a function to handle multiple sentences by adding sentence segmentation
+    - Add a function to only get the texts which are in legacy font, and then call the function for the legacy font detection which should be available in legacy_converter.py. This function only returns the encoding of the given text.
+    - Add a warning in the docstring of the quality_analyzer function saying that if the user selects auto-detect for the legacy font, can't be sure about the accuracy of the result.
+
+'''
+
 from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.inference_base.inference import Inference
 
@@ -60,6 +68,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
     
 def quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     """
+    TODO: Rename this function
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
 
     Args:
