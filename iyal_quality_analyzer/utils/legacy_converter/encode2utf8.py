@@ -1,3 +1,9 @@
+"""
+TODO: 
+    1. Rework on all the legacy to unicode mapping
+    2. bamini is done
+
+"""
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 

@@ -1,3 +1,8 @@
+'''
+TODO:
+    - Add a function to get the legacy font type of the input text by analyzing the text. refer `auto2unicode` function in `legacy_converter.py`.
+
+'''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
