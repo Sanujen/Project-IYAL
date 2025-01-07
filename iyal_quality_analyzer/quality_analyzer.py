@@ -12,7 +12,7 @@ TODO:
 from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.inference_base.inference import Inference
 
-def single_word_quality_analyzer(model: Inference, input_word: str, encoding: str = None):
+def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int, encoding: str = None):
     """
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
 
@@ -26,6 +26,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
 
     """
     result = {
+        "id": word_id,
         "inputWord": input_word,
         "inputType": "",
         "output": ""
@@ -71,7 +72,6 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
     
 def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
-    TODO: Rename this function
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
 
     Args:
@@ -86,8 +86,9 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
     """
     output_text = ""
     words = input_text.split()
+    word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(model, word, encoding)
+        result = single_word_quality_analyzer(model, word, word_id, encoding)
         results.append(result)
         output_text += result["output"] + " "
 
@@ -95,6 +96,7 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
     # to Tamil. Otherwise, the text is already in Tamil and doesn't need further translation.
     if any(result["inputType"] == "en" for result in results):
         output_text = translate_english_to_tamil(output_text)
+    # TODO: after this translation, need to leave the input word as it is for output by looking the inputType.
 
     return (output_text.strip(), results)
 
