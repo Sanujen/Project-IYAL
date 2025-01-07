@@ -92,11 +92,18 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
         results.append(result)
         output_text += result["output"] + " "
 
+    # TODO: need to find a better way for translation and update the results array accordingly. (what are the cases where the inputType is "en"?)
     # Check the results arrays. If there's one or more objects with 'en' inputType, then the whole text needed to translate
     # to Tamil. Otherwise, the text is already in Tamil and doesn't need further translation.
     if any(result["inputType"] == "en" for result in results):
         output_text = translate_english_to_tamil(output_text)
-    # TODO: after this translation, need to leave the input word as it is for output by looking the inputType.
+
+    # get the word_id's where inputType = "en"
+    # then split the output_text and take the word_id'th word and update the results array with the output
+    for result in results:
+        if result["inputType"] == "en":
+            result["output"] = output_text.split()[result["id"]]
+    # TODO: after this translation, need to leave the input word as it is for output by looking the inputType. and then do output_text += result["output"] + " "
 
     return (output_text.strip(), results)
 
