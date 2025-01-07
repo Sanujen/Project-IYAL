@@ -69,7 +69,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, encoding: st
     
     return result
     
-def quality_analyzer(model: Inference, input_text: str, encoding: str = None):
+def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
     TODO: Rename this function
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -86,7 +86,6 @@ def quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     """
     output_text = ""
     words = input_text.split()
-    results = []
     for word in words:
         result = single_word_quality_analyzer(model, word, encoding)
         results.append(result)
@@ -98,3 +97,17 @@ def quality_analyzer(model: Inference, input_text: str, encoding: str = None):
         output_text = translate_english_to_tamil(output_text)
 
     return (output_text.strip(), results)
+
+def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
+    output_text = ""
+    results = []
+
+    sentences = sentence_segmentation(input_text)
+    for sentence in sentences:
+        output, results = single_sentence_quality_analyzer(model, sentence, results, encoding)
+        output_text += output + " "
+    
+    return (output_text.strip(), results)
+
+def sentence_segmentation(input_text: str):
+    pass
