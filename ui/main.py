@@ -85,8 +85,8 @@ with tabs[0]:
                 result = response.json()
                 st.write("Normalized Text:")
                 st.write(result["output"])
-                # st.write("Classification Results:")
-                # st.json(result["result"])
+                st.write("Classification Results:")
+                st.json(result["result"])
             else:
                 st.error(f"Error: {response.status_code} - {response.text}")
         else:

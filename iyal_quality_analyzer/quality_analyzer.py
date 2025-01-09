@@ -11,6 +11,7 @@ TODO:
 
 from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.inference_base.inference import Inference
+import stanza
 
 def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
@@ -158,4 +159,8 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
     return (output_text.strip(), sentence_results)
 
 def sentence_segmentation(input_text: str):
-    return input_text.split(".")
+    nlp = stanza.Pipeline(lang='ta', processors='tokenize')
+    doc = nlp(input_text)
+    # return input_text.split(".")
+    return [sentence.text for sentence in doc.sentences]
+
