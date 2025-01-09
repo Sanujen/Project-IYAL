@@ -12,7 +12,7 @@ TODO:
 from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.inference_base.inference import Inference
 
-def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int, encoding: str = None):
+def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
 
@@ -47,7 +47,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
         # Could be English or Romanized Tamil or Legacy Tamil
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
-            # English word, translate to Tamil
+            # English word, leave as is for now
             result["inputType"] = "en"
             result["output"] = input_word
 
@@ -69,7 +69,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
                 result["output"] = "unknown"
     
     return result
-    
+
 def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -91,32 +91,69 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
         result = single_word_quality_analyzer(model, word, word_id, encoding)
         results.append(result)
         output_text += result["output"] + " "
+        word_id += 1
 
-    # TODO: need to find a better way for translation and update the results array accordingly. (what are the cases where the inputType is "en"?)
-    # Check the results arrays. If there's one or more objects with 'en' inputType, then the whole text needed to translate
-    # to Tamil. Otherwise, the text is already in Tamil and doesn't need further translation.
     if any(result["inputType"] == "en" for result in results):
         output_text = translate_english_to_tamil(output_text)
 
-    # get the word_id's where inputType = "en"
-    # then split the output_text and take the word_id'th word and update the results array with the output
+    translated_words = output_text.split()
+    mapped_results = []
+    translated_index = 0
+    original_word_buffer = []
+    translated_word_buffer = []
+    id_buffer = []
+
     for result in results:
         if result["inputType"] == "en":
-            result["output"] = output_text.split()[result["id"]]
-    # TODO: after this translation, need to leave the input word as it is for output by looking the inputType. and then do output_text += result["output"] + " "
+            original_word_buffer.append(result["inputWord"])
+            translated_word_buffer.append(translated_words[translated_index])
+            id_buffer.append(result["id"])
+            translated_index += 1
 
-    return (output_text.strip(), results)
+            # Check the next word
+            next_result_index = results.index(result) + 1
+            if next_result_index < len(results) and results[next_result_index]["inputType"] == "en":
+                continue
+
+            # Map the buffered original words to the buffered translated words
+            mapped_results.append({
+                "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
+                "inputWord": " ".join(original_word_buffer),
+                "output": " ".join(translated_word_buffer)
+            })
+            original_word_buffer = []
+            translated_word_buffer = []
+            id_buffer = []
+        else:
+            mapped_results.append(result)
+
+    # Handle any remaining buffered words
+    if original_word_buffer:
+        mapped_results.append({
+            "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
+            "inputWord": " ".join(original_word_buffer),
+            "output": " ".join(translated_word_buffer)
+        })
+        
+    output_result = " ".join([result["output"] for result in mapped_results])
+
+    return (output_result.strip(), mapped_results)
 
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""
     results = []
 
     sentences = sentence_segmentation(input_text)
+    sentence_results = []
     for sentence in sentences:
-        output, results = single_sentence_quality_analyzer(model, sentence, results, encoding)
+        output, sentence_result = single_sentence_quality_analyzer(model, sentence, results, encoding)
         output_text += output + " "
+        sentence_results.append({
+            "sentence": sentence,
+            "results": sentence_result
+        })
     
-    return (output_text.strip(), results)
+    return (output_text.strip(), sentence_results)
 
 def sentence_segmentation(input_text: str):
-    pass
+    return input_text.split(".")
