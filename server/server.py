@@ -7,7 +7,7 @@ TODO:
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
-from iyal_quality_analyzer.quality_analyzer import quality_analyzer
+from iyal_quality_analyzer.quality_analyzer import multi_sentence_quality_analyzer
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
 from iyal_quality_analyzer.inference_base.inference import Inference
 
@@ -60,7 +60,7 @@ async def analyze_input(request: InputRequest):
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get('encoding', None)
         inference_model = Inference()
-        outputText, result = quality_analyzer(inference_model, request_dict['input_text'], encoding)
+        outputText, result = multi_sentence_quality_analyzer(inference_model, request_dict['input_text'], encoding)
         print("outputText: ", outputText)
         print("result: ", result)
         return {"output": outputText, "result": result}
