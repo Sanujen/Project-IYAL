@@ -3,6 +3,6 @@ from iyal_quality_analyzer.utils.unicode_classifier import classify_unicode
 from iyal_quality_analyzer.utils.transliteration import transliterate
 from iyal_quality_analyzer.utils.translator import translate_english_to_tamil
 from iyal_quality_analyzer.inference_base.inference import Inference
-from iyal_quality_analyzer.quality_analyzer import quality_analyzer
+from iyal_quality_analyzer.quality_analyzer import multi_sentence_quality_analyzer
 from iyal_quality_analyzer.quality_analyzer import single_word_quality_analyzer
 from iyal_quality_analyzer.utils.english_word_check import is_english_word

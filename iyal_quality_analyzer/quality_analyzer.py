@@ -119,6 +119,7 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
             mapped_results.append({
                 "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
                 "inputWord": " ".join(original_word_buffer),
+                "inputType": "english",
                 "output": " ".join(translated_word_buffer)
             })
             original_word_buffer = []
@@ -132,12 +133,13 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
         mapped_results.append({
             "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
             "inputWord": " ".join(original_word_buffer),
+            "inputType": "english",
             "output": " ".join(translated_word_buffer)
         })
-        
+
     output_result = " ".join([result["output"] for result in mapped_results])
 
-    return (output_result.strip(), mapped_results)
+    return (output_text.strip(), mapped_results)
 
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""
