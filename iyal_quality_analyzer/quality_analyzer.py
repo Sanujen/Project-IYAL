@@ -10,8 +10,39 @@ TODO:
 '''
 
 from iyal_quality_analyzer.utils import *
+from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
+
+__all__ = [
+    "anjal2utf8",
+    "bamini2utf8",
+    "boomi2utf8",
+    "dinakaran2utf8",
+    "dinathanthy2utf8",
+    "kavipriya2utf8",
+    "murasoli2utf8",
+    "mylai2utf8",
+    "nakkeeran2utf8",
+    "roman2utf8",
+    "tab2utf8",
+    "tam2utf8",
+    "tscii2utf8",
+    "indoweb2utf8",
+    "koeln2utf8",
+    "libi2utf8",
+    "oldvikatan2utf8",
+    "webulagam2utf8",
+    "auto2utf8",
+    "dinamani2utf8",
+    "pallavar2utf8",
+    "diacritic2utf8",
+    "shreelipi2utf8",
+    "softview2utf8",
+    "tace2utf8",
+    "vanavil2utf8",
+]
+
 
 def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
@@ -63,13 +94,15 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(
+                    input_word, encoding)
 
             else:
                 # handle other cases
                 result["output"] = "unknown"
-    
+
     return result
+
 
 def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
@@ -142,6 +175,7 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
 
     return (output_text.strip(), mapped_results)
 
+
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""
     results = []
@@ -149,14 +183,16 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
     sentences = sentence_segmentation(input_text)
     sentence_results = []
     for sentence in sentences:
-        output, sentence_result = single_sentence_quality_analyzer(model, sentence, results, encoding)
+        output, sentence_result = single_sentence_quality_analyzer(
+            model, sentence, results, encoding)
         output_text += output + " "
         sentence_results.append({
             "sentence": sentence,
             "results": sentence_result
         })
-    
+
     return (output_text.strip(), sentence_results)
+
 
 def sentence_segmentation(input_text: str):
     nlp = stanza.Pipeline(lang='ta', processors='tokenize')
@@ -164,3 +200,23 @@ def sentence_segmentation(input_text: str):
     # return input_text.split(".")
     return [sentence.text for sentence in doc.sentences]
 
+
+def get_encoding_fun(model: Inference, input_text: str):
+    words = input_text.split()
+    font_style = []
+
+    for word in words:
+        classification = classify_unicode(word)
+
+        if classification == "english" and not is_english_word(word):
+            input_type = model.inference(word)
+            if input_type == "Legacy Font Encoding":
+                font_style.append(auto_detect_encoding(word))
+    
+    if not font_style:
+        return "legacy_font_not_found"
+    
+    for font in font_style:
+        if font in __all__:
+            return font
+    return "unknown"

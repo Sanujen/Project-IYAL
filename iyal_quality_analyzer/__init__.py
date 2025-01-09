@@ -1,4 +1,4 @@
-from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
+from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode, auto_detect_encoding
 from iyal_quality_analyzer.utils.unicode_classifier import classify_unicode
 from iyal_quality_analyzer.utils.transliteration import transliterate
 from iyal_quality_analyzer.utils.translator import translate_english_to_tamil
