@@ -91,12 +91,12 @@ with tabs[0]:
 
     # Option selection
     option1 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="analyze_option")
+                       "Select Font Style"), key="analyze_option")
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option1 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option1 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a font style:", all_encodings)
 
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
@@ -108,13 +108,13 @@ with tabs[0]:
             
             else:
                 auto_encoding = get_encoding(input_text)
-                st.write(f"Auto-detected encoding: {auto_encoding}")
+                st.write(f"Auto-detected Font style: {auto_encoding}")
                 if not auto_encoding == "legacy_font_not_found":
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
 
     if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
+        selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
             analyze_text_with_selected_encoding(selected_encoding, {"input_text": input_text, "encoding": selected_encoding})
@@ -129,12 +129,12 @@ with tabs[1]:
     input_text = st.text_area("Enter text to convert:")
 
     option2 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="convert_option")
+                       "Select Font Style"), key="convert_option")
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option2 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option2 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a Font Style:", all_encodings)
 
     # Convert button
     if st.button("Convert", key="convert_button"):
