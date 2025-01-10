@@ -65,7 +65,12 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
     }
     classification = classify_unicode(input_word)
 
-    if classification == "raw_tamil":
+    if is_special_case(input_word):
+        # Special case, leave as is
+        result["inputType"] = "special_case"
+        result["output"] = input_word
+
+    elif classification == "raw_tamil":
         # Already normalized, return as is
         result["inputType"] = "raw_tamil"
         result["output"] = input_word
