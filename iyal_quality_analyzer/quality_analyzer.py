@@ -129,57 +129,40 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
     for word in words:
         result = single_word_quality_analyzer(model, word, word_id, encoding)
         results.append(result)
-        output_text += result["output"] + " "
         word_id += 1
 
-    if any(result["inputType"] == "en" for result in results):
-        output_text = translate_english_to_tamil(output_text)
+    final_results = []
+    to_be_translated = []
+    transalted_ids = []
 
-    translated_words = output_text.split()
-    mapped_results = []
-    translated_index = 0
-    original_word_buffer = []
-    translated_word_buffer = []
-    id_buffer = []
-
-    for result in results:
+    for i, result in enumerate(results):
         if result["inputType"] == "en":
-            original_word_buffer.append(result["inputWord"])
-            translated_word_buffer.append(translated_words[translated_index])
-            id_buffer.append(result["id"])
-            translated_index += 1
+            to_be_translated.append(result["output"])
+            transalted_ids.append(result["id"])
 
-            # Check the next word
-            next_result_index = results.index(result) + 1
-            if next_result_index < len(results) and results[next_result_index]["inputType"] == "en":
+            if i + 1 < len(results) and results[i + 1]["inputType"] == "en":
                 continue
-
-            # Map the buffered original words to the buffered translated words
-            mapped_results.append({
-                "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
-                "inputWord": " ".join(original_word_buffer),
-                "inputType": "english",
-                "output": " ".join(translated_word_buffer)
+            
+            to_be_translated_text = " ".join(to_be_translated)
+            translated_text = translate_english_to_tamil(to_be_translated_text)
+            if len(transalted_ids) > 1:
+                id_range = transalted_ids[0], transalted_ids[-1]
+            else:
+                id_range = transalted_ids[0]
+            final_results.append({
+                "id": id_range,
+                "inputWord": to_be_translated_text,
+                "inputType": "en",
+                "output": translated_text
             })
-            original_word_buffer = []
-            translated_word_buffer = []
-            id_buffer = []
+            to_be_translated = []
+            transalted_ids = []
         else:
-            mapped_results.append(result)
+            final_results.append(result)
 
-    # Handle any remaining buffered words
-    if original_word_buffer:
-        mapped_results.append({
-            "id_range": f"{id_buffer[0]}-{id_buffer[-1]}",
-            "inputWord": " ".join(original_word_buffer),
-            "inputType": "english",
-            "output": " ".join(translated_word_buffer)
-        })
-
-    output_result = " ".join([result["output"] for result in mapped_results])
-
-    return (output_text.strip(), mapped_results)
-
+    output_text = " ".join([result["output"] for result in final_results])
+    
+    return (output_text.strip(), final_results)
 
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""

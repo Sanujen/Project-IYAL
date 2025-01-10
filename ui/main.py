@@ -115,7 +115,7 @@ with tabs[0]:
                 else:
                     analyze_text_with_selected_encoding(auto_encoding, payload)
 
-    if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
+    if 'selected_encoding' in st.session_state and not st.session_state.confirmed and not auto_encoding == "legacy_font_not_found":
         selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
