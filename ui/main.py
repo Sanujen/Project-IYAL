@@ -102,6 +102,7 @@ with tabs[0]:
     if st.button("Analyze", key="analyze_button"):
         if input_text:
             # Prepare the payload based on the selected option
+            auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
                 analyze_text_with_selected_encoding(selected_encoding, payload)
@@ -112,8 +113,11 @@ with tabs[0]:
                 if not auto_encoding == "legacy_font_not_found":
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
+                else:
+                    analyze_text_with_selected_encoding(auto_encoding, payload)
 
     if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
+        st.session_state.selected_encoding = "anjal2utf8" if st.session_state.selected_encoding not in all_encodings else st.session_state.selected_encoding
         selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
