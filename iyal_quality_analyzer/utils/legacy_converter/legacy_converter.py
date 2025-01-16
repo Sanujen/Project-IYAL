@@ -1,3 +1,8 @@
+'''
+TODO:
+    - Add a function to get the legacy font type of the input text by analyzing the text. refer `auto2unicode` function in `legacy_converter.py`.
+
+'''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -323,3 +328,25 @@ def convert_legacy_to_unicode(legacy_text: str, encoding: str = None):
     else:
         print("No encoding specified. Trying to find automatically.")
         return auto2unicode(legacy_text)
+
+def auto_detect_encoding(legacy_text: str):
+    """
+    Returns the encoding of the given legacy font-encoded text.
+
+    Args:
+        legacy_text (str): The legacy font-encoded text.
+
+    Returns:
+        str: The encoding of the given text.
+    """
+    _all_unique_encodes_, _all_common_encodes_ = _get_unique_common_encodes()
+    unique_chars = _get_unique_ch(legacy_text, _all_common_encodes_)
+    if not unique_chars:
+        return "Unknown"
+    for encode_name, encode_keys in _all_unique_encodes_:
+        if not len(encode_keys):
+            continue
+        for ch in encode_keys:
+            if ch in unique_chars:
+                return encode_name
+    return "Unknown"
