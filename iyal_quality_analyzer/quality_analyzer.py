@@ -13,6 +13,8 @@ from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
+import csv
+import os
 
 __all__ = [
     "anjal2utf8",
@@ -43,6 +45,23 @@ __all__ = [
     "vanavil2utf8",
 ]
 
+def update_csv(input_word: str, input_type: str, output: str, actual_output: str, csv_file: str = 'E:\___MORA\FYP\FinalRepos\Project-IYAL\error_analyzis\output.csv'):
+    """
+    Updates the CSV file with the given data.
+
+    Args:
+        input_word (str): The input word.
+        input_type (str): The input type.
+        output (str): The output.
+        actual_output (str): The actual output.
+        csv_file (str): The path to the CSV file.
+    """
+    file_exists = os.path.isfile(csv_file)
+    with open(csv_file, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(['inputWord', 'inputType', 'output', 'actualOutput'])
+        writer.writerow([input_word, input_type, output, actual_output])
 
 def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
@@ -106,8 +125,16 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
                 # handle other cases
                 result["output"] = "unknown"
 
+    # Calculate actual output
+    actual_output = convert_legacy_to_unicode(input_word, 'bamini2utf8')
+
+    # Update CSV file
+    update_csv(input_word, result["inputType"], result["output"], actual_output)
+
     return result
 
+def sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
+    return single_sentence_quality_analyzer(model, input_text, [], encoding)
 
 def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
@@ -191,7 +218,6 @@ def sentence_segmentation(input_text: str):
 
 def get_encoding_fun(model: Inference, input_text: str):
     words = input_text.split()
-    font_style = []
 
     for word in words:
         classification = classify_unicode(word)
@@ -199,12 +225,7 @@ def get_encoding_fun(model: Inference, input_text: str):
         if classification == "english" and not is_english_word(word):
             input_type = model.inference(word)
             if input_type == "Legacy Font Encoding":
-                font_style.append(auto_detect_encoding(word))
+                font_style = auto_detect_encoding(word)
+                if font_style in __all__:
+                    return font_style
     
-    if not font_style:
-        return "legacy_font_not_found"
-    
-    for font in font_style:
-        if font in __all__:
-            return font
-    return "unknown"
