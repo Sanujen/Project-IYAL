@@ -16,6 +16,26 @@ import stanza
 import csv
 import os
 
+import requests
+
+def convert_bamini_to_unicode(input_word: str) -> str:
+    url = "https://api.ezhil.ai/v1/convert"
+    payload = {
+        "text": input_word,
+        "from": "bamini",
+        "to": "unicode"
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY"  # Replace with your Ezhil API key
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("converted_text", "")
+    else:
+        raise Exception(f"Error: {response.status_code}, {response.text}")
+
 __all__ = [
     "anjal2utf8",
     "bamini2utf8",
@@ -58,7 +78,7 @@ def update_csv(input_word: str, input_type: str, output: str, actual_output: str
     """
     file_exists = os.path.isfile(csv_file)
     with open(csv_file, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
         if not file_exists:
             writer.writerow(['inputWord', 'inputType', 'output', 'actualOutput'])
         writer.writerow([input_word, input_type, output, actual_output])
@@ -126,7 +146,8 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
                 result["output"] = "unknown"
 
     # Calculate actual output
-    actual_output = convert_legacy_to_unicode(input_word, 'bamini2utf8')
+    breakpoint()
+    actual_output = convert_bamini_to_unicode(input_word)
 
     # Update CSV file
     update_csv(input_word, result["inputType"], result["output"], actual_output)
