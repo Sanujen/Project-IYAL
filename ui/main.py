@@ -64,8 +64,12 @@ def analyze_text_with_selected_encoding(selected_encoding, payload, need_transla
 
     if response.status_code == 200:
         result = response.json()
+        output_text = result["output"]
+        if colloquial_to_standard:
+            colloquial_response = requests.post(f"{base_api_url}/colloquial_to_standard/", json={"input_text": output_text})
+            output_text = colloquial_response.json()["standard_tamil"]
         st.write("Normalized Text:")
-        st.write(result["output"])
+        st.write(output_text)
         st.write("Classification Results:")
         st.json(result["result"])
     else:
@@ -95,6 +99,8 @@ with tabs[0]:
     # toggle button for need translation
     need_translation = st.checkbox("Need Translation", key="need_translation")
 
+    colloquial_to_standard = st.checkbox("Colloquial to Standard", key="colloquial_to_standard")
+
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
         if input_text:
@@ -102,7 +108,7 @@ with tabs[0]:
             auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                analyze_text_with_selected_encoding(selected_encoding, payload, need_translation if need_translation else None)
+                analyze_text_with_selected_encoding(selected_encoding, payload, need_translation if need_translation else None, colloquial_to_standard if colloquial_to_standard else None)
             
             else:
                 auto_encoding = get_encoding(input_text)
@@ -111,7 +117,7 @@ with tabs[0]:
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
                 else:
-                    analyze_text_with_selected_encoding(auto_encoding, payload, need_translation if need_translation else None)
+                    analyze_text_with_selected_encoding(auto_encoding, payload, need_translation if need_translation else None, colloquial_to_standard if colloquial_to_standard else None)
     
     if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
         st.session_state.selected_encoding = "anjal2utf8" if st.session_state.selected_encoding not in all_encodings else st.session_state.selected_encoding
