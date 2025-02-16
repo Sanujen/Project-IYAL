@@ -78,7 +78,7 @@ def analyze_text_with_selected_encoding(selected_encoding, payload):
         st.error(f"Error: {response.status_code} - {response.text}")
 
 # Streamlit UI
-st.title("Quality Analyzer")
+st.title("IYAL: Quality Analyzer")
 
 tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode"])
 

@@ -43,7 +43,6 @@ __all__ = [
     "vanavil2utf8",
 ]
 
-
 def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
@@ -108,6 +107,8 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
 
     return result
 
+def sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
+    return single_sentence_quality_analyzer(model, input_text, [], encoding)
 
 def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
     """
@@ -191,7 +192,6 @@ def sentence_segmentation(input_text: str):
 
 def get_encoding_fun(model: Inference, input_text: str):
     words = input_text.split()
-    font_style = []
 
     for word in words:
         classification = classify_unicode(word)
@@ -199,12 +199,7 @@ def get_encoding_fun(model: Inference, input_text: str):
         if classification == "english" and not is_english_word(word):
             input_type = model.inference(word)
             if input_type == "Legacy Font Encoding":
-                font_style.append(auto_detect_encoding(word))
+                font_style = auto_detect_encoding(word)
+                if font_style in __all__:
+                    return font_style
     
-    if not font_style:
-        return "legacy_font_not_found"
-    
-    for font in font_style:
-        if font in __all__:
-            return font
-    return "unknown"
