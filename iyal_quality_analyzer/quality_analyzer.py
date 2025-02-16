@@ -1,4 +1,4 @@
-'''
+"""
 TODO:
     - Add a function to handle multiple sentences by adding sentence segmentation
     - Add a function to only get the texts which are in legacy font, and then call the function for the legacy font detection which should be available in legacy_converter.py. This function only returns the encoding of the given text.
@@ -7,10 +7,12 @@ TODO:
         - Also refine `output_text = translate_english_to_tamil(output_text)` to handle these special cases. (cuz the current implementation will translate the words within quotes, brackets, etc. as well)
         - Also, map the inputType as <something> for these special cases.
 
-'''
+"""
 
 from iyal_quality_analyzer.utils import *
-from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
+from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
+    auto_detect_encoding,
+)
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
 
@@ -43,7 +45,10 @@ __all__ = [
     "vanavil2utf8",
 ]
 
-def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
+
+def single_word_quality_analyzer(
+    model: Inference, input_word: str, word_id: int = 0, encoding: str = None
+):
     """
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
 
@@ -56,12 +61,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {
-        "id": word_id,
-        "inputWord": input_word,
-        "inputType": "",
-        "output": ""
-    }
+    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -108,8 +108,7 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(
-                    input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -117,10 +116,25 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
 
     return result
 
-def sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None, need_translation: bool = False):
-    return single_sentence_quality_analyzer(model, input_text, [], encoding, need_translation)
 
-def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None, need_translation: bool = False):
+def sentence_quality_analyzer(
+    model: Inference,
+    input_text: str,
+    encoding: str = None,
+    need_translation: bool = False,
+):
+    return single_sentence_quality_analyzer(
+        model, input_text, [], encoding, need_translation
+    )
+
+
+def single_sentence_quality_analyzer(
+    model: Inference,
+    input_text: str,
+    results: list,
+    encoding: str = None,
+    need_translation: bool = False,
+):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
 
@@ -154,19 +168,21 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
 
                 if i + 1 < len(results) and results[i + 1]["inputType"] == "en":
                     continue
-                
+
                 to_be_translated_text = " ".join(to_be_translated)
                 translated_text = translate_english_to_tamil(to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
                     id_range = transalted_ids[0]
-                final_results.append({
-                    "id": id_range,
-                    "inputWord": to_be_translated_text,
-                    "inputType": "en",
-                    "output": translated_text
-                })
+                final_results.append(
+                    {
+                        "id": id_range,
+                        "inputWord": to_be_translated_text,
+                        "inputType": "en",
+                        "output": translated_text,
+                    }
+                )
                 to_be_translated = []
                 transalted_ids = []
             else:
@@ -175,10 +191,13 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
         final_results = results
 
     output_text = " ".join([result["output"] for result in final_results])
-    
+
     return (output_text.strip(), final_results)
 
-def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
+
+def multi_sentence_quality_analyzer(
+    model: Inference, input_text: str, encoding: str = None
+):
     output_text = ""
     results = []
 
@@ -186,17 +205,16 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
     sentence_results = []
     for sentence in sentences:
         output, sentence_result = single_sentence_quality_analyzer(
-            model, sentence, results, encoding)
+            model, sentence, results, encoding
+        )
         output_text += output + " "
-        sentence_results.append({
-            "sentence": sentence,
-            "results": sentence_result
-        })
+        sentence_results.append({"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
+
 def sentence_segmentation(input_text: str):
-    nlp = stanza.Pipeline(lang='ta', processors='tokenize')
+    nlp = stanza.Pipeline(lang="ta", processors="tokenize")
     doc = nlp(input_text)
     # return input_text.split(".")
     return [sentence.text for sentence in doc.sentences]
@@ -214,4 +232,3 @@ def get_encoding_fun(model: Inference, input_text: str):
                 font_style = auto_detect_encoding(word)
                 if font_style in __all__:
                     return font_style
-    
