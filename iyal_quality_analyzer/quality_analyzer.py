@@ -69,6 +69,16 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
         result["inputType"] = "special_case"
         result["output"] = input_word
 
+    elif classification == "numeric":
+        # Numeric, leave as is
+        result["inputType"] = "numeric"
+        result["output"] = input_word
+
+    elif classification == "mixed_all":
+        # Mixed Tamil and English and Numeric, transliterate to Tamil
+        result["inputType"] = "mixed_all"
+        result["output"] = transliterate(input_word)
+
     elif classification == "raw_tamil":
         # Already normalized, return as is
         result["inputType"] = "raw_tamil"
@@ -107,10 +117,10 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
 
     return result
 
-def sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
-    return single_sentence_quality_analyzer(model, input_text, [], encoding)
+def sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None, need_translation: bool = False):
+    return single_sentence_quality_analyzer(model, input_text, [], encoding, need_translation)
 
-def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None):
+def single_sentence_quality_analyzer(model: Inference, input_text: str, results: list, encoding: str = None, need_translation: bool = False):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
 
@@ -132,34 +142,37 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
         results.append(result)
         word_id += 1
 
-    final_results = []
-    to_be_translated = []
-    transalted_ids = []
+    if need_translation:
+        final_results = []
+        to_be_translated = []
+        transalted_ids = []
 
-    for i, result in enumerate(results):
-        if result["inputType"] == "en":
-            to_be_translated.append(result["output"])
-            transalted_ids.append(result["id"])
+        for i, result in enumerate(results):
+            if result["inputType"] == "en":
+                to_be_translated.append(result["output"])
+                transalted_ids.append(result["id"])
 
-            if i + 1 < len(results) and results[i + 1]["inputType"] == "en":
-                continue
-            
-            to_be_translated_text = " ".join(to_be_translated)
-            translated_text = translate_english_to_tamil(to_be_translated_text)
-            if len(transalted_ids) > 1:
-                id_range = transalted_ids[0], transalted_ids[-1]
+                if i + 1 < len(results) and results[i + 1]["inputType"] == "en":
+                    continue
+                
+                to_be_translated_text = " ".join(to_be_translated)
+                translated_text = translate_english_to_tamil(to_be_translated_text)
+                if len(transalted_ids) > 1:
+                    id_range = transalted_ids[0], transalted_ids[-1]
+                else:
+                    id_range = transalted_ids[0]
+                final_results.append({
+                    "id": id_range,
+                    "inputWord": to_be_translated_text,
+                    "inputType": "en",
+                    "output": translated_text
+                })
+                to_be_translated = []
+                transalted_ids = []
             else:
-                id_range = transalted_ids[0]
-            final_results.append({
-                "id": id_range,
-                "inputWord": to_be_translated_text,
-                "inputType": "en",
-                "output": translated_text
-            })
-            to_be_translated = []
-            transalted_ids = []
-        else:
-            final_results.append(result)
+                final_results.append(result)
+    else:
+        final_results = results
 
     output_text = " ".join([result["output"] for result in final_results])
     
@@ -181,7 +194,6 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
         })
 
     return (output_text.strip(), sentence_results)
-
 
 def sentence_segmentation(input_text: str):
     nlp = stanza.Pipeline(lang='ta', processors='tokenize')

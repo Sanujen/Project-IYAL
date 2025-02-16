@@ -59,8 +59,9 @@ def analyze_input(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get('encoding', None)
+        need_translation = False if request_dict.get('need_translation', None) is None else request_dict['need_translation']
         inference_model = Inference()
-        outputText, result = sentence_quality_analyzer(inference_model, request_dict['input_text'], encoding)
+        outputText, result = sentence_quality_analyzer(inference_model, request_dict['input_text'], encoding, need_translation)
         print("outputText: ", outputText)
         print("result: ", result)
         return {"output": outputText, "result": result}
