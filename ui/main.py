@@ -62,8 +62,11 @@ def get_encoding(input_text):
     else:
         st.warning("Please enter some text to analyze.")
 
-def analyze_text_with_selected_encoding(selected_encoding, payload):
+def analyze_text_with_selected_encoding(selected_encoding, payload, need_translation=None):
     payload["encoding"] = selected_encoding
+
+    if need_translation is not None:
+        payload["need_translation"] = need_translation
 
     # Make a request to the API
     response = requests.post(API_URL_ANALYZE, json=payload)
@@ -98,6 +101,9 @@ with tabs[0]:
     if option1 == "Select Font Style":
         selected_encoding = st.selectbox("Select a font style:", all_encodings)
 
+    # toggle button for need translation
+    need_translation = st.checkbox("Need Translation", key="need_translation")
+
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
         if input_text:
@@ -105,7 +111,7 @@ with tabs[0]:
             auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                analyze_text_with_selected_encoding(selected_encoding, payload)
+                analyze_text_with_selected_encoding(selected_encoding, payload, need_translation if need_translation else None)
             
             else:
                 auto_encoding = get_encoding(input_text)
@@ -114,16 +120,16 @@ with tabs[0]:
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
                 else:
-                    analyze_text_with_selected_encoding(auto_encoding, payload)
-
+                    analyze_text_with_selected_encoding(auto_encoding, payload, need_translation if need_translation else None)
+    
     if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
         st.session_state.selected_encoding = "anjal2utf8" if st.session_state.selected_encoding not in all_encodings else st.session_state.selected_encoding
         selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
-            analyze_text_with_selected_encoding(selected_encoding, {"input_text": input_text, "encoding": selected_encoding})
+            analyze_text_with_selected_encoding(selected_encoding, {"input_text": input_text, "encoding": selected_encoding}, need_translation if need_translation else None)
     elif 'confirmed' in st.session_state and st.session_state.confirmed:
-        analyze_text_with_selected_encoding(st.session_state.selected_encoding, {"input_text": input_text, "encoding": st.session_state.selected_encoding})
+        analyze_text_with_selected_encoding(st.session_state.selected_encoding, {"input_text": input_text, "encoding": st.session_state.selected_encoding}, need_translation if need_translation else None)
 
 # Convert Legacy to Unicode tab
 with tabs[1]:
