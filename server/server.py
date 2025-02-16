@@ -1,9 +1,3 @@
-"""
-TODO:
-    1. API for find encoding automatically by given text. should return the font style. This function should be available in quality_analyzer.py
-
-"""
-
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
@@ -151,6 +145,6 @@ def colloquial_to_standard(request: InputRequest):
         inference_model = CollToStandInference()
         outputText = inference_model.inference(request_dict["input_text"])
         print("outputText: ", outputText)
-        return {"Standard Tamil": outputText}
+        return {"standard_tamil": outputText}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")

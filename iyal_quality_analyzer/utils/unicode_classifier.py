@@ -15,17 +15,20 @@ def classify_unicode(input_text):
     """
     tamil_characters = range(0x0B80, 0x0BFF + 1)  # Tamil Unicode range
     input_text_unicode_array = [ord(char) for char in input_text]
-    contains_tamil = any(char in tamil_characters for char in input_text_unicode_array)
-    contains_english = any(char.isascii() and char.isalpha() for char in input_text)
+    contains_tamil = any(
+        char in tamil_characters for char in input_text_unicode_array)
+    contains_english = any(char.isascii() and char.isalpha()
+                           for char in input_text)
     contains_numeric = any(char.isdigit() for char in input_text)
 
-    if contains_tamil and contains_english and contains_numeric:
-        return "mixed_all"
+    if contains_english and contains_numeric:
+        return "en_numeric"
     elif contains_tamil and contains_english:
-        return "mixed"
+        return "en_tamil"
     elif contains_tamil:
         return "raw_tamil"
     elif contains_numeric:
         return "numeric"
     else:
         return "english"
+    
