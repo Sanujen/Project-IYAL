@@ -13,6 +13,7 @@ from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
+from warnings import deprecated
 
 __all__ = [
     "anjal2utf8",
@@ -165,6 +166,7 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
     
     return (output_text.strip(), final_results)
 
+@deprecated("multi_sentence_quality_analyzer is deprecated. never been used.")
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""
     results = []
@@ -182,7 +184,7 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
 
     return (output_text.strip(), sentence_results)
 
-
+@deprecated("sentence_segmentation is deprecated. never been used.")
 def sentence_segmentation(input_text: str):
     nlp = stanza.Pipeline(lang='ta', processors='tokenize')
     doc = nlp(input_text)
