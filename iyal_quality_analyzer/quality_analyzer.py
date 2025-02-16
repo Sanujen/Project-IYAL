@@ -58,24 +58,38 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
         result["inputType"] = "special_case"
         result["output"] = input_word
 
+    elif classification == "en_numeric":
+        # Mixed English and Numeric, extract the english part, transliterate to Tamil Unicode and add the numeric part again
+        result["inputType"] = "en_numeric"
+        en_part = ""
+        output = ""
+        # if the next char not an en char then transliterate the en_part
+        for i, char in enumerate(input_word):
+            if char.isalpha():
+                en_part += char
+            else:
+                if en_part:
+                    output += transliterate(en_part)
+                    en_part = ""
+                output += char
+        if en_part:
+            output += transliterate(en_part)
+        result["output"] = output
+
+
     elif classification == "numeric":
         # Numeric, leave as is
         result["inputType"] = "numeric"
         result["output"] = input_word
-
-    elif classification == "mixed_all":
-        # Mixed Tamil and English and Numeric, transliterate to Tamil
-        result["inputType"] = "mixed_all"
-        result["output"] = transliterate(input_word)
 
     elif classification == "raw_tamil":
         # Already normalized, return as is
         result["inputType"] = "raw_tamil"
         result["output"] = input_word
 
-    elif classification == "mixed":
+    elif classification == "en_tamil":
         # Mixed Tamil and English, transliterate to Tamil
-        result["inputType"] = "mixed"
+        result["inputType"] = "en_tamil"
         result["output"] = transliterate(input_word)
 
     elif classification == "english":
@@ -103,6 +117,9 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
             else:
                 # handle other cases
                 result["output"] = "unknown"
+    else:
+        result["inputType"] = "unknown"
+        result["output"] = input_word
 
     return result
 
