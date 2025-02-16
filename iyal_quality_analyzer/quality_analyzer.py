@@ -13,28 +13,6 @@ from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
-import csv
-import os
-
-import requests
-
-def convert_bamini_to_unicode(input_word: str) -> str:
-    url = "https://api.ezhil.ai/v1/convert"
-    payload = {
-        "text": input_word,
-        "from": "bamini",
-        "to": "unicode"
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer YOUR_API_KEY"  # Replace with your Ezhil API key
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    if response.status_code == 200:
-        return response.json().get("converted_text", "")
-    else:
-        raise Exception(f"Error: {response.status_code}, {response.text}")
 
 __all__ = [
     "anjal2utf8",
@@ -64,24 +42,6 @@ __all__ = [
     "tace2utf8",
     "vanavil2utf8",
 ]
-
-def update_csv(input_word: str, input_type: str, output: str, actual_output: str, csv_file: str = 'E:\___MORA\FYP\FinalRepos\Project-IYAL\error_analyzis\output.csv'):
-    """
-    Updates the CSV file with the given data.
-
-    Args:
-        input_word (str): The input word.
-        input_type (str): The input type.
-        output (str): The output.
-        actual_output (str): The actual output.
-        csv_file (str): The path to the CSV file.
-    """
-    file_exists = os.path.isfile(csv_file)
-    with open(csv_file, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        if not file_exists:
-            writer.writerow(['inputWord', 'inputType', 'output', 'actualOutput'])
-        writer.writerow([input_word, input_type, output, actual_output])
 
 def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int = 0, encoding: str = None):
     """
@@ -144,13 +104,6 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
             else:
                 # handle other cases
                 result["output"] = "unknown"
-
-    # Calculate actual output
-    breakpoint()
-    actual_output = convert_bamini_to_unicode(input_word)
-
-    # Update CSV file
-    update_csv(input_word, result["inputType"], result["output"], actual_output)
 
     return result
 
