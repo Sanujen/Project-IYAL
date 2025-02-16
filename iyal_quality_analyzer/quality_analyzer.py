@@ -13,7 +13,6 @@ from iyal_quality_analyzer.utils import *
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import auto_detect_encoding
 from iyal_quality_analyzer.inference_base.inference import Inference
 import stanza
-from warnings import deprecated
 
 __all__ = [
     "anjal2utf8",
@@ -69,6 +68,16 @@ def single_word_quality_analyzer(model: Inference, input_word: str, word_id: int
         # Special case, leave as is
         result["inputType"] = "special_case"
         result["output"] = input_word
+
+    elif classification == "numeric":
+        # Numeric, leave as is
+        result["inputType"] = "numeric"
+        result["output"] = input_word
+
+    elif classification == "mixed_all":
+        # Mixed Tamil and English and Numeric, transliterate to Tamil
+        result["inputType"] = "mixed_all"
+        result["output"] = transliterate(input_word)
 
     elif classification == "raw_tamil":
         # Already normalized, return as is
@@ -169,7 +178,6 @@ def single_sentence_quality_analyzer(model: Inference, input_text: str, results:
     
     return (output_text.strip(), final_results)
 
-@deprecated("multi_sentence_quality_analyzer is deprecated. never been used.")
 def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding: str = None):
     output_text = ""
     results = []
@@ -187,7 +195,6 @@ def multi_sentence_quality_analyzer(model: Inference, input_text: str, encoding:
 
     return (output_text.strip(), sentence_results)
 
-@deprecated("sentence_segmentation is deprecated. never been used.")
 def sentence_segmentation(input_text: str):
     nlp = stanza.Pipeline(lang='ta', processors='tokenize')
     doc = nlp(input_text)
