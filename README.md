@@ -53,11 +53,11 @@ fastapi dev .\server\server.py --port 8000
 ## Streamlit
 1. Run the Streamlit server
 ```bash
-streamlit run .\streamlit\app.py
+streamlit run .\ui\main.py
 
 # The default port is 8501
 # if you want to specify the port
-streamlit run .\streamlit\app.py --server.port 8989
+streamlit run .\ui\main.py --server.port 8989
 ```
 
 ## Usage for each functions

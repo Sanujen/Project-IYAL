@@ -1,3 +1,12 @@
+"""
+TODO:
+    1. Rename this module, 'main.py' to <better name>.
+    2. If the user select auto-detect for the legacy font,
+        a. it should call different API endpoint which should be available in server.py to find and return the encoding of the given text.
+        b. after retrieving the encoding, the app should ask the user for confirmation before proceeding with the analysis. also the user should be able to change the encoding.
+        c. then finally, after the confirmation the app should call the analyze API endpoint.
+
+"""
 import os
 from dotenv import load_dotenv
 import streamlit as st
@@ -39,9 +48,37 @@ all_encodings = [
 base_api_url = os.getenv("BASE_API_URL")
 API_URL_ANALYZE = f"{base_api_url}/analyze/"
 API_URL_LEGACY2UNICODE = f"{base_api_url}/legacy2unicode/"
+API_URL_GET_ENCODING = f"{base_api_url}/get_encoding/"
+
+def get_encoding(input_text):
+    if input_text:
+        payload = {"input_text": input_text}
+        response = requests.post(API_URL_GET_ENCODING, json=payload)
+        if response.status_code == 200:
+            result = response.json()
+            return result["encoding"]
+        else:
+            st.error(f"Error: {response.status_code} - {response.text}")
+    else:
+        st.warning("Please enter some text to analyze.")
+
+def analyze_text_with_selected_encoding(selected_encoding, payload):
+    payload["encoding"] = selected_encoding
+
+    # Make a request to the API
+    response = requests.post(API_URL_ANALYZE, json=payload)
+
+    if response.status_code == 200:
+        result = response.json()
+        st.write("Normalized Text:")
+        st.write(result["output"])
+        st.write("Classification Results:")
+        st.json(result["result"])
+    else:
+        st.error(f"Error: {response.status_code} - {response.text}")
 
 # Streamlit UI
-st.title("Quality Analyzer")
+st.title("IYAL: Quality Analyzer")
 
 tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode"])
 
@@ -54,34 +91,39 @@ with tabs[0]:
 
     # Option selection
     option1 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="analyze_option")
+                       "Select Font Style"), key="analyze_option")
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option1 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option1 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a font style:", all_encodings)
 
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
         if input_text:
             # Prepare the payload based on the selected option
+            auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                payload["encoding"] = selected_encoding
-
-            # Make a request to the API
-            response = requests.post(API_URL_ANALYZE, json=payload)
-
-            if response.status_code == 200:
-                result = response.json()
-                st.write("Normalized Text:")
-                st.write(result["output"])
-                st.write("Classification Results:")
-                st.json(result["result"])
+                analyze_text_with_selected_encoding(selected_encoding, payload)
+            
             else:
-                st.error(f"Error: {response.status_code} - {response.text}")
-        else:
-            st.warning("Please enter some text to analyze.")
+                auto_encoding = get_encoding(input_text)
+                st.write(f"Auto-detected Font style: {auto_encoding}")
+                if not auto_encoding == "legacy_font_not_found":
+                    st.session_state.selected_encoding = auto_encoding
+                    st.session_state.confirmed = False
+                else:
+                    analyze_text_with_selected_encoding(auto_encoding, payload)
+
+    if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
+        st.session_state.selected_encoding = "anjal2utf8" if st.session_state.selected_encoding not in all_encodings else st.session_state.selected_encoding
+        selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
+        if st.button("Confirm Encoding", key="confirm_encoding_button"):
+            st.session_state.confirmed = True
+            analyze_text_with_selected_encoding(selected_encoding, {"input_text": input_text, "encoding": selected_encoding})
+    elif 'confirmed' in st.session_state and st.session_state.confirmed:
+        analyze_text_with_selected_encoding(st.session_state.selected_encoding, {"input_text": input_text, "encoding": st.session_state.selected_encoding})
 
 # Convert Legacy to Unicode tab
 with tabs[1]:
@@ -91,12 +133,12 @@ with tabs[1]:
     input_text = st.text_area("Enter text to convert:")
 
     option2 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="convert_option")
+                       "Select Font Style"), key="convert_option")
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option2 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option2 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a Font Style:", all_encodings)
 
     # Convert button
     if st.button("Convert", key="convert_button"):
@@ -117,3 +159,5 @@ with tabs[1]:
                 st.error(f"Error: {response.status_code} - {response.text}")
         else:
             st.warning("Please enter some text to convert.")
+
+

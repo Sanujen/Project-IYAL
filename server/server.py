@@ -1,7 +1,13 @@
+"""
+TODO:
+    1. API for find encoding automatically by given text. should return the font style. This function should be available in quality_analyzer.py
+
+"""
+
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
-from iyal_quality_analyzer.quality_analyzer import quality_analyzer
+from iyal_quality_analyzer.quality_analyzer import multi_sentence_quality_analyzer, get_encoding_fun, sentence_quality_analyzer
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
 from iyal_quality_analyzer.inference_base.inference import Inference
 
@@ -37,7 +43,7 @@ class InputRequest(BaseModel):
     model_config = ConfigDict(extra='allow')
 
 @app.post("/analyze/")
-async def analyze_input(request: InputRequest):
+def analyze_input(request: InputRequest):
     """
     Analyzes the input text and returns tuple containing the normalized Tamil Unicode text and an array of dictionaries containing the classification results.
     
@@ -54,7 +60,7 @@ async def analyze_input(request: InputRequest):
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get('encoding', None)
         inference_model = Inference()
-        outputText, result = quality_analyzer(inference_model, request_dict['input_text'], encoding)
+        outputText, result = sentence_quality_analyzer(inference_model, request_dict['input_text'], encoding)
         print("outputText: ", outputText)
         print("result: ", result)
         return {"output": outputText, "result": result}
@@ -63,7 +69,7 @@ async def analyze_input(request: InputRequest):
 
 # api for legacy to unicode
 @app.post("/legacy2unicode/")
-async def legacy2unicode(request: InputRequest):
+def legacy2unicode(request: InputRequest):
     """
     Converts legacy Tamil text to Unicode.
 
@@ -82,5 +88,20 @@ async def legacy2unicode(request: InputRequest):
         outputText = convert_legacy_to_unicode(request_dict['input_text'], encoding)
         print("outputText: ", outputText)
         return {"output": outputText}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
+
+@app.post("/get_encoding/")
+def get_encoding(request: InputRequest):
+    try:
+        print("request: ", request)
+        request_dict = enforce_dict(request, InputRequest)
+
+        input_text = request_dict['input_text']
+
+        inference_model = Inference()
+        encoding = get_encoding_fun(inference_model, input_text)
+        print("encoding: ", encoding)
+        return {"encoding": encoding}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")

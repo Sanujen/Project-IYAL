@@ -2,6 +2,7 @@ import os
 import torch
 from transformers import pipeline, AutoTokenizer, BertForSequenceClassification
 
+
 class Inference:
     """
     A class used to perform inference using a pre-trained BERT model for sequence classification.
@@ -29,24 +30,38 @@ class Inference:
     -------
     inference(word)
         Performs inference on the given word and returns the predicted label.
-        
+
     """
-    def __init__(self, cache_dir = None, model_name = "sanujen/fyp_0", model_version = "version_0"):
-        #"iyal_quality_analyzer\\inference_base\\models\\version_0"
+
+    def __init__(
+        self,
+        cache_dir=None,
+        model_name="sanujen/Tamil_Legacy_Roman_Classifier_V2",
+        model_version="version_1",
+    ):
+        # "iyal_quality_analyzer\\inference_base\\models\\version_0"
         # absolute path of this file directory + models + {model_version}
         self.model_version = model_version
-        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(__file__), "models", self.model_version)
-        self.model_name = model_name if model_name else "sanujen/fyp_0"
+        self.cache_dir = (
+            cache_dir
+            if cache_dir
+            else os.path.join(os.path.dirname(__file__), "models", self.model_version)
+        )
+        self.model_name = (
+            model_name if model_name else "sanujen/Tamil_Legacy_Roman_Classifier_V2"
+        )
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
 
         self.label_mapping = {0: "Legacy Font Encoding", 1: "Romanized Text Encoding"}
 
-        self.pipe = pipeline(
-            "text-classification", model=self.model_name, device=0, cache_dir=self.cache_dir
-        )
+        # self.pipe = pipeline(
+        #     "text-classification", model=self.model_name, device=0, cache_dir=self.cache_dir
+        # )
 
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, cache_dir=self.cache_dir)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name, cache_dir=self.cache_dir
+        )
         self.model = BertForSequenceClassification.from_pretrained(
             self.model_name, cache_dir=self.cache_dir
         )
@@ -74,4 +89,3 @@ class Inference:
             predictions = torch.argmax(logits, dim=1).cpu().numpy()
         predicted_label = self.label_mapping[predictions[0]]
         return predicted_label
-    
