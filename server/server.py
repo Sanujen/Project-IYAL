@@ -1,13 +1,7 @@
-"""
-TODO:
-    1. API for find encoding automatically by given text. should return the font style. This function should be available in quality_analyzer.py
-
-"""
-
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict
-from iyal_quality_analyzer.quality_analyzer import multi_sentence_quality_analyzer, get_encoding_fun, sentence_quality_analyzer
+from iyal_quality_analyzer.quality_analyzer import get_encoding_fun, sentence_quality_analyzer
 from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import convert_legacy_to_unicode
 from iyal_quality_analyzer.inference_base.inference import Inference
 

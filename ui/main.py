@@ -1,12 +1,3 @@
-"""
-TODO:
-    1. Rename this module, 'main.py' to <better name>.
-    2. If the user select auto-detect for the legacy font,
-        a. it should call different API endpoint which should be available in server.py to find and return the encoding of the given text.
-        b. after retrieving the encoding, the app should ask the user for confirmation before proceeding with the analysis. also the user should be able to change the encoding.
-        c. then finally, after the confirmation the app should call the analyze API endpoint.
-
-"""
 import os
 from dotenv import load_dotenv
 import streamlit as st
