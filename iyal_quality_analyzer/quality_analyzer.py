@@ -60,7 +60,7 @@ def single_word_quality_analyzer(
 
     elif classification == "en_numeric":
         # Mixed English and Numeric, extract the english part, transliterate to Tamil Unicode and add the numeric part again
-        result["inputType"] = "en_numeric"
+        result["inputType"] = classification
         en_part = ""
         output = ""
         # if the next char not an en char then transliterate the en_part
@@ -78,7 +78,7 @@ def single_word_quality_analyzer(
 
     elif classification == "numeric":
         # Numeric, leave as is
-        result["inputType"] = "numeric"
+        result["inputType"] = classification
         result["output"] = input_word
 
     elif classification == "raw_tamil":
@@ -88,7 +88,7 @@ def single_word_quality_analyzer(
 
     elif classification == "en_tamil":
         # Mixed Tamil and English, transliterate to Tamil
-        result["inputType"] = "en_tamil"
+        result["inputType"] = classification
         result["output"] = transliterate(input_word)
 
     elif classification == "english":
@@ -96,7 +96,7 @@ def single_word_quality_analyzer(
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
             # English word, leave as is for now
-            result["inputType"] = "en"
+            result["inputType"] = classification
             result["output"] = input_word
 
         else:
@@ -168,7 +168,7 @@ def single_sentence_quality_analyzer(
         transalted_ids = []
 
         for i, result in enumerate(results):
-            if result["inputType"] == "en":
+            if result["inputType"] == "english":
                 to_be_translated.append(result["output"])
                 transalted_ids.append(result["id"])
 
@@ -186,7 +186,7 @@ def single_sentence_quality_analyzer(
                     {
                         "id": id_range,
                         "inputWord": to_be_translated_text,
-                        "inputType": "en",
+                        "inputType": "english",
                         "output": translated_text,
                     }
                 )
