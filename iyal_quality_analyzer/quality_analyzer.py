@@ -3,7 +3,6 @@ from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
     auto_detect_encoding,
 )
 from iyal_quality_analyzer.inference_base.inference import Inference
-import stanza
 
 __all__ = [
     "anjal2utf8",
@@ -202,19 +201,20 @@ def single_sentence_quality_analyzer(
 
 
 def multi_sentence_quality_analyzer(
-    model: Inference, input_text: str, encoding: str = None
+    model: Inference, input_text: str, encoding: str = None, need_translation: bool = False
 ):
     output_text = ""
-    results = []
 
     sentences = sentence_segmentation(input_text)
     sentence_results = []
     for sentence in sentences:
+        results = []
         output, sentence_result = single_sentence_quality_analyzer(
-            model, sentence, results, encoding
+            model, sentence, results, encoding, need_translation
         )
         output_text += output + " "
-        sentence_results.append({"sentence": sentence, "results": sentence_result})
+        if sentence_result:
+            sentence_results.append({"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
