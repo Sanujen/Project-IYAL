@@ -3,7 +3,6 @@ from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
     auto_detect_encoding,
 )
 from iyal_quality_analyzer.inference_base.inference import Inference
-import stanza
 
 __all__ = [
     "anjal2utf8",
@@ -50,7 +49,8 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word,
+              "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -75,7 +75,6 @@ def single_word_quality_analyzer(
         if en_part:
             output += transliterate(en_part)
         result["output"] = output
-
 
     elif classification == "numeric":
         # Numeric, leave as is
@@ -111,7 +110,8 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(
+                    input_word, encoding)
 
             else:
                 # handle other cases
@@ -176,7 +176,8 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(to_be_translated_text)
+                translated_text = translate_english_to_tamil(
+                    to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -202,31 +203,90 @@ def single_sentence_quality_analyzer(
 
 
 def multi_sentence_quality_analyzer(
-    model: Inference, input_text: str, encoding: str = None
+    model: Inference, input_text: str, encoding: str = None, need_translation: bool = False
 ):
+    """
+    Normalizes a block of text into Raw Tamil Unicode and tags the input type.
+
+    Args:
+        model (Inference): The model to use for legacy font classification.
+        input_text (str): The input text to normalize.
+        encoding (str): The encoding of the input text (e.g., bamini2utf8, etc.).
+        need_translation (bool): Flag to indicate if translation is needed.
+
+    Returns:
+        tuple: A tuple containing the normalized output and a list of sentence
+        quality analysis results.
+
+    """
     output_text = ""
-    results = []
 
     sentences = sentence_segmentation(input_text)
     sentence_results = []
     for sentence in sentences:
+        results = []
         output, sentence_result = single_sentence_quality_analyzer(
-            model, sentence, results, encoding
+            model, sentence, results, encoding, need_translation
         )
         output_text += output + " "
-        sentence_results.append({"sentence": sentence, "results": sentence_result})
+        if sentence_result:
+            sentence_results.append(
+                {"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
 
 def sentence_segmentation(input_text: str):
-    nlp = stanza.Pipeline(lang="ta", processors="tokenize")
-    doc = nlp(input_text)
-    # return input_text.split(".")
-    return [sentence.text for sentence in doc.sentences]
+    """
+    Segment the input text into sentences. This function is a simple sentence segmentation
+    algorithm that splits the input text based on punctuation marks.
+
+    Args:
+        input_text (str): The input text to segment.
+
+    Returns:
+        list: A list of segmented sentences
+
+    """
+    # Define punctuation marks and wrapper marks
+    punctuation_marks = [".", "?", "!"]
+    wrapper_in_marks = ["\"", "(", "[", "{"]
+    wrapper_out_marks = ["\"", ")", "]", "}"]
+
+    temp = ''
+    sentences = []
+    check = 0
+    for char in input_text:
+        if char in wrapper_in_marks:
+            check += 1
+        elif char in wrapper_out_marks:
+            check -= 1
+
+        if char in punctuation_marks and check == 0:
+            if temp.strip():
+                sentences.append(temp.strip())
+            temp = ''
+        else:
+            temp += char
+
+    if temp.strip():
+        sentences.append(temp.strip())
+
+    return sentences
 
 
 def get_encoding_fun(model: Inference, input_text: str):
+    """
+    Detects the encoding of the input text.
+
+    Args:
+        model (Inference): The model to use for legacy font classification.
+        input_text (str): The input text to analyze.
+
+    Returns:
+        str: The detected encoding.
+
+    """
     words = input_text.split()
 
     for word in words:
