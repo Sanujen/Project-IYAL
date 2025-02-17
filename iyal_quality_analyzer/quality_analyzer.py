@@ -135,11 +135,13 @@ def sentence_quality_analyzer(
 
 
 def single_sentence_quality_analyzer(
-    model: Inference,
+    classifier: Inference,
+    coll_to_stand: Inference,
     input_text: str,
     results: list,
     encoding: str = None,
     need_translation: bool = False,
+    colloquial_to_standard: bool = False,
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -158,7 +160,8 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(model, word, word_id, encoding)
+        result = single_word_quality_analyzer(
+            classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -199,11 +202,14 @@ def single_sentence_quality_analyzer(
 
     output_text = " ".join([result["output"] for result in final_results])
 
+    if colloquial_to_standard:
+        output_text = coll_to_stand.inference(output_text)
+
     return (output_text.strip(), final_results)
 
 
 def multi_sentence_quality_analyzer(
-    model: Inference, input_text: str, encoding: str = None, need_translation: bool = False
+    classifier: Inference, coll_to_stand: Inference, input_text: str, encoding: str = None, need_translation: bool = False, colloquial_to_standard: bool = False
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -226,7 +232,7 @@ def multi_sentence_quality_analyzer(
     for sentence in sentences:
         results = []
         output, sentence_result = single_sentence_quality_analyzer(
-            model, sentence, results, encoding, need_translation
+            classifier, coll_to_stand, sentence, results, encoding, need_translation, colloquial_to_standard
         )
         output_text += output + " "
         if sentence_result:

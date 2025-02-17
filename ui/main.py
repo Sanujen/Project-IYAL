@@ -59,15 +59,15 @@ def analyze_text_with_selected_encoding(selected_encoding, payload, need_transla
     if need_translation is not None:
         payload["need_translation"] = need_translation
 
+    if colloquial_to_standard is not None:
+        payload["colloquial_to_standard"] = colloquial_to_standard
+
     # Make a request to the API
     response = requests.post(API_URL_ANALYZE, json=payload)
 
     if response.status_code == 200:
         result = response.json()
         output_text = result["output"]
-        if colloquial_to_standard:
-            colloquial_response = requests.post(f"{base_api_url}/colloquial_to_standard/", json={"input_text": output_text})
-            output_text = colloquial_response.json()["standard_tamil"]
         st.write("Normalized Text:")
         st.write(output_text)
         st.write("Classification Results:")
