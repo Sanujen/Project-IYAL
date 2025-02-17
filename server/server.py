@@ -87,17 +87,9 @@ def analyze_input(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get("encoding", None)
-        need_translation = (
-            False
-            if request_dict.get("need_translation", None) is None
-            else request_dict["need_translation"]
-        )
+        need_translation = bool(request_dict.get("need_translation", False))
+        colloquial_to_standard = bool(request_dict.get("colloquial_to_standard", False))
 
-        colloquial_to_standard = (
-            False
-            if request_dict.get("colloquial_to_standard", None) is None
-            else request_dict["colloquial_to_standard"]
-        )
         outputText, result = multi_sentence_quality_analyzer(
             classifier, coll_to_stand, request_dict["input_text"], encoding, need_translation, colloquial_to_standard
         )
