@@ -24,13 +24,13 @@ coll_to_stand = None
 async def lifespan(app: FastAPI):
     global classifier
     global coll_to_stand
-    print("Loading model...")
+    print("Loading Classifier model...")
     classifier = Inference()
+    print("Loading Colloquial to Standard model...")
     coll_to_stand = CollToStandInference()
+    print("Models loaded")
     yield
     print("Shutting down...")
-
-app = FastAPI(lifespan=lifespan)
 
 
 def enforce_dict(req, custom_type):
@@ -52,7 +52,7 @@ def enforce_dict(req, custom_type):
     return req
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 # Define the Pydantic model for the input format
@@ -87,18 +87,22 @@ def analyze_input(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get("encoding", None)
-        need_translation = bool(request_dict.get("need_translation", False))
-        colloquial_to_standard = bool(request_dict.get("colloquial_to_standard", False))
+        need_translation = request_dict.get("need_translation", False)
+        colloquial_to_standard = request_dict.get("colloquial_to_standard", False)
 
         outputText, result = multi_sentence_quality_analyzer(
-            classifier, coll_to_stand, request_dict["input_text"], encoding, need_translation, colloquial_to_standard
+            classifier,
+            coll_to_stand,
+            request_dict["input_text"],
+            encoding,
+            need_translation,
+            colloquial_to_standard,
         )
         print("outputText: ", outputText)
         print("result: ", result)
         return {"output": outputText, "result": result}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 # api for legacy to unicode
@@ -119,13 +123,11 @@ def legacy2unicode(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the convert_legacy_to_unicode function to process the input text
         encoding = request_dict.get("encoding", None)
-        outputText = convert_legacy_to_unicode(
-            request_dict["input_text"], encoding)
+        outputText = convert_legacy_to_unicode(request_dict["input_text"], encoding)
         print("outputText: ", outputText)
         return {"output": outputText}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 @app.post("/get_encoding/")
@@ -141,8 +143,7 @@ def get_encoding(request: InputRequest):
         print("encoding: ", encoding)
         return {"encoding": encoding}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 # POST request to colloquial to standard translation inference
@@ -165,5 +166,4 @@ def colloquial_to_standard(request: InputRequest):
         print("outputText: ", outputText)
         return {"standard_tamil": outputText}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")

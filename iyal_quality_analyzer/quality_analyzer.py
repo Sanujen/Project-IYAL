@@ -3,6 +3,9 @@ from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
     auto_detect_encoding,
 )
 from iyal_quality_analyzer.inference_base.inference import Inference
+from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
+    Inference as CollToStandInference,
+)
 
 __all__ = [
     "anjal2utf8",
@@ -49,8 +52,7 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word,
-              "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -105,8 +107,7 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(
-                    input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -131,7 +132,7 @@ def sentence_quality_analyzer(
 
 def single_sentence_quality_analyzer(
     classifier: Inference,
-    coll_to_stand: Inference,
+    coll_to_stand: CollToStandInference,
     input_text: str,
     results: list,
     encoding: str = None,
@@ -155,8 +156,7 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(
-            classifier, word, word_id, encoding)
+        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -174,8 +174,7 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(
-                    to_be_translated_text)
+                translated_text = translate_english_to_tamil(to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -204,7 +203,12 @@ def single_sentence_quality_analyzer(
 
 
 def multi_sentence_quality_analyzer(
-    classifier: Inference, coll_to_stand: Inference, input_text: str, encoding: str = None, need_translation: bool = False, colloquial_to_standard: bool = False
+    classifier: Inference,
+    coll_to_stand: CollToStandInference,
+    input_text: str,
+    encoding: str = None,
+    need_translation: bool = False,
+    colloquial_to_standard: bool = False,
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -227,12 +231,17 @@ def multi_sentence_quality_analyzer(
     for sentence in sentences:
         results = []
         output, sentence_result = single_sentence_quality_analyzer(
-            classifier, coll_to_stand, sentence, results, encoding, need_translation, colloquial_to_standard
+            classifier,
+            coll_to_stand,
+            sentence,
+            results,
+            encoding,
+            need_translation,
+            colloquial_to_standard,
         )
         output_text += output + " "
         if sentence_result:
-            sentence_results.append(
-                {"sentence": sentence, "results": sentence_result})
+            sentence_results.append({"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
@@ -251,10 +260,10 @@ def sentence_segmentation(input_text: str):
     """
     # Define punctuation marks and wrapper marks
     punctuation_marks = [".", "?", "!"]
-    wrapper_in_marks = ["\"", "(", "[", "{"]
-    wrapper_out_marks = ["\"", ")", "]", "}"]
+    wrapper_in_marks = ['"', "(", "[", "{"]
+    wrapper_out_marks = ['"', ")", "]", "}"]
 
-    temp = ''
+    temp = ""
     sentences = []
     check = 0
     for char in input_text:
@@ -266,7 +275,7 @@ def sentence_segmentation(input_text: str):
         if char in punctuation_marks and check == 0:
             if temp.strip():
                 sentences.append(temp.strip())
-            temp = ''
+            temp = ""
         else:
             temp += char
 
