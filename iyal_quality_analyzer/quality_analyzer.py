@@ -76,14 +76,9 @@ def single_word_quality_analyzer(
             output += transliterate(en_part)
         result["output"] = output
 
-    elif classification == "numeric":
-        # Numeric, leave as is
+    elif classification == "numeric" or classification == "raw_tamil":
+        # Numeric or Raw Tamil, leave as is
         result["inputType"] = classification
-        result["output"] = input_word
-
-    elif classification == "raw_tamil":
-        # Already normalized, return as is
-        result["inputType"] = "raw_tamil"
         result["output"] = input_word
 
     elif classification == "en_tamil":
