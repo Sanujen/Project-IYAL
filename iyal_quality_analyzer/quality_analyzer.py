@@ -220,10 +220,7 @@ def multi_sentence_quality_analyzer(
 
 
 def sentence_segmentation(input_text: str):
-    nlp = stanza.Pipeline(lang="ta", processors="tokenize")
-    doc = nlp(input_text)
-    # return input_text.split(".")
-    return [sentence.text for sentence in doc.sentences]
+    return input_text.split(".")
 
 
 def get_encoding_fun(model: Inference, input_text: str):

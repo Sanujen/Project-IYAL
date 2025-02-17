@@ -75,7 +75,7 @@ def analyze_input(request: InputRequest):
             else request_dict["need_translation"]
         )
         inference_model = Inference()
-        outputText, result = sentence_quality_analyzer(
+        outputText, result = multi_sentence_quality_analyzer(
             inference_model, request_dict["input_text"], encoding, need_translation
         )
         print("outputText: ", outputText)
