@@ -41,6 +41,7 @@ API_URL_ANALYZE = f"{base_api_url}/analyze/"
 API_URL_LEGACY2UNICODE = f"{base_api_url}/legacy2unicode/"
 API_URL_GET_ENCODING = f"{base_api_url}/get_encoding/"
 
+
 def get_encoding(input_text):
     if input_text:
         payload = {"input_text": input_text}
@@ -53,11 +54,13 @@ def get_encoding(input_text):
     else:
         st.warning("Please enter some text to analyze.")
 
-def analyze_text_with_selected_encoding(selected_encoding, payload, need_translation=None, colloquial_to_standard=None):
-    payload["encoding"] = selected_encoding
 
-    if need_translation is not None:
-        payload["need_translation"] = need_translation
+def analyze_text_with_selected_encoding(
+    selected_encoding, payload, need_translation, colloquial_to_standard
+):
+    payload["encoding"] = selected_encoding
+    payload["need_translation"] = need_translation
+    payload["colloquial_to_standard"] = colloquial_to_standard
 
     # Make a request to the API
     response = requests.post(API_URL_ANALYZE, json=payload)
@@ -65,15 +68,13 @@ def analyze_text_with_selected_encoding(selected_encoding, payload, need_transla
     if response.status_code == 200:
         result = response.json()
         output_text = result["output"]
-        if colloquial_to_standard:
-            colloquial_response = requests.post(f"{base_api_url}/colloquial_to_standard/", json={"input_text": output_text})
-            output_text = colloquial_response.json()["standard_tamil"]
         st.write("Normalized Text:")
         st.write(output_text)
         st.write("Classification Results:")
         st.json(result["result"])
     else:
         st.error(f"Error: {response.status_code} - {response.text}")
+
 
 # Streamlit UI
 st.title("IYAL: Quality Analyzer")
@@ -88,8 +89,11 @@ with tabs[0]:
     input_text = st.text_area("Enter text to analyze:")
 
     # Option selection
-    option1 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Font Style"), key="analyze_option")
+    option1 = st.radio(
+        "Choose an option:",
+        ("Find Automatically", "Select Font Style"),
+        key="analyze_option",
+    )
 
     # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
@@ -99,7 +103,9 @@ with tabs[0]:
     # toggle button for need translation
     need_translation = st.checkbox("Need Translation", key="need_translation")
 
-    colloquial_to_standard = st.checkbox("Colloquial to Standard", key="colloquial_to_standard")
+    colloquial_to_standard = st.checkbox(
+        "Colloquial to Standard", key="colloquial_to_standard"
+    )
 
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
@@ -108,8 +114,13 @@ with tabs[0]:
             auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                analyze_text_with_selected_encoding(selected_encoding, payload, need_translation if need_translation else None, colloquial_to_standard if colloquial_to_standard else None)
-            
+                analyze_text_with_selected_encoding(
+                    selected_encoding,
+                    payload,
+                    need_translation,
+                    colloquial_to_standard,
+                )
+
             else:
                 auto_encoding = get_encoding(input_text)
                 st.write(f"Auto-detected Font style: {auto_encoding}")
@@ -117,16 +128,39 @@ with tabs[0]:
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
                 else:
-                    analyze_text_with_selected_encoding(auto_encoding, payload, need_translation if need_translation else None, colloquial_to_standard if colloquial_to_standard else None)
-    
-    if 'selected_encoding' in st.session_state and not st.session_state.confirmed:
-        st.session_state.selected_encoding = "anjal2utf8" if st.session_state.selected_encoding not in all_encodings else st.session_state.selected_encoding
-        selected_encoding = st.selectbox("Select an Font Style:", all_encodings, index=all_encodings.index(st.session_state.selected_encoding))
+                    analyze_text_with_selected_encoding(
+                        auto_encoding,
+                        payload,
+                        need_translation,
+                        colloquial_to_standard,
+                    )
+
+    if "selected_encoding" in st.session_state and not st.session_state.confirmed:
+        st.session_state.selected_encoding = (
+            "anjal2utf8"
+            if st.session_state.selected_encoding not in all_encodings
+            else st.session_state.selected_encoding
+        )
+        selected_encoding = st.selectbox(
+            "Select an Font Style:",
+            all_encodings,
+            index=all_encodings.index(st.session_state.selected_encoding),
+        )
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
-            analyze_text_with_selected_encoding(selected_encoding, {"input_text": input_text, "encoding": selected_encoding}, need_translation if need_translation else None)
-    elif 'confirmed' in st.session_state and st.session_state.confirmed:
-        analyze_text_with_selected_encoding(st.session_state.selected_encoding, {"input_text": input_text, "encoding": st.session_state.selected_encoding}, need_translation if need_translation else None)
+            analyze_text_with_selected_encoding(
+                selected_encoding,
+                {"input_text": input_text, "encoding": selected_encoding},
+                need_translation,
+                colloquial_to_standard,
+            )
+    elif "confirmed" in st.session_state and st.session_state.confirmed:
+        analyze_text_with_selected_encoding(
+            st.session_state.selected_encoding,
+            {"input_text": input_text, "encoding": st.session_state.selected_encoding},
+            need_translation,
+            colloquial_to_standard,
+        )
 
 # Convert Legacy to Unicode tab
 with tabs[1]:
@@ -135,8 +169,11 @@ with tabs[1]:
     # Input text box
     input_text = st.text_area("Enter text to convert:")
 
-    option2 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Font Style"), key="convert_option")
+    option2 = st.radio(
+        "Choose an option:",
+        ("Find Automatically", "Select Font Style"),
+        key="convert_option",
+    )
 
     # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
@@ -162,5 +199,3 @@ with tabs[1]:
                 st.error(f"Error: {response.status_code} - {response.text}")
         else:
             st.warning("Please enter some text to convert.")
-
-

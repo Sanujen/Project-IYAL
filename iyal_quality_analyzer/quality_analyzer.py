@@ -3,6 +3,9 @@ from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
     auto_detect_encoding,
 )
 from iyal_quality_analyzer.inference_base.inference import Inference
+from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
+    Inference as CollToStandInference,
+)
 
 __all__ = [
     "anjal2utf8",
@@ -49,8 +52,7 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word,
-              "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -60,7 +62,7 @@ def single_word_quality_analyzer(
 
     elif classification == "en_numeric":
         # Mixed English and Numeric, extract the english part, transliterate to Tamil Unicode and add the numeric part again
-        result["inputType"] = "en_numeric"
+        result["inputType"] = classification
         en_part = ""
         output = ""
         # if the next char not an en char then transliterate the en_part
@@ -76,19 +78,14 @@ def single_word_quality_analyzer(
             output += transliterate(en_part)
         result["output"] = output
 
-    elif classification == "numeric":
-        # Numeric, leave as is
-        result["inputType"] = "numeric"
-        result["output"] = input_word
-
-    elif classification == "raw_tamil":
-        # Already normalized, return as is
-        result["inputType"] = "raw_tamil"
+    elif classification == "numeric" or classification == "raw_tamil":
+        # Numeric or Raw Tamil, leave as is
+        result["inputType"] = classification
         result["output"] = input_word
 
     elif classification == "en_tamil":
         # Mixed Tamil and English, transliterate to Tamil
-        result["inputType"] = "en_tamil"
+        result["inputType"] = classification
         result["output"] = transliterate(input_word)
 
     elif classification == "english":
@@ -96,7 +93,7 @@ def single_word_quality_analyzer(
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
             # English word, leave as is for now
-            result["inputType"] = "en"
+            result["inputType"] = classification
             result["output"] = input_word
 
         else:
@@ -110,8 +107,7 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(
-                    input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -135,11 +131,13 @@ def sentence_quality_analyzer(
 
 
 def single_sentence_quality_analyzer(
-    model: Inference,
+    classifier: Inference,
+    coll_to_stand: CollToStandInference,
     input_text: str,
     results: list,
     encoding: str = None,
     need_translation: bool = False,
+    colloquial_to_standard: bool = False,
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -158,7 +156,7 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(model, word, word_id, encoding)
+        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -168,7 +166,7 @@ def single_sentence_quality_analyzer(
         transalted_ids = []
 
         for i, result in enumerate(results):
-            if result["inputType"] == "en":
+            if result["inputType"] == "english":
                 to_be_translated.append(result["output"])
                 transalted_ids.append(result["id"])
 
@@ -176,8 +174,7 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(
-                    to_be_translated_text)
+                translated_text = translate_english_to_tamil(to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -186,7 +183,7 @@ def single_sentence_quality_analyzer(
                     {
                         "id": id_range,
                         "inputWord": to_be_translated_text,
-                        "inputType": "en",
+                        "inputType": "english",
                         "output": translated_text,
                     }
                 )
@@ -199,11 +196,19 @@ def single_sentence_quality_analyzer(
 
     output_text = " ".join([result["output"] for result in final_results])
 
+    if colloquial_to_standard:
+        output_text = coll_to_stand.inference(output_text)
+
     return (output_text.strip(), final_results)
 
 
 def multi_sentence_quality_analyzer(
-    model: Inference, input_text: str, encoding: str = None, need_translation: bool = False
+    classifier: Inference,
+    coll_to_stand: CollToStandInference,
+    input_text: str,
+    encoding: str = None,
+    need_translation: bool = False,
+    colloquial_to_standard: bool = False,
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -226,12 +231,17 @@ def multi_sentence_quality_analyzer(
     for sentence in sentences:
         results = []
         output, sentence_result = single_sentence_quality_analyzer(
-            model, sentence, results, encoding, need_translation
+            classifier,
+            coll_to_stand,
+            sentence,
+            results,
+            encoding,
+            need_translation,
+            colloquial_to_standard,
         )
         output_text += output + " "
         if sentence_result:
-            sentence_results.append(
-                {"sentence": sentence, "results": sentence_result})
+            sentence_results.append({"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
@@ -250,10 +260,10 @@ def sentence_segmentation(input_text: str):
     """
     # Define punctuation marks and wrapper marks
     punctuation_marks = [".", "?", "!"]
-    wrapper_in_marks = ["\"", "(", "[", "{"]
-    wrapper_out_marks = ["\"", ")", "]", "}"]
+    wrapper_in_marks = ['"', "(", "[", "{"]
+    wrapper_out_marks = ['"', ")", "]", "}"]
 
-    temp = ''
+    temp = ""
     sentences = []
     check = 0
     for char in input_text:
@@ -265,7 +275,7 @@ def sentence_segmentation(input_text: str):
         if char in punctuation_marks and check == 0:
             if temp.strip():
                 sentences.append(temp.strip())
-            temp = ''
+            temp = ""
         else:
             temp += char
 

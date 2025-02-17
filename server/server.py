@@ -1,5 +1,6 @@
 import json
 from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
 from pydantic import BaseModel, ConfigDict
 from iyal_quality_analyzer.quality_analyzer import (
     multi_sentence_quality_analyzer,
@@ -13,6 +14,23 @@ from iyal_quality_analyzer.inference_base.inference import Inference
 from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
     Inference as CollToStandInference,
 )
+
+
+classifier = None
+coll_to_stand = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global classifier
+    global coll_to_stand
+    print("Loading Classifier model...")
+    classifier = Inference()
+    print("Loading Colloquial to Standard model...")
+    coll_to_stand = CollToStandInference()
+    print("Models loaded")
+    yield
+    print("Shutting down...")
 
 
 def enforce_dict(req, custom_type):
@@ -34,7 +52,7 @@ def enforce_dict(req, custom_type):
     return req
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 # Define the Pydantic model for the input format
@@ -69,14 +87,16 @@ def analyze_input(request: InputRequest):
         request_dict = enforce_dict(request, InputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get("encoding", None)
-        need_translation = (
-            False
-            if request_dict.get("need_translation", None) is None
-            else request_dict["need_translation"]
-        )
-        inference_model = Inference()
+        need_translation = request_dict.get("need_translation", False)
+        colloquial_to_standard = request_dict.get("colloquial_to_standard", False)
+
         outputText, result = multi_sentence_quality_analyzer(
-            inference_model, request_dict["input_text"], encoding, need_translation
+            classifier,
+            coll_to_stand,
+            request_dict["input_text"],
+            encoding,
+            need_translation,
+            colloquial_to_standard,
         )
         print("outputText: ", outputText)
         print("result: ", result)
@@ -142,8 +162,7 @@ def colloquial_to_standard(request: InputRequest):
     try:
         print("request: ", request)
         request_dict = enforce_dict(request, InputRequest)
-        inference_model = CollToStandInference()
-        outputText = inference_model.inference(request_dict["input_text"])
+        outputText = coll_to_stand.inference(request_dict["input_text"])
         print("outputText: ", outputText)
         return {"standard_tamil": outputText}
     except Exception as e:
