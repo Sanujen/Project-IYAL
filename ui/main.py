@@ -53,7 +53,7 @@ def get_encoding(input_text):
     else:
         st.warning("Please enter some text to analyze.")
 
-def analyze_text_with_selected_encoding(selected_encoding, payload, need_translation=None):
+def analyze_text_with_selected_encoding(selected_encoding, payload, need_translation=None, colloquial_to_standard=None):
     payload["encoding"] = selected_encoding
 
     if need_translation is not None:
