@@ -39,9 +39,65 @@ all_encodings = [
 base_api_url = os.getenv("BASE_API_URL")
 API_URL_ANALYZE = f"{base_api_url}/analyze/"
 API_URL_LEGACY2UNICODE = f"{base_api_url}/legacy2unicode/"
+API_URL_GET_ENCODING = f"{base_api_url}/get_encoding/"
+
+
+def get_encoding(input_text):
+    """
+    Sends a request to the API to detect the encoding of the input text.
+
+    Args:
+        input_text (str): The input text to analyze.
+
+    Returns:
+        str: The detected encoding of the input text.    
+
+    """
+    if input_text:
+        payload = {"input_text": input_text}
+        response = requests.post(API_URL_GET_ENCODING, json=payload)
+        if response.status_code == 200:
+            result = response.json()
+            return result["encoding"]
+        else:
+            st.error(f"Error: {response.status_code} - {response.text}")
+    else:
+        st.warning("Please enter some text to analyze.")
+
+
+def analyze_text_with_selected_encoding(
+    selected_encoding, payload, need_translation, colloquial_to_standard
+):
+    """
+    Sends a request to the API to analyze the input text with the selected encoding.
+
+    Args:
+        selected_encoding (str): The selected encoding.
+        payload (dict): The payload containing the input text and encoding.
+        need_translation (bool): Whether translation is needed.
+        colloquial_to_standard (bool): Whether colloquial to standard conversion is needed.
+
+    """
+    payload["encoding"] = selected_encoding
+    payload["need_translation"] = need_translation
+    payload["colloquial_to_standard"] = colloquial_to_standard
+
+    # Make a request to the API
+    response = requests.post(API_URL_ANALYZE, json=payload)
+
+    if response.status_code == 200:
+        result = response.json()
+        output_text = result["output"]
+        st.write("Normalized Text:")
+        st.write(output_text)
+        st.write("Classification Results:")
+        st.json(result["result"])
+    else:
+        st.error(f"Error: {response.status_code} - {response.text}")
+
 
 # Streamlit UI
-st.title("Quality Analyzer")
+st.title("IYAL: Quality Analyzer")
 
 tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode"])
 
@@ -53,35 +109,78 @@ with tabs[0]:
     input_text = st.text_area("Enter text to analyze:")
 
     # Option selection
-    option1 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="analyze_option")
+    option1 = st.radio(
+        "Choose an option:",
+        ("Find Automatically", "Select Font Style"),
+        key="analyze_option",
+    )
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option1 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option1 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a font style:", all_encodings)
+
+    # toggle button for need translation
+    need_translation = st.checkbox("Need Translation", key="need_translation")
+
+    colloquial_to_standard = st.checkbox(
+        "Colloquial to Standard", key="colloquial_to_standard"
+    )
 
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
         if input_text:
             # Prepare the payload based on the selected option
+            auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                payload["encoding"] = selected_encoding
+                analyze_text_with_selected_encoding(
+                    selected_encoding,
+                    payload,
+                    need_translation,
+                    colloquial_to_standard,
+                )
 
-            # Make a request to the API
-            response = requests.post(API_URL_ANALYZE, json=payload)
-
-            if response.status_code == 200:
-                result = response.json()
-                st.write("Normalized Text:")
-                st.write(result["output"])
-                st.write("Classification Results:")
-                st.json(result["result"])
             else:
-                st.error(f"Error: {response.status_code} - {response.text}")
-        else:
-            st.warning("Please enter some text to analyze.")
+                auto_encoding = get_encoding(input_text)
+                st.write(f"Auto-detected Font style: {auto_encoding}")
+                if not auto_encoding == "legacy_font_not_found":
+                    st.session_state.selected_encoding = auto_encoding
+                    st.session_state.confirmed = False
+                else:
+                    analyze_text_with_selected_encoding(
+                        auto_encoding,
+                        payload,
+                        need_translation,
+                        colloquial_to_standard,
+                    )
+
+    if "selected_encoding" in st.session_state and not st.session_state.confirmed:
+        st.session_state.selected_encoding = (
+            "anjal2utf8"
+            if st.session_state.selected_encoding not in all_encodings
+            else st.session_state.selected_encoding
+        )
+        selected_encoding = st.selectbox(
+            "Select an Font Style:",
+            all_encodings,
+            index=all_encodings.index(st.session_state.selected_encoding),
+        )
+        if st.button("Confirm Encoding", key="confirm_encoding_button"):
+            st.session_state.confirmed = True
+            analyze_text_with_selected_encoding(
+                selected_encoding,
+                {"input_text": input_text, "encoding": selected_encoding},
+                need_translation,
+                colloquial_to_standard,
+            )
+    elif "confirmed" in st.session_state and st.session_state.confirmed:
+        analyze_text_with_selected_encoding(
+            st.session_state.selected_encoding,
+            {"input_text": input_text, "encoding": st.session_state.selected_encoding},
+            need_translation,
+            colloquial_to_standard,
+        )
 
 # Convert Legacy to Unicode tab
 with tabs[1]:
@@ -90,13 +189,16 @@ with tabs[1]:
     # Input text box
     input_text = st.text_area("Enter text to convert:")
 
-    option2 = st.radio("Choose an option:", ("Find Automatically",
-                       "Select Encoding"), key="convert_option")
+    option2 = st.radio(
+        "Choose an option:",
+        ("Find Automatically", "Select Font Style"),
+        key="convert_option",
+    )
 
-    # Encoding selection (only visible if "Select Encoding" is chosen)
+    # Encoding selection (only visible if "Select Font Style" is chosen)
     selected_encoding = None
-    if option2 == "Select Encoding":
-        selected_encoding = st.selectbox("Select an encoding:", all_encodings)
+    if option2 == "Select Font Style":
+        selected_encoding = st.selectbox("Select a Font Style:", all_encodings)
 
     # Convert button
     if st.button("Convert", key="convert_button"):
