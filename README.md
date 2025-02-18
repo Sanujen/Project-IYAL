@@ -74,6 +74,15 @@ streamlit run .\ui\main.py
 streamlit run .\ui\main.py --server.port 8989
 ```
 
+## installation
+
+```bash
+# install the package
+pip install https://github.com/Sanujen/Project-IYAL/releases/download/v1.0.0-alpha/iyal_quality_analyzer-1.0-py3-none-any.whl
+
+# Refer the usage for each functions to use the package in your code base.
+```
+
 ## Usage for each functions
 
 1. Import the required function
