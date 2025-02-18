@@ -52,7 +52,8 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word,
+              "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -107,7 +108,8 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(
+                    input_word, encoding)
 
             else:
                 # handle other cases
@@ -117,17 +119,6 @@ def single_word_quality_analyzer(
         result["output"] = input_word
 
     return result
-
-
-def sentence_quality_analyzer(
-    model: Inference,
-    input_text: str,
-    encoding: str = None,
-    need_translation: bool = False,
-):
-    return single_sentence_quality_analyzer(
-        model, input_text, [], encoding, need_translation
-    )
 
 
 def single_sentence_quality_analyzer(
@@ -156,7 +147,8 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
+        result = single_word_quality_analyzer(
+            classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -174,7 +166,8 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(to_be_translated_text)
+                translated_text = translate_english_to_tamil(
+                    to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -241,7 +234,8 @@ def multi_sentence_quality_analyzer(
         )
         output_text += output + " "
         if sentence_result:
-            sentence_results.append({"sentence": sentence, "results": sentence_result})
+            sentence_results.append(
+                {"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
