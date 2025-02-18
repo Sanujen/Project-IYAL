@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project-IYAL &mdash; Project IYAL 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="iyal_quality_analyzer package" href="iyal_quality_analyzer.html" />
+    <link rel="prev" title="Project IYAL documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project IYAL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project-IYAL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#steps-to-start-the-development">Steps to start the development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#env-file">.env file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastapi">FastAPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#streamlit">Streamlit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-for-each-functions">Usage for each functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#notes-on-inference">Notes on Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#notes-on-translation-and-transliteration">Notes on Translation and Transliteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build-the-package">Build the package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-docs">Create docs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.html">iyal_quality_analyzer package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.inference_base.html">iyal_quality_analyzer.inference_base package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html">iyal_quality_analyzer.utils.legacy_converter package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.utils.html">iyal_quality_analyzer.utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html">iyal_quality_analyzer.utils.logger package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project IYAL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project-IYAL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/README.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-iyal">
+<h1>Project-IYAL<a class="headerlink" href="#project-iyal" title="Link to this heading"></a></h1>
+<p>CSE Final Year Research and Development Project</p>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<div class="line-block">
+<div class="line"><a class="reference external" href="#steps-to-start-the-development">Steps to start the development</a></div>
+<div class="line"><a class="reference external" href="#env-file">.env file</a> <a class="reference external" href="#fastapi">FastAPI</a>
+<a class="reference external" href="#streamlit">Streamlit</a> <a class="reference external" href="#usage-for-function">Usage for each
+functions</a> <a class="reference external" href="#notes-on-translation-and-transliteration">Notes on Translation and
+Transliteration</a></div>
+</div>
+</section>
+<section id="steps-to-start-the-development">
+<h2>Steps to start the development<a class="headerlink" href="#steps-to-start-the-development" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Clone the repository</p></li>
+<li><p>Create and activate a virtual environment</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="c1"># or</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+
+.venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Install the requirements</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Create a branch from development branch</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>development
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>development
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>&lt;name<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>dev&gt;/dev/&lt;feature&gt;
+</pre></div>
+</div>
+</section>
+<section id="env-file">
+<h2>.env file<a class="headerlink" href="#env-file" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file in the root directory</p></li>
+<li><p>Add the following environment variables</p></li>
+</ol>
+<div class="highlight-env notranslate"><div class="highlight"><pre><span></span>BASE_API_URL=&quot;http://127.0.0.1:8000&quot;
+</pre></div>
+</div>
+</section>
+<section id="fastapi">
+<h2>FastAPI<a class="headerlink" href="#fastapi" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Run the FastAPI server</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># you may need to,</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;fastapi[standard]&quot;</span>
+
+fastapi<span class="w"> </span>dev<span class="w"> </span>.<span class="se">\s</span>erver<span class="se">\s</span>erver.py
+
+<span class="c1"># The default port is 8000</span>
+<span class="c1"># if you want to specify the port</span>
+fastapi<span class="w"> </span>dev<span class="w"> </span>.<span class="se">\s</span>erver<span class="se">\s</span>erver.py<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+</section>
+<section id="streamlit">
+<h2>Streamlit<a class="headerlink" href="#streamlit" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Run the Streamlit server</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>streamlit<span class="w"> </span>run<span class="w"> </span>.<span class="se">\u</span>i<span class="se">\m</span>ain.py
+
+<span class="c1"># The default port is 8501</span>
+<span class="c1"># if you want to specify the port</span>
+streamlit<span class="w"> </span>run<span class="w"> </span>.<span class="se">\u</span>i<span class="se">\m</span>ain.py<span class="w"> </span>--server.port<span class="w"> </span><span class="m">8989</span>
+</pre></div>
+</div>
+</section>
+<section id="installation">
+<h2>installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install the package</span>
+pip<span class="w"> </span>install<span class="w"> </span>https://github.com/Sanujen/Project-IYAL/releases/download/v1.0.0-alpha/iyal_quality_analyzer-1.0-py3-none-any.whl
+
+<span class="c1"># Refer the usage for each functions to use the package in your code base.</span>
+</pre></div>
+</div>
+</section>
+<section id="usage-for-each-functions">
+<h2>Usage for each functions<a class="headerlink" href="#usage-for-each-functions" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Import the required function</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">convert_legacy_to_unicode</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">classify_unicode</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">transliterate</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">translate_english_to_tamil</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">is_english_word</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">Inference</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">quality_analyzer</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">single_word_quality_analyzer</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">multi_sentence_quality_analyzer</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer</span> <span class="kn">import</span> <span class="n">get_encoding_fun</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Usage</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># convert_legacy_to_unicode</span>
+<span class="n">convert_legacy_to_unicode</span><span class="p">(</span><span class="s2">&quot;mfuk;&quot;</span><span class="p">,</span> <span class="s2">&quot;bamini2utf2&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;அகரம்&quot;</span>
+<span class="n">classify_unicode</span><span class="p">(</span><span class="s2">&quot;mfuk;&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;Legacy Font Encoding&quot;</span>
+<span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;akaram&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;அகரம்&quot;</span>
+<span class="n">translate_english_to_tamil</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;வணக்கம்&quot;</span>
+<span class="n">is_english_word</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span> <span class="c1"># returns True</span>
+
+<span class="c1"># Inference</span>
+<span class="n">inference</span> <span class="o">=</span> <span class="n">Inference</span><span class="p">()</span>
+
+<span class="c1"># quality_analyzer</span>
+<span class="n">quality_analyzer</span><span class="p">(</span><span class="n">Inference</span><span class="p">,</span> <span class="s2">&quot;Kaalai வணkkam உலகம் cyfk;&quot;</span><span class="p">,</span> <span class="s2">&quot;bamini2utf2&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;காலை வணக்கம் உலகம் உலகம்&quot;  AND also it will return an array of objects</span>
+<span class="n">single_word_quality_analyzer</span><span class="p">(</span><span class="n">Inference</span><span class="p">,</span> <span class="s2">&quot;வணkkam&quot;</span><span class="p">,</span> <span class="s2">&quot;bamini2utf2&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;வணக்கம்&quot; AND also it will return an object</span>
+<span class="n">multi_sentence_quality_analyzer</span><span class="p">(</span><span class="n">Inference</span><span class="p">,</span> <span class="s2">&quot;Kaalai வணkkam உலகம் cyfk;. இரவு வணkkam உலகம் cyfk;&quot;</span><span class="p">,</span> <span class="s2">&quot;bamini2utf2&quot;</span><span class="p">)</span> <span class="c1"># returns &quot;காலை வணக்கம் உலகம் உலகம். இரவு வணக்கம் உலகம் உலகம்&quot; AND also it will return an array of  sentence objects</span>
+<span class="n">get_encoding_fun</span><span class="p">(</span><span class="s2">&quot;Kaalai வணkkam உலகம் cyfk;.&quot;</span><span class="p">)</span> <span class="c1"># Automatically detects the encoding and returns it.</span>
+</pre></div>
+</div>
+<section id="notes-on-inference">
+<h3>Notes on Inference<a class="headerlink" href="#notes-on-inference" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>The Inference class is used to load the model</p></li>
+<li><p>Make sure you have internet connection before using the Inference
+class</p></li>
+<li><p>The model can be created with a custom path specified for storing the
+model. If a custom path is not provided, the model will be saved in
+the default directory, which is the absolute path of the directory
+where the <code class="docutils literal notranslate"><span class="pre">Inference</span></code> class is located, appended with
+/models/{model_version}.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span> <span class="o">=</span> <span class="n">Inference</span><span class="p">(</span><span class="n">cache_dir</span><span class="o">=</span><span class="s2">&quot;path/to/model_dir&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Also you can give custom model name and model version</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inference</span> <span class="o">=</span> <span class="n">Inference</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;model_name&quot;</span><span class="p">,</span> <span class="n">model_version</span><span class="o">=</span><span class="s2">&quot;model_version&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Inference</span></code> class initializes by checking the cache directory
+for the model. If the model is not found in the cache, it
+automatically downloads the model from the server.</p></li>
+</ol>
+</section>
+</section>
+<section id="notes-on-translation-and-transliteration">
+<h2>Notes on Translation and Transliteration<a class="headerlink" href="#notes-on-translation-and-transliteration" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>We have use google APIs for translation and transliteration.</p></li>
+<li><p>Transliteration:
+<a class="reference external" href="https://github.com/narVidhai/Google-Transliterate-API/blob/master/Languages.md">https://github.com/narVidhai/Google-Transliterate-API/blob/master/Languages.md</a></p>
+<ul class="simple">
+<li><p>This is not Google’s official library since Google has deprecated
+Input Tools API.</p></li>
+</ul>
+</li>
+<li><p>Translation: <a class="reference external" href="https://github.com/ssut/py-googletrans">https://github.com/ssut/py-googletrans</a></p>
+<ul class="simple">
+<li><p>This is an unofficial library using the web API of
+translate.google.com and also is not associated with Google.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="build-the-package">
+<h2>Build the package<a class="headerlink" href="#build-the-package" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># build the package</span>
+python<span class="w"> </span>setup.py<span class="w"> </span>sdist<span class="w"> </span>bdist_wheel
+</pre></div>
+</div>
+</section>
+<section id="create-docs">
+<h2>Create docs<a class="headerlink" href="#create-docs" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx-rtd-theme<span class="w"> </span>sphinx-autodoc-typehints
+
+sphinx-apidoc<span class="w"> </span>-o<span class="w"> </span>docs/source<span class="w"> </span>../iyal_quality_analyzer
+sphinx-quickstart
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Project IYAL documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="iyal_quality_analyzer.html" class="btn btn-neutral float-right" title="iyal_quality_analyzer package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Sanujen Premkumar, Sathveegan Yogendrarajah, Nisanthan Sivarasa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

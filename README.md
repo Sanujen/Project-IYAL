@@ -152,8 +152,12 @@ inference = Inference(model_name="model_name", model_version="model_version")
 # build the package
 python setup.py sdist bdist_wheel
 ```
+
 ## Create docs
+
 ```bash
-pip install mkdocs-material mkdocstrings[python]
-mkdocs new mydocs
-cd mydocs
+pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+
+sphinx-apidoc -o docs/source ../iyal_quality_analyzer
+sphinx-quickstart
+```

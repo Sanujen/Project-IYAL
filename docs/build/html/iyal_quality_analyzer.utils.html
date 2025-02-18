@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iyal_quality_analyzer.utils package &mdash; Project IYAL 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Project IYAL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">iyal_quality_analyzer.utils package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils.english_word_check">iyal_quality_analyzer.utils.english_word_check module</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.english_word_check.is_english_word"><code class="docutils literal notranslate"><span class="pre">is_english_word()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils.special_case_check">iyal_quality_analyzer.utils.special_case_check module</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.special_case_check.contains_phone_number"><code class="docutils literal notranslate"><span class="pre">contains_phone_number()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.special_case_check.contains_url"><code class="docutils literal notranslate"><span class="pre">contains_url()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.special_case_check.is_special_case"><code class="docutils literal notranslate"><span class="pre">is_special_case()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.special_case_check.starts_and_ends_with_brackets"><code class="docutils literal notranslate"><span class="pre">starts_and_ends_with_brackets()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils.translator">iyal_quality_analyzer.utils.translator module</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.translator.translate_english_to_tamil"><code class="docutils literal notranslate"><span class="pre">translate_english_to_tamil()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils.transliteration">iyal_quality_analyzer.utils.transliteration module</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.transliteration.transliterate"><code class="docutils literal notranslate"><span class="pre">transliterate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils.unicode_classifier">iyal_quality_analyzer.utils.unicode_classifier module</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.unicode_classifier.classify_unicode"><code class="docutils literal notranslate"><span class="pre">classify_unicode()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-iyal_quality_analyzer.utils">Module contents</a><ul>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.classify_unicode"><code class="docutils literal notranslate"><span class="pre">classify_unicode()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.convert_legacy_to_unicode"><code class="docutils literal notranslate"><span class="pre">convert_legacy_to_unicode()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.is_english_word"><code class="docutils literal notranslate"><span class="pre">is_english_word()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.is_special_case"><code class="docutils literal notranslate"><span class="pre">is_special_case()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.translate_english_to_tamil"><code class="docutils literal notranslate"><span class="pre">translate_english_to_tamil()</span></code></a></li>
+<li><a class="reference internal" href="#iyal_quality_analyzer.utils.transliterate"><code class="docutils literal notranslate"><span class="pre">transliterate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Project IYAL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">iyal_quality_analyzer.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/iyal_quality_analyzer.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="iyal-quality-analyzer-utils-package">
+<h1>iyal_quality_analyzer.utils package<a class="headerlink" href="#iyal-quality-analyzer-utils-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html">iyal_quality_analyzer.utils.legacy_converter package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html#module-iyal_quality_analyzer.utils.legacy_converter.encode2utf8">iyal_quality_analyzer.utils.legacy_converter.encode2utf8 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html#module-iyal_quality_analyzer.utils.legacy_converter.legacy_converter">iyal_quality_analyzer.utils.legacy_converter.legacy_converter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html#iyal_quality_analyzer.utils.legacy_converter.legacy_converter.auto2unicode"><code class="docutils literal notranslate"><span class="pre">auto2unicode()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.legacy_converter.html#module-iyal_quality_analyzer.utils.legacy_converter">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html">iyal_quality_analyzer.utils.logger package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html#module-iyal_quality_analyzer.utils.logger.setup_logging">iyal_quality_analyzer.utils.logger.setup_logging module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html#iyal_quality_analyzer.utils.logger.setup_logging.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="iyal_quality_analyzer.utils.logger.html#module-iyal_quality_analyzer.utils.logger">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-iyal_quality_analyzer.utils.english_word_check">
+<span id="iyal-quality-analyzer-utils-english-word-check-module"></span><h2>iyal_quality_analyzer.utils.english_word_check module<a class="headerlink" href="#module-iyal_quality_analyzer.utils.english_word_check" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.english_word_check.is_english_word">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.english_word_check.</span></span><span class="sig-name descname"><span class="pre">is_english_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/english_word_check.html#is_english_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.english_word_check.is_english_word" title="Link to this definition"></a></dt>
+<dd><p>Checks if a given word exists in the English vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>word</strong> – The word to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the word is in the English vocabulary, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-iyal_quality_analyzer.utils.special_case_check">
+<span id="iyal-quality-analyzer-utils-special-case-check-module"></span><h2>iyal_quality_analyzer.utils.special_case_check module<a class="headerlink" href="#module-iyal_quality_analyzer.utils.special_case_check" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.special_case_check.contains_phone_number">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.special_case_check.</span></span><span class="sig-name descname"><span class="pre">contains_phone_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/special_case_check.html#contains_phone_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.special_case_check.contains_phone_number" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.special_case_check.contains_url">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.special_case_check.</span></span><span class="sig-name descname"><span class="pre">contains_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/special_case_check.html#contains_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.special_case_check.contains_url" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.special_case_check.is_special_case">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.special_case_check.</span></span><span class="sig-name descname"><span class="pre">is_special_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/special_case_check.html#is_special_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.special_case_check.is_special_case" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.special_case_check.starts_and_ends_with_brackets">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.special_case_check.</span></span><span class="sig-name descname"><span class="pre">starts_and_ends_with_brackets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/special_case_check.html#starts_and_ends_with_brackets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.special_case_check.starts_and_ends_with_brackets" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-iyal_quality_analyzer.utils.translator">
+<span id="iyal-quality-analyzer-utils-translator-module"></span><h2>iyal_quality_analyzer.utils.translator module<a class="headerlink" href="#module-iyal_quality_analyzer.utils.translator" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.translator.translate_english_to_tamil">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.translator.</span></span><span class="sig-name descname"><span class="pre">translate_english_to_tamil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">english_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/translator.html#translate_english_to_tamil"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.translator.translate_english_to_tamil" title="Link to this definition"></a></dt>
+<dd><p>Translates English text to Tamil.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>english_text</strong> (<em>str</em>) – The English text to translate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The translated Tamil text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-iyal_quality_analyzer.utils.transliteration">
+<span id="iyal-quality-analyzer-utils-transliteration-module"></span><h2>iyal_quality_analyzer.utils.transliteration module<a class="headerlink" href="#module-iyal_quality_analyzer.utils.transliteration" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.transliteration.transliterate">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.transliteration.</span></span><span class="sig-name descname"><span class="pre">transliterate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/transliteration.html#transliterate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.transliteration.transliterate" title="Link to this definition"></a></dt>
+<dd><p>Transliterate the input text to Tamil Unicode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_text</strong> (<em>str</em>) – The input text to transliterate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transliterated Tamil Unicode text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-iyal_quality_analyzer.utils.unicode_classifier">
+<span id="iyal-quality-analyzer-utils-unicode-classifier-module"></span><h2>iyal_quality_analyzer.utils.unicode_classifier module<a class="headerlink" href="#module-iyal_quality_analyzer.utils.unicode_classifier" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.unicode_classifier.classify_unicode">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.unicode_classifier.</span></span><span class="sig-name descname"><span class="pre">classify_unicode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/unicode_classifier.html#classify_unicode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.unicode_classifier.classify_unicode" title="Link to this definition"></a></dt>
+<dd><p>Classifies input text into categories:
+- Raw Tamil Unicode
+- Tamil + English Unicode
+- English Unicode
+- Numeric
+- Mixed (Tamil + English + Numeric)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_text</strong> (<em>str</em>) – The input text to classify.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Classification type (‘raw_tamil’, ‘mixed’, ‘english’, ‘numeric’, ‘mixed_all’)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-iyal_quality_analyzer.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-iyal_quality_analyzer.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.classify_unicode">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">classify_unicode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/unicode_classifier.html#classify_unicode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.classify_unicode" title="Link to this definition"></a></dt>
+<dd><p>Classifies input text into categories:
+- Raw Tamil Unicode
+- Tamil + English Unicode
+- English Unicode
+- Numeric
+- Mixed (Tamil + English + Numeric)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_text</strong> (<em>str</em>) – The input text to classify.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Classification type (‘raw_tamil’, ‘mixed’, ‘english’, ‘numeric’, ‘mixed_all’)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.convert_legacy_to_unicode">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">convert_legacy_to_unicode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legacy_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/legacy_converter/legacy_converter.html#convert_legacy_to_unicode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.convert_legacy_to_unicode" title="Link to this definition"></a></dt>
+<dd><p>Converts legacy Tamil font-encoded text into Unicode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>legacy_text</strong> (<em>str</em>) – The legacy font-encoded text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Converted Unicode text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.is_english_word">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">is_english_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/english_word_check.html#is_english_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.is_english_word" title="Link to this definition"></a></dt>
+<dd><p>Checks if a given word exists in the English vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>word</strong> – The word to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the word is in the English vocabulary, False otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.is_special_case">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">is_special_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/special_case_check.html#is_special_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.is_special_case" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.translate_english_to_tamil">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">translate_english_to_tamil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">english_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/translator.html#translate_english_to_tamil"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.translate_english_to_tamil" title="Link to this definition"></a></dt>
+<dd><p>Translates English text to Tamil.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>english_text</strong> (<em>str</em>) – The English text to translate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The translated Tamil text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="iyal_quality_analyzer.utils.transliterate">
+<span class="sig-prename descclassname"><span class="pre">iyal_quality_analyzer.utils.</span></span><span class="sig-name descname"><span class="pre">transliterate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/iyal_quality_analyzer/utils/transliteration.html#transliterate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#iyal_quality_analyzer.utils.transliterate" title="Link to this definition"></a></dt>
+<dd><p>Transliterate the input text to Tamil Unicode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_text</strong> (<em>str</em>) – The input text to transliterate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transliterated Tamil Unicode text.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Sanujen Premkumar, Sathveegan Yogendrarajah, Nisanthan Sivarasa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

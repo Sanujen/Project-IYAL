@@ -2,7 +2,7 @@
 .env
 __pycache__
 **/models/** 
-build
+# build
 dist
 apps.egg-info
 iyal_quality_analyzer.egg-info
