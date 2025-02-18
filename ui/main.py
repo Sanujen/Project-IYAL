@@ -43,6 +43,16 @@ API_URL_GET_ENCODING = f"{base_api_url}/get_encoding/"
 
 
 def get_encoding(input_text):
+    """
+    Sends a request to the API to detect the encoding of the input text.
+
+    Args:
+        input_text (str): The input text to analyze.
+
+    Returns:
+        str: The detected encoding of the input text.    
+
+    """
     if input_text:
         payload = {"input_text": input_text}
         response = requests.post(API_URL_GET_ENCODING, json=payload)
@@ -58,6 +68,16 @@ def get_encoding(input_text):
 def analyze_text_with_selected_encoding(
     selected_encoding, payload, need_translation, colloquial_to_standard
 ):
+    """
+    Sends a request to the API to analyze the input text with the selected encoding.
+
+    Args:
+        selected_encoding (str): The selected encoding.
+        payload (dict): The payload containing the input text and encoding.
+        need_translation (bool): Whether translation is needed.
+        colloquial_to_standard (bool): Whether colloquial to standard conversion is needed.
+
+    """
     payload["encoding"] = selected_encoding
     payload["need_translation"] = need_translation
     payload["colloquial_to_standard"] = colloquial_to_standard
