@@ -1,0 +1,20 @@
+site_name: Project IYAL Documentation
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            docstring_style: google
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - FastAPI Guide: fastapi.md
+  - Streamlit Guide: streamlit.md
+  - API Reference: api_reference.md
+  - Usage: usage.md
