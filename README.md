@@ -145,3 +145,15 @@ inference = Inference(model_name="model_name", model_version="model_version")
    - This is not Google’s official library since Google has deprecated Input Tools API.
 3. Translation: https://github.com/ssut/py-googletrans
    - This is an unofficial library using the web API of translate.google.com and also is not associated with Google.
+
+## Build the package
+
+```bash
+# build the package
+python setup.py sdist bdist_wheel
+```
+## Create docs
+```bash
+pip install mkdocs-material mkdocstrings[python]
+mkdocs new mydocs
+cd mydocs
