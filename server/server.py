@@ -71,13 +71,6 @@ app = FastAPI(lifespan=lifespan)
 # Define the Pydantic model for the input format
 class InputRequest(BaseModel):
     input_text: str
-
-    model_config = ConfigDict(extra="allow")
-
-
-# Define the Pydantic model for the input format
-class InputRequest(BaseModel):
-    input_text: str
     encoding: str = None
 
     model_config = ConfigDict(extra="allow")
