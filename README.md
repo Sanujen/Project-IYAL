@@ -74,6 +74,15 @@ streamlit run .\ui\main.py
 streamlit run .\ui\main.py --server.port 8989
 ```
 
+## installation
+
+```bash
+# install the package
+pip install https://github.com/Sanujen/Project-IYAL/releases/download/v1.0.0-alpha/iyal_quality_analyzer-1.0-py3-none-any.whl
+
+# Refer the usage for each functions to use the package in your code base.
+```
+
 ## Usage for each functions
 
 1. Import the required function
@@ -136,3 +145,19 @@ inference = Inference(model_name="model_name", model_version="model_version")
    - This is not Google’s official library since Google has deprecated Input Tools API.
 3. Translation: https://github.com/ssut/py-googletrans
    - This is an unofficial library using the web API of translate.google.com and also is not associated with Google.
+
+## Build the package
+
+```bash
+# build the package
+python setup.py sdist bdist_wheel
+```
+
+## Create docs
+
+```bash
+pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+
+sphinx-apidoc -o docs/source ../iyal_quality_analyzer
+sphinx-quickstart
+```

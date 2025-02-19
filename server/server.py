@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     print("Loading Classifier model...")
     classifier = Inference()
     print("Loading Colloquial to Standard model...")
-    coll_to_stand = CollToStandInference()
+    # coll_to_stand = CollToStandInference()
     print("Models loaded")
     yield
     print("Shutting down...")
@@ -69,27 +69,29 @@ app = FastAPI(lifespan=lifespan)
 
 
 # Define the Pydantic model for the input format
-class InputRequest(BaseModel):
+class AnalyzeInputRequest(BaseModel):
     input_text: str
+    encoding: str = None
+    need_translation: bool = False
+    colloquial_to_standard: bool = False
 
-    model_config = ConfigDict(extra="allow")
 
-
-# Define the Pydantic model for the input format
-class InputRequest(BaseModel):
+class Legacy2UnicodeInputRequest(BaseModel):
     input_text: str
     encoding: str = None
 
     model_config = ConfigDict(extra="allow")
 
+class InputRequest(BaseModel):
+    input_text: str
 
 @app.post("/analyze/")
-def analyze_input(request: InputRequest):
+def analyze_input(request: AnalyzeInputRequest):
     """
     Analyzes the input text and returns tuple containing the normalized Tamil Unicode text and an array of dictionaries containing the classification results.
 
     Args:
-        request (InputRequest): The input request containing the text to analyze.
+        request (AnalyzeInputRequest): The input request containing the text to analyze.
 
     Returns:
         dict: A dictionary containing the normalized Tamil Unicode text and the classification results.
@@ -97,7 +99,7 @@ def analyze_input(request: InputRequest):
     """
     try:
         print("Request: %s" % request)
-        request_dict = enforce_dict(request, InputRequest)
+        request_dict = enforce_dict(request, AnalyzeInputRequest)
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get("encoding", None)
         need_translation = request_dict.get("need_translation", False)
@@ -122,12 +124,12 @@ def analyze_input(request: InputRequest):
 
 # api for legacy to unicode
 @app.post("/legacy2unicode/")
-def legacy2unicode(request: InputRequest):
+def legacy2unicode(request: Legacy2UnicodeInputRequest):
     """
     Converts legacy Tamil text to Unicode.
 
     Args:
-        request (InputRequest): The input request containing the legacy Tamil text to convert.
+        request (Legacy2UnicodeInputRequest): The input request containing the legacy Tamil text to convert.
 
     Returns:
         dict: A dictionary containing the converted Unicode text.
@@ -135,7 +137,7 @@ def legacy2unicode(request: InputRequest):
     """
     try:
         print("request: ", request)
-        request_dict = enforce_dict(request, InputRequest)
+        request_dict = enforce_dict(request, Legacy2UnicodeInputRequest)
         # Use the convert_legacy_to_unicode function to process the input text
         encoding = request_dict.get("encoding", None)
         outputText = convert_legacy_to_unicode(
