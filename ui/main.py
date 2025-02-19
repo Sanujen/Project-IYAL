@@ -99,7 +99,7 @@ def analyze_text_with_selected_encoding(
 # Streamlit UI
 st.title("IYAL: Quality Analyzer")
 
-tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode"])
+tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode", "Documentation"])
 
 # Analyze Text tab
 with tabs[0]:
@@ -219,3 +219,8 @@ with tabs[1]:
                 st.error(f"Error: {response.status_code} - {response.text}")
         else:
             st.warning("Please enter some text to convert.")
+
+with tabs[2]:
+    st.subheader("Documentation")
+    st.components.v1.iframe(
+        src="https://project-iyal-v1.readthedocs.io/en/latest/index.html", height=1000, width=800, scrolling=True)
