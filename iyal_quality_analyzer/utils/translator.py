@@ -1,6 +1,7 @@
 """
 TODO: can we use this instead of googletrans? are these two the same?
 # https://translate.google.com/m
+https://pypi.org/project/deep-translator/
 from deep_translator import GoogleTranslator
 
 # Use any translator you like, in this example GoogleTranslator
