@@ -104,7 +104,7 @@ def single_word_quality_analyzer(
             result["inputType"] = input_type
             if input_type == "Romanized Text Encoding":
                 # Romanized Tamil, transliterate to Tamil Unicode
-                result["output"] = transliterate(input_word)
+                result["output"] = input_word
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
@@ -152,17 +152,49 @@ def single_sentence_quality_analyzer(
         results.append(result)
         word_id += 1
 
+    # do the same for the transliteration as we have below for the translation
+    transliterated_results = []
+    to_be_transliterated = []
+    transliterated_ids = []
+
+    for i, result in enumerate(results):
+        if result["inputType"] == "Romanized Text Encoding":
+            to_be_transliterated.append(result["output"])
+            transliterated_ids.append(result["id"])
+
+            if i + 1 < len(results) and results[i + 1]["inputType"] == "Romanized Text Encoding":
+                continue
+
+            to_be_transliterated_text = " ".join(to_be_transliterated)
+            transliterated_text = transliterate(to_be_transliterated_text)
+            if len(transliterated_ids) > 1:
+                id_range = transliterated_ids[0], transliterated_ids[-1]
+            else:
+                id_range = transliterated_ids[0]
+            transliterated_results.append(
+                {
+                    "id": id_range,
+                    "inputWord": to_be_transliterated_text,
+                    "inputType": "Romanized Text Encoding",
+                    "output": transliterated_text,
+                }
+            )
+            to_be_transliterated = []
+            transliterated_ids = []
+        else:
+            transliterated_results.append(result)
+
     if need_translation:
         final_results = []
         to_be_translated = []
         transalted_ids = []
 
-        for i, result in enumerate(results):
+        for i, result in enumerate(transliterated_results):
             if result["inputType"] == "english":
                 to_be_translated.append(result["output"])
                 transalted_ids.append(result["id"])
 
-                if i + 1 < len(results) and results[i + 1]["inputType"] == "en":
+                if i + 1 < len(transliterated_results) and transliterated_results[i + 1]["inputType"] == "en":
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
@@ -185,7 +217,7 @@ def single_sentence_quality_analyzer(
             else:
                 final_results.append(result)
     else:
-        final_results = results
+        final_results = transliterated_results
 
     output_text = " ".join([result["output"] for result in final_results])
 
