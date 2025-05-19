@@ -264,7 +264,7 @@ def multi_sentence_quality_analyzer(
             need_translation,
             colloquial_to_standard,
         )
-        output_text += output + " "
+        output_text += output + ". "
         if sentence_result:
             sentence_results.append(
                 {"sentence": sentence, "results": sentence_result})
