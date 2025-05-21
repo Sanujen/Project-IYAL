@@ -55,6 +55,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#notes-on-inference">Notes on Inference</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#notes-on-translation-and-transliteration">Notes on Translation and Transliteration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-the-package">Build the package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#create-docs">Create docs</a></li>
@@ -100,7 +101,7 @@
 <div class="line"><a class="reference external" href="#steps-to-start-the-development">Steps to start the development</a></div>
 <div class="line"><a class="reference external" href="#env-file">.env file</a> <a class="reference external" href="#fastapi">FastAPI</a>
 <a class="reference external" href="#streamlit">Streamlit</a> <a class="reference external" href="#usage-for-function">Usage for each
-functions</a> <a class="reference external" href="#notes-on-translation-and-transliteration">Notes on Translation and
+functions</a> <a class="reference external" href="#docker">Docker</a> <a class="reference external" href="#notes-on-translation-and-transliteration">Notes on Translation and
 Transliteration</a></div>
 </div>
 </section>
@@ -244,6 +245,44 @@ for the model. If the model is not found in the cache, it
 automatically downloads the model from the server.</p></li>
 </ol>
 </section>
+</section>
+<section id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>The docker images are available in the docker hub.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>sathveegan/iyal-input-normalizer-server:latest
+docker<span class="w"> </span>pull<span class="w"> </span>sathveegan/iyal-input-normalizer-ui:latest
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Run the docker container</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">8000</span>:8000<span class="w"> </span>-e<span class="w"> </span><span class="nv">SERVER_PORT</span><span class="o">=</span><span class="m">8000</span><span class="w"> </span>sathveegan/iyal-input-normalizer-server:latest
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">8501</span>:8501<span class="w"> </span>-e<span class="w"> </span><span class="nv">UI_PORT</span><span class="o">=</span><span class="m">8501</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">BASE_API_URL</span><span class="o">=</span>http://&lt;server-ip&gt;:&lt;server-port&gt;<span class="w"> </span>sathveegan/iyal-input-normalizer-ui:latest
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>The server ip and port can be changed by changing the environment variables.</p></li>
+</ol>
+<div class="highlight-env notranslate"><div class="highlight"><pre><span></span>SERVER_PORT=8000
+UI_PORT=8501
+BASE_API_URL=http://&lt;server-ip&gt;:&lt;server-port&gt;
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>The docker container can be stopped by using the following command</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>stop<span class="w"> </span>&lt;container-id&gt;
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>The docker containers can be run by using the docker-compose file.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+docker-compose<span class="w"> </span>down
+</pre></div>
+</div>
 </section>
 <section id="notes-on-translation-and-transliteration">
 <h2>Notes on Translation and Transliteration<a class="headerlink" href="#notes-on-translation-and-transliteration" title="Link to this heading"></a></h2>
