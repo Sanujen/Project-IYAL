@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  server:
+    image: sathveegan/iyal-input-normalizer-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    command: fastapi dev --host 0.0.0.0 --port $PORT --reload ./server/server.py
+    networks:
+      - app-network
+
+  ui:
+    image: sathveegan/iyal-input-normalizer-ui:latest
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - PORT=8501
+    command: streamlit run main.py --server.port $PORT --server.address 0.0.0.0
+    networks:
+      - app-network
+    depends_on:
+      - server
+
+networks:
+  app-network:
+    driver: bridge 
