@@ -9,6 +9,7 @@ CSE Final Year Research and Development Project
 [FastAPI](#fastapi)
 [Streamlit](#streamlit)
 [Usage for each functions](#usage-for-function)
+[Docker](#docker)
 [Notes on Translation and Transliteration](#notes-on-translation-and-transliteration)
 
 ## Steps to start the development
@@ -137,6 +138,43 @@ inference = Inference(model_name="model_name", model_version="model_version")
 ```
 
 5. The `Inference` class initializes by checking the cache directory for the model. If the model is not found in the cache, it automatically downloads the model from the server.
+
+## Docker
+
+1. The docker images are available in the docker hub.
+
+```bash
+docker pull sathveegan/iyal-input-normalizer-server:latest
+docker pull sathveegan/iyal-input-normalizer-ui:latest
+```
+
+2. Run the docker container
+
+```bash
+docker run -d -p 8000:8000 -e SERVER_PORT=8000 sathveegan/iyal-input-normalizer-server:latest
+docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<server-port> sathveegan/iyal-input-normalizer-ui:latest
+```
+
+3. The server ip and port can be changed by changing the environment variables.
+
+```env
+SERVER_PORT=8000
+UI_PORT=8501
+BASE_API_URL=http://<server-ip>:<server-port>
+```
+
+4. The docker container can be stopped by using the following command
+
+```bash
+docker stop <container-id>
+```
+
+5. The docker containers can be run by using the docker-compose file.
+
+```bash
+docker-compose up -d
+docker-compose down
+```
 
 ## Notes on Translation and Transliteration
 
