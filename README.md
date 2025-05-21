@@ -146,6 +146,7 @@ inference = Inference(model_name="model_name", model_version="model_version")
 ```bash
 docker pull sathveegan/iyal-input-normalizer-server:latest
 docker pull sathveegan/iyal-input-normalizer-ui:latest
+docker pull sathveegan/iyal-input-normalizer-docs:latest
 ```
 
 2. Run the docker container
@@ -153,6 +154,7 @@ docker pull sathveegan/iyal-input-normalizer-ui:latest
 ```bash
 docker run -d -p 8000:8000 -e SERVER_PORT=8000 sathveegan/iyal-input-normalizer-server:latest
 docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<server-port> sathveegan/iyal-input-normalizer-ui:latest
+docker run -d -p 8080:80 sathveegan/iyal-input-normalizer-docs:latest
 ```
 
 3. The server ip and port can be changed by changing the environment variables.
@@ -160,6 +162,7 @@ docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<s
 ```env
 SERVER_PORT=8000
 UI_PORT=8501
+DOCS_PORT=8080
 BASE_API_URL=http://<server-ip>:<server-port>
 ```
 
