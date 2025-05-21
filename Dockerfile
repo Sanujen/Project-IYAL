@@ -1,5 +1,4 @@
-# Use Python 3.11 as base image
-FROM python:3.11-slim
+FROM sathveegan/iyal-base:latest
 
 # Set working directory
 WORKDIR /app
