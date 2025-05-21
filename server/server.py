@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     print("Loading Classifier model...")
     classifier = Inference()
     print("Loading Colloquial to Standard model...")
-    # coll_to_stand = CollToStandInference()
+    coll_to_stand = CollToStandInference()
     print("Models loaded")
     yield
     print("Shutting down...")
