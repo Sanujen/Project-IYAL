@@ -26,6 +26,14 @@ services:
       - app-network
     depends_on:
       - server
+  docs:
+    image: sathveegan/iyal-input-normalizer-docs:latest
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    ports:
+      - "8080:$DOCS_PORT"
+    restart: unless-stopped 
 
 networks:
   app-network:
