@@ -9,7 +9,7 @@ Table of Contents
 | `Steps to start the development <#steps-to-start-the-development>`__
 | `.env file <#env-file>`__ `FastAPI <#fastapi>`__
   `Streamlit <#streamlit>`__ `Usage for each
-  functions <#usage-for-function>`__ `Notes on Translation and
+  functions <#usage-for-function>`__ `Docker <#docker>`__ `Notes on Translation and
   Transliteration <#notes-on-translation-and-transliteration>`__
 
 Steps to start the development
@@ -153,6 +153,44 @@ Notes on Inference
    for the model. If the model is not found in the cache, it
    automatically downloads the model from the server.
 
+Docker
+------
+
+1. The docker images are available in the docker hub.
+
+.. code:: bash
+
+   docker pull sathveegan/iyal-input-normalizer-server:latest
+   docker pull sathveegan/iyal-input-normalizer-ui:latest
+
+2. Run the docker container
+
+.. code:: bash
+
+   docker run -d -p 8000:8000 -e SERVER_PORT=8000 sathveegan/iyal-input-normalizer-server:latest
+   docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<server-port> sathveegan/iyal-input-normalizer-ui:latest
+
+3. The server ip and port can be changed by changing the environment variables.
+
+.. code:: env
+
+   SERVER_PORT=8000
+   UI_PORT=8501
+   BASE_API_URL=http://<server-ip>:<server-port>
+
+4. The docker container can be stopped by using the following command
+
+.. code:: bash
+
+   docker stop <container-id>
+
+5. The docker containers can be run by using the docker-compose file.
+
+.. code:: bash
+
+   docker-compose up -d
+   docker-compose down
+
 Notes on Translation and Transliteration
 ----------------------------------------
 
@@ -160,7 +198,7 @@ Notes on Translation and Transliteration
 2. Transliteration:
    https://github.com/narVidhai/Google-Transliterate-API/blob/master/Languages.md
 
-   - This is not Google’s official library since Google has deprecated
+   - This is not Google's official library since Google has deprecated
      Input Tools API.
 
 3. Translation: https://github.com/ssut/py-googletrans
