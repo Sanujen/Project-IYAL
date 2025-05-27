@@ -13,7 +13,7 @@ from iyal_quality_analyzer.inference_base.inference import Inference
 from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
     Inference as CollToStandInference,
 )
-
+from feedback.database.add_feedback import add_feedback
 
 classifier = None
 coll_to_stand = None
@@ -82,8 +82,16 @@ class Legacy2UnicodeInputRequest(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+
 class InputRequest(BaseModel):
     input_text: str
+
+
+class FeedbackRequest(BaseModel):
+    created_at: str
+    output: dict
+    feedback: str
+
 
 @app.post("/analyze/")
 def analyze_input(request: AnalyzeInputRequest):
@@ -103,8 +111,7 @@ def analyze_input(request: AnalyzeInputRequest):
         # Use the quality_analyzer function to process the input text
         encoding = request_dict.get("encoding", None)
         need_translation = request_dict.get("need_translation", False)
-        colloquial_to_standard = request_dict.get(
-            "colloquial_to_standard", False)
+        colloquial_to_standard = request_dict.get("colloquial_to_standard", False)
 
         outputText, result = multi_sentence_quality_analyzer(
             classifier,
@@ -118,8 +125,7 @@ def analyze_input(request: AnalyzeInputRequest):
         print("result: ", result)
         return {"output": outputText, "result": result}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 # api for legacy to unicode
@@ -140,13 +146,11 @@ def legacy2unicode(request: Legacy2UnicodeInputRequest):
         request_dict = enforce_dict(request, Legacy2UnicodeInputRequest)
         # Use the convert_legacy_to_unicode function to process the input text
         encoding = request_dict.get("encoding", None)
-        outputText = convert_legacy_to_unicode(
-            request_dict["input_text"], encoding)
+        outputText = convert_legacy_to_unicode(request_dict["input_text"], encoding)
         print("outputText: ", outputText)
         return {"output": outputText}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 @app.post("/get_encoding/")
@@ -172,8 +176,7 @@ def get_encoding(request: InputRequest):
         print("encoding: ", encoding)
         return {"encoding": encoding}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
 
 
 # POST request to colloquial to standard translation inference
@@ -196,5 +199,31 @@ def colloquial_to_standard(request: InputRequest):
         print("outputText: ", outputText)
         return {"standard_tamil": outputText}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing input: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing input: {str(e)}")
+
+
+# POST request to store the feedback to the database by add_feedback_db function
+@app.post("/feedback/")
+def add_feedback_db(request: FeedbackRequest):
+    """
+    Adds feedback to the database.
+
+    Args:
+        request (InputRequest): The input request containing the feedback text.
+
+    Returns:
+        dict: A dictionary indicating whether the feedback was added successfully.
+
+    """
+    try:
+        print("request: ", request)
+        request_dict = enforce_dict(request, FeedbackRequest)
+        success = add_feedback(
+            request_dict["created_at"],
+            request_dict["output"],
+            request_dict["feedback"],
+        )
+        print("Feedback added successfully: ", success)
+        return {"success": success}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error adding feedback: {str(e)}")

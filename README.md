@@ -46,6 +46,16 @@ git checkout -b <name of the dev>/dev/<feature>
 
 ```env
 BASE_API_URL="http://127.0.0.1:8000"
+DATABASE_URL=postgres://PGUSER:PGPASSWORD@PGHOST/PGDATABASE?sslmode=require
+```
+
+The feedback option requires a Postgres connection with the following schema,
+
+```bash
+id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY
+created_at TIMESTAMP NOT NULL
+output JSON NOT NULL
+feedback TEXT NOT NULL
 ```
 
 ## FastAPI
