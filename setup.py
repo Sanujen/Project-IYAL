@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="iyal_quality_analyzer",
+    name="iyal_text_normalizer",
     version="1.0",
     description="A library for transforming Tamil text to a normalized unicode form.",
     author="Sanujen Premkumar, Sathveegan Yogendrarajah, Nisanthan Sivarasa",
