@@ -129,7 +129,7 @@ def submit_feedback(output, feedback_text):
 
 
 # Streamlit UI
-st.title("IYAL: Quality Analyzer")
+st.title("✍ இயல் (IYAL): Input Text Normalizer for Tamil Language")
 
 tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode", "Documentation"])
 
