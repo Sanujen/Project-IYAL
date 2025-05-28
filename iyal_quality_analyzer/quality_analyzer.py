@@ -52,8 +52,7 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word,
-              "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -94,7 +93,7 @@ def single_word_quality_analyzer(
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
             # English word, leave as is for now
-            result["inputType"] = classification
+            result["inputType"] = "en"
             result["output"] = input_word
 
         else:
@@ -108,8 +107,7 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(
-                    input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -147,8 +145,7 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(
-            classifier, word, word_id, encoding)
+        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -158,7 +155,7 @@ def single_sentence_quality_analyzer(
         transalted_ids = []
 
         for i, result in enumerate(results):
-            if result["inputType"] == "english":
+            if result["inputType"] == "en":
                 to_be_translated.append(result["output"])
                 transalted_ids.append(result["id"])
 
@@ -166,8 +163,7 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(
-                    to_be_translated_text)
+                translated_text = translate_english_to_tamil(to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -176,7 +172,7 @@ def single_sentence_quality_analyzer(
                     {
                         "id": id_range,
                         "inputWord": to_be_translated_text,
-                        "inputType": "english",
+                        "inputType": "en",
                         "output": translated_text,
                     }
                 )
@@ -234,8 +230,7 @@ def multi_sentence_quality_analyzer(
         )
         output_text += output + " "
         if sentence_result:
-            sentence_results.append(
-                {"sentence": sentence, "results": sentence_result})
+            sentence_results.append({"sentence": sentence, "results": sentence_result})
 
     return (output_text.strip(), sentence_results)
 
