@@ -230,12 +230,13 @@ def multi_sentence_quality_analyzer(
             colloquial_to_standard,
         )
         # Add the processed sentence with its original punctuation
-        output_text += output + segment["punctuation"] + " "
+        punctuation = segment["punctuation"]
+        output_text += output + punctuation + " "
         if sentence_result:
-            sentence_result += segment["punctuation"]
             sentence_results.append({
-                "sentence": segment["sentence"],
-                "results": sentence_result
+                "sentence": segment["sentence"] + punctuation,
+                "results": sentence_result,
+                "output": output + punctuation
             })
 
     return (output_text.strip(), sentence_results)
@@ -332,3 +333,6 @@ def get_encoding_fun(model: Inference, input_text: str):
                 font_style = auto_detect_encoding(word)
                 if font_style in __all__:
                     return font_style
+
+a = "இது என்ன விஷயம் என்று sathu@gmail.com நீங்கள் புரிந்து கொள்ளும். என்று நான் நினைக்கின்றேன்"
+b = [{'sentence': 'இது என்ன விஷயம் என்று sathu@gmail.com நீங்கள் புரிந்து கொள்ளும்', 'results': [{'id': 0, 'inputWord': 'இது', 'inputType': 'raw_tamil', 'output': 'இது'}, {'id': 1, 'inputWord': 'என்ன', 'inputType': 'raw_tamil', 'output': 'என்ன'}, {'id': 2, 'inputWord': 'விஷயம்', 'inputType': 'raw_tamil', 'output': 'விஷயம்'}, {'id': 3, 'inputWord': 'என்று', 'inputType': 'raw_tamil', 'output': 'என்று'}, {'id': 4, 'inputWord': 'sathu@gmail.com', 'inputType': 'special_case', 'output': 'sathu@gmail.com'}, {'id': 5, 'inputWord': 'நீங்கள்', 'inputType': 'raw_tamil', 'output': 'நீங்கள்'}, {'id': 6, 'inputWord': 'புரிந்து', 'inputType': 'raw_tamil', 'output': 'புரிந்து'}, {'id': 7, 'inputWord': 'கொள்ளும்', 'inputType': 'raw_tamil', 'output': 'கொள்ளும்'}, '.']}, {'sentence': 'என்று நான் நினைக்கின்றேன்', 'results': [{'id': 0, 'inputWord': 'என்று', 'inputType': 'raw_tamil', 'output': 'என்று'}, {'id': 1, 'inputWord': 'நான்', 'inputType': 'raw_tamil', 'output': 'நான்'}, {'id': 2, 'inputWord': 'நினைக்கின்றேன்', 'inputType': 'raw_tamil', 'output': 'நினைக்கின்றேன்'}]}]
