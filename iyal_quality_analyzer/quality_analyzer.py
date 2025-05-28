@@ -240,8 +240,7 @@ def sentence_segmentation(input_text: str):
     """
     Segment the input text into sentences. This function handles sentence segmentation
     while preserving email addresses and URLs that contain punctuation marks.
-    e.g. paragraph with email address and url will be segmented into two sentences.
-    "இது என்ன விஷயம் என்று sathu@gmail.com நீங்கள் புரிந்து கொள்ளும். என்று நான் நினைக்கின்றேன்"
+    
     Args:
         input_text (str): The input text to segment.
 
