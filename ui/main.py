@@ -8,7 +8,6 @@ import datetime
 load_dotenv()
 
 all_encodings = [
-    "anjal2utf8",
     "bamini2utf8",
     "boomi2utf8",
     "dinakaran2utf8",
