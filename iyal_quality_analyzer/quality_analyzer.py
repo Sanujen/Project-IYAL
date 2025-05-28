@@ -216,20 +216,34 @@ def multi_sentence_quality_analyzer(
     """
     output_text = ""
 
-    sentences = sentence_segmentation(input_text)
+    sentences, punctuation_marks = sentence_segmentation(input_text)
     sentence_results = []
+    
+    # Store original punctuation marks
+    original_punctuation = []
+    
+    # Extract punctuation marks from original text
     for sentence in sentences:
+        if sentence and sentence[-1] in punctuation_marks:
+            original_punctuation.append(sentence[-1])
+        else:
+            original_punctuation.append("")
+    
+    for i, sentence in enumerate(sentences):
         results = []
+        # Remove punctuation for processing
+        clean_sentence = sentence.rstrip("".join(punctuation_marks))
         output, sentence_result = single_sentence_quality_analyzer(
             classifier,
             coll_to_stand,
-            sentence,
+            clean_sentence,
             results,
             encoding,
             need_translation,
             colloquial_to_standard,
         )
-        output_text += output + " "
+        # Add back the original punctuation
+        output_text += output + original_punctuation[i] + " "
         if sentence_result:
             sentence_results.append({"sentence": sentence, "results": sentence_result})
 
@@ -288,7 +302,7 @@ def sentence_segmentation(input_text: str):
     if temp.strip():
         sentences.append(temp.strip())
 
-    return sentences
+    return sentences, punctuation_marks
 
 
 def get_encoding_fun(model: Inference, input_text: str):
