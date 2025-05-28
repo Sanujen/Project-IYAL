@@ -232,9 +232,9 @@ def multi_sentence_quality_analyzer(
         # Add the processed sentence with its original punctuation
         output_text += output + segment["punctuation"] + " "
         if sentence_result:
+            sentence_result += segment["punctuation"]
             sentence_results.append({
                 "sentence": segment["sentence"],
-                "punctuation": segment["punctuation"],
                 "results": sentence_result
             })
 
