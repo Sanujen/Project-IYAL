@@ -235,8 +235,8 @@ def multi_sentence_quality_analyzer(
         if sentence_result:
             sentence_results.append({
                 "sentence": segment["sentence"] + punctuation,
-                "results": sentence_result,
-                "output_sentence": output + punctuation
+                "output_sentence": output + punctuation,
+                "results": sentence_result
             })
 
     return (output_text.strip(), sentence_results)
