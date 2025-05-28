@@ -6,6 +6,7 @@ from iyal_quality_analyzer.inference_base.inference import Inference
 from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
     Inference as CollToStandInference,
 )
+import re
 
 __all__ = [
     "anjal2utf8",
@@ -237,25 +238,41 @@ def multi_sentence_quality_analyzer(
 
 def sentence_segmentation(input_text: str):
     """
-    Segment the input text into sentences. This function is a simple sentence segmentation
-    algorithm that splits the input text based on punctuation marks.
-
+    Segment the input text into sentences. This function handles sentence segmentation
+    while preserving email addresses and URLs that contain punctuation marks.
+    e.g. paragraph with email address and url will be segmented into two sentences.
+    "இது என்ன விஷயம் என்று sathu@gmail.com நீங்கள் புரிந்து கொள்ளும். என்று நான் நினைக்கின்றேன்"
     Args:
         input_text (str): The input text to segment.
 
     Returns:
         list: A list of segmented sentences
-
     """
     # Define punctuation marks and wrapper marks
     punctuation_marks = [".", "?", "!"]
     wrapper_in_marks = ['"', "(", "[", "{"]
     wrapper_out_marks = ['"', ")", "]", "}"]
 
+    # Common patterns for email and URLs
+    email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
+
     temp = ""
     sentences = []
     check = 0
-    for char in input_text:
+    i = 0
+    while i < len(input_text):
+        char = input_text[i]
+        
+        # Check for email or URL patterns
+        if char == '.':
+            # Look ahead to check if this period is part of an email or URL
+            look_ahead = input_text[i-20:i+20]  # Look at surrounding context
+            if re.search(email_pattern, look_ahead) or re.search(url_pattern, look_ahead):
+                temp += char
+                i += 1
+                continue
+
         if char in wrapper_in_marks:
             check += 1
         elif char in wrapper_out_marks:
@@ -267,6 +284,7 @@ def sentence_segmentation(input_text: str):
             temp = ""
         else:
             temp += char
+        i += 1
 
     if temp.strip():
         sentences.append(temp.strip())

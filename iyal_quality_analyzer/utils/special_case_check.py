@@ -15,6 +15,12 @@ def contains_phone_number(input_text: str) -> bool:
 def starts_and_ends_with_brackets(input_text: str) -> bool:
     return input_text.startswith('[') and input_text.endswith(']')
 
+def contains_email(input_text: str) -> bool:
+    email_pattern = re.compile(
+        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    )
+    return re.search(email_pattern, input_text) is not None
+
 def is_special_case(input_text: str) -> bool:
-    return contains_url(input_text) or contains_phone_number(input_text) or starts_and_ends_with_brackets(input_text)
+    return contains_url(input_text) or contains_phone_number(input_text) or starts_and_ends_with_brackets(input_text) or contains_email(input_text)
     
