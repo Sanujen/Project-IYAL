@@ -191,7 +191,6 @@ def single_sentence_quality_analyzer(
 
     return (output_text.strip(), final_results)
 
-
 def multi_sentence_quality_analyzer(
     classifier: Inference,
     coll_to_stand: CollToStandInference,
@@ -216,50 +215,41 @@ def multi_sentence_quality_analyzer(
     """
     output_text = ""
 
-    sentences, punctuation_marks = sentence_segmentation(input_text)
+    segmented_sentences = sentence_segmentation(input_text)
     sentence_results = []
     
-    # Store original punctuation marks
-    original_punctuation = []
-    
-    # Extract punctuation marks from original text
-    for sentence in sentences:
-        if sentence and sentence[-1] in punctuation_marks:
-            original_punctuation.append(sentence[-1])
-        else:
-            original_punctuation.append("")
-    
-    for i, sentence in enumerate(sentences):
+    for segment in segmented_sentences:
         results = []
-        # Remove punctuation for processing
-        clean_sentence = sentence.rstrip("".join(punctuation_marks))
         output, sentence_result = single_sentence_quality_analyzer(
             classifier,
             coll_to_stand,
-            clean_sentence,
+            segment["sentence"],
             results,
             encoding,
             need_translation,
             colloquial_to_standard,
         )
-        # Add back the original punctuation
-        output_text += output + original_punctuation[i] + " "
+        # Add the processed sentence with its original punctuation
+        output_text += output + segment["punctuation"] + " "
         if sentence_result:
-            sentence_results.append({"sentence": sentence, "results": sentence_result})
+            sentence_results.append({
+                "sentence": segment["sentence"],
+                "punctuation": segment["punctuation"],
+                "results": sentence_result
+            })
 
     return (output_text.strip(), sentence_results)
-
 
 def sentence_segmentation(input_text: str):
     """
     Segment the input text into sentences. This function handles sentence segmentation
     while preserving email addresses and URLs that contain punctuation marks.
-    
+
     Args:
         input_text (str): The input text to segment.
 
     Returns:
-        list: A list of segmented sentences
+        list: A list of dictionaries containing segmented sentences and their punctuation marks
     """
     # Define punctuation marks and wrapper marks
     punctuation_marks = [".", "?", "!"]
@@ -293,17 +283,31 @@ def sentence_segmentation(input_text: str):
 
         if char in punctuation_marks and check == 0:
             if temp.strip():
-                sentences.append(temp.strip())
+                # Store both sentence and its punctuation
+                sentences.append({
+                    "sentence": temp.strip(),
+                    "punctuation": char
+                })
             temp = ""
         else:
             temp += char
         i += 1
 
     if temp.strip():
-        sentences.append(temp.strip())
+        # For the last sentence, check if it ends with punctuation
+        last_char = temp.strip()[-1]
+        if last_char in punctuation_marks:
+            sentences.append({
+                "sentence": temp.strip()[:-1],
+                "punctuation": last_char
+            })
+        else:
+            sentences.append({
+                "sentence": temp.strip(),
+                "punctuation": ""
+            })
 
-    return sentences, punctuation_marks
-
+    return sentences
 
 def get_encoding_fun(model: Inference, input_text: str):
     """
