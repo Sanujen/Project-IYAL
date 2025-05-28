@@ -297,7 +297,7 @@ with tabs[1]:
 with tabs[2]:
     st.subheader("Documentation")
     st.components.v1.iframe(
-        src="https://project-iyal-v1.readthedocs.io/en/latest/index.html",
+        src="http://188.166.247.117:5500",
         height=1000,
         width=800,
         scrolling=True,
