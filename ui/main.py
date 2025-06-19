@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import streamlit as st
 import requests
 import datetime
+import docx
+import PyPDF2
 
 # Load environment variables
 load_dotenv()
@@ -128,6 +130,59 @@ def submit_feedback(output, feedback_text):
         )
 
 
+def extract_text_from_file(uploaded_file):
+    """
+    Extracts text from uploaded .docx, .txt, or .pdf files.
+
+    Args:
+        uploaded_file: The uploaded file object from Streamlit.
+
+    Returns:
+        tuple: (text, message)
+            text (str): The extracted text or empty string.
+            message (str): Success or warning message.
+    """
+    if uploaded_file is not None:
+        filename = uploaded_file.name.lower()
+        if filename.endswith(".docx"):
+            doc = docx.Document(uploaded_file)
+            paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
+            if paragraphs:
+                return (
+                    "\n\n".join(paragraphs),
+                    "Word file uploaded and paragraphs extracted!",
+                )
+            else:
+                return "", "No paragraphs found in the uploaded Word file."
+        elif filename.endswith(".txt"):
+            try:
+                text = uploaded_file.read().decode("utf-8")
+                return text, "Text file uploaded and content extracted!"
+            except Exception:
+                return (
+                    "",
+                    "Could not decode the text file. Please upload a UTF-8 encoded file.",
+                )
+        elif filename.endswith(".pdf"):
+            try:
+                pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                pdf_text = []
+                for page in pdf_reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        pdf_text.append(page_text)
+                if pdf_text:
+                    return (
+                        "\n\n".join(pdf_text),
+                        "PDF file uploaded and text extracted!",
+                    )
+                else:
+                    return "", "No text found in the uploaded PDF file."
+            except Exception:
+                return "", "Could not extract text from the PDF file."
+    return "", ""
+
+
 # Streamlit UI
 st.title("✍ இயல் (IYAL): Input Text Normalizer for Tamil Language")
 
@@ -137,8 +192,21 @@ tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode", "Documentation"])
 with tabs[0]:
     st.subheader("Analyze Text")
 
-    # Input text box
-    input_text = st.text_area("Enter text to analyze:")
+    # File uploader for Word documents
+    uploaded_file = st.file_uploader(
+        "Upload a Word (.docx), Text (.txt), or PDF (.pdf) file",
+        type=["docx", "txt", "pdf"],
+    )
+    input_text = ""
+    if uploaded_file is not None:
+        input_text, msg = extract_text_from_file(uploaded_file)
+        if input_text:
+            st.success(msg)
+        else:
+            st.warning(msg)
+    else:
+        # Input text box (fallback if no file uploaded)
+        input_text = st.text_area("Enter text to analyze:")
 
     # Option selection
     option1 = st.radio(
