@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 import streamlit as st
 import requests
 import datetime
+import docx
+import PyPDF2
+import io
 
 # Load environment variables
 load_dotenv()
@@ -95,7 +98,7 @@ def analyze_text_with_selected_encoding(
         st.write("Classification Results:")
         st.json(result["result"])
 
-        return result["result"]
+        return result["result"], output_text
     else:
         st.error(f"Error: {response.status_code} - {response.text}")
 
@@ -128,6 +131,67 @@ def submit_feedback(output, feedback_text):
         )
 
 
+def extract_text_from_file(uploaded_file):
+    """
+    Extracts text from uploaded .docx, .txt, or .pdf files.
+
+    Args:
+        uploaded_file: The uploaded file object from Streamlit.
+
+    Returns:
+        tuple: (text, message)
+            text (str): The extracted text or empty string.
+            message (str): Success or warning message.
+    """
+    if uploaded_file is not None:
+        filename = uploaded_file.name.lower()
+        if filename.endswith(".docx"):
+            doc = docx.Document(uploaded_file)
+            paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
+            if paragraphs:
+                return (
+                    "\n\n".join(paragraphs),
+                    "Word file uploaded and paragraphs extracted!",
+                )
+            else:
+                return "", "No paragraphs found in the uploaded Word file."
+        elif filename.endswith(".txt"):
+            try:
+                text = uploaded_file.read().decode("utf-8")
+                return text, "Text file uploaded and content extracted!"
+            except Exception:
+                return (
+                    "",
+                    "Could not decode the text file. Please upload a UTF-8 encoded file.",
+                )
+        elif filename.endswith(".pdf"):
+            try:
+                pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                pdf_text = []
+                for page in pdf_reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        pdf_text.append(page_text)
+                if pdf_text:
+                    return (
+                        "\n\n".join(pdf_text),
+                        "PDF file uploaded and text extracted!",
+                    )
+                else:
+                    return "", "No text found in the uploaded PDF file."
+            except Exception:
+                return "", "Could not extract text from the PDF file."
+    return "", ""
+
+
+# function to create word or text document based on the output
+def create_document(output, file_type):
+    if file_type == "docx":
+        doc = docx.Document()
+        doc.add_paragraph(output)
+        return doc
+
+
 # Streamlit UI
 st.title("✍ இயல் (IYAL): Input Text Normalizer for Tamil Language")
 
@@ -137,8 +201,21 @@ tabs = st.tabs(["Analyze Text", "Convert Legacy to Unicode", "Documentation"])
 with tabs[0]:
     st.subheader("Analyze Text")
 
-    # Input text box
-    input_text = st.text_area("Enter text to analyze:")
+    # File uploader for Word documents
+    uploaded_file = st.file_uploader(
+        "Upload a Word (.docx), Text (.txt), or PDF (.pdf) file",
+        type=["docx", "txt", "pdf"],
+    )
+    input_text = ""
+    if uploaded_file is not None:
+        input_text, msg = extract_text_from_file(uploaded_file)
+        if input_text:
+            st.success(msg)
+        else:
+            st.warning(msg)
+    else:
+        # Input text box (fallback if no file uploaded)
+        input_text = st.text_area("Enter text to analyze:")
 
     # Option selection
     option1 = st.radio(
@@ -166,11 +243,13 @@ with tabs[0]:
             auto_encoding = ""
             payload = {"input_text": input_text}
             if selected_encoding:
-                st.session_state.output = analyze_text_with_selected_encoding(
-                    selected_encoding,
-                    payload,
-                    need_translation,
-                    colloquial_to_standard,
+                st.session_state.output, st.session_state.output_text = (
+                    analyze_text_with_selected_encoding(
+                        selected_encoding,
+                        payload,
+                        need_translation,
+                        colloquial_to_standard,
+                    )
                 )
 
             else:
@@ -180,11 +259,13 @@ with tabs[0]:
                     st.session_state.selected_encoding = auto_encoding
                     st.session_state.confirmed = False
                 else:
-                    st.session_state.output = analyze_text_with_selected_encoding(
-                        auto_encoding,
-                        payload,
-                        need_translation,
-                        colloquial_to_standard,
+                    st.session_state.output, st.session_state.output_text = (
+                        analyze_text_with_selected_encoding(
+                            auto_encoding,
+                            payload,
+                            need_translation,
+                            colloquial_to_standard,
+                        )
                     )
 
     if "selected_encoding" in st.session_state and not st.session_state.confirmed:
@@ -200,19 +281,42 @@ with tabs[0]:
         )
         if st.button("Confirm Encoding", key="confirm_encoding_button"):
             st.session_state.confirmed = True
-            st.session_state.output = analyze_text_with_selected_encoding(
-                selected_encoding,
-                {"input_text": input_text, "encoding": selected_encoding},
+            st.session_state.output, st.session_state.output_text = (
+                analyze_text_with_selected_encoding(
+                    selected_encoding,
+                    {"input_text": input_text, "encoding": selected_encoding},
+                    need_translation,
+                    colloquial_to_standard,
+                )
+            )
+    elif "confirmed" in st.session_state and st.session_state.confirmed:
+        st.session_state.output, st.session_state.output_text = (
+            analyze_text_with_selected_encoding(
+                st.session_state.selected_encoding,
+                {
+                    "input_text": input_text,
+                    "encoding": st.session_state.selected_encoding,
+                },
                 need_translation,
                 colloquial_to_standard,
             )
-    elif "confirmed" in st.session_state and st.session_state.confirmed:
-        st.session_state.output = analyze_text_with_selected_encoding(
-            st.session_state.selected_encoding,
-            {"input_text": input_text, "encoding": st.session_state.selected_encoding},
-            need_translation,
-            colloquial_to_standard,
         )
+
+    # Download button for output
+    if st.session_state.output_text:
+        file_type = "docx"  # Default file type for download
+        doc = create_document(st.session_state.output_text, file_type)
+        buffer = io.BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        st.download_button(
+            label="Download",
+            data=buffer,
+            file_name=f"output.{file_type}",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+    else:
+        st.warning("Please analyze some text first to enable download.")
 
     # Feedback section
     st.subheader("Feedback")
