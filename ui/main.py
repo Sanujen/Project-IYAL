@@ -192,6 +192,10 @@ def create_document(output, file_type):
         return doc
 
 
+# initialize Streamlit session state
+if "output_text" not in st.session_state:
+    st.session_state.output_text = None
+
 # Streamlit UI
 st.title("✍ இயல் (IYAL): Input Text Normalizer for Tamil Language")
 
@@ -302,8 +306,7 @@ with tabs[0]:
             )
         )
 
-    # Download button for output
-    if st.session_state.output_text:
+    if st.session_state.get("output_text"):
         file_type = "docx"  # Default file type for download
         doc = create_document(st.session_state.output_text, file_type)
         buffer = io.BytesIO()
@@ -315,8 +318,9 @@ with tabs[0]:
             file_name=f"output.{file_type}",
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
+
     else:
-        st.warning("Please analyze some text first to enable download.")
+        st.write("No output available yet. Please analyze the text first.")
 
     # Feedback section
     st.subheader("Feedback")
