@@ -71,7 +71,7 @@ def get_encoding(input_text):
 
 
 def analyze_text_with_selected_encoding(
-    selected_encoding, payload, need_translation, colloquial_to_standard
+    selected_encoding, payload, need_translation, colloquial_to_standard, special_words
 ):
     """
     Sends a request to the API to analyze the input text with the selected encoding.
@@ -86,7 +86,7 @@ def analyze_text_with_selected_encoding(
     payload["encoding"] = selected_encoding
     payload["need_translation"] = need_translation
     payload["colloquial_to_standard"] = colloquial_to_standard
-
+    payload["special_words"] = special_words
     # Make a request to the API
     response = requests.post(API_URL_ANALYZE, json=payload)
 
