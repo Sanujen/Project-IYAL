@@ -21,6 +21,6 @@ def contains_email(input_text: str) -> bool:
     )
     return re.search(email_pattern, input_text) is not None
 
-def is_special_case(input_text: str) -> bool:
-    return contains_url(input_text) or contains_phone_number(input_text) or starts_and_ends_with_brackets(input_text) or contains_email(input_text)
+def is_special_case(input_text: str, special_words: list = []) -> bool:
+    return contains_url(input_text) or contains_phone_number(input_text) or starts_and_ends_with_brackets(input_text) or contains_email(input_text) or input_text in special_words
     

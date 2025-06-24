@@ -74,7 +74,7 @@ class AnalyzeInputRequest(BaseModel):
     encoding: str = None
     need_translation: bool = False
     colloquial_to_standard: bool = False
-
+    special_words: list = []
 
 class Legacy2UnicodeInputRequest(BaseModel):
     input_text: str
@@ -114,12 +114,13 @@ def analyze_input(request: AnalyzeInputRequest):
         colloquial_to_standard = request_dict.get("colloquial_to_standard", False)
 
         outputText, result = multi_sentence_quality_analyzer(
-            classifier,
-            coll_to_stand,
-            request_dict["input_text"],
-            encoding,
-            need_translation,
-            colloquial_to_standard,
+            classifier=classifier,
+            input_text=request_dict["input_text"],
+            coll_to_stand=coll_to_stand,
+            encoding=encoding,
+            need_translation=need_translation,
+            colloquial_to_standard=colloquial_to_standard,
+            special_words=request_dict.get("special_words", []),
         )
         print("outputText: ", outputText)
         print("result: ", result)

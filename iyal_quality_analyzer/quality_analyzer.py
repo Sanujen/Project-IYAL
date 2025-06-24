@@ -39,7 +39,7 @@ __all__ = [
 
 
 def single_word_quality_analyzer(
-    model: Inference, input_word: str, word_id: int = 0, encoding: str = None
+    model: Inference, input_word: str, word_id: int = 0, encoding: str = None, special_words: list = []
 ):
     """
     Normalizes a single word into Raw Tamil Unicode and tags the input type.
@@ -56,7 +56,7 @@ def single_word_quality_analyzer(
     result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
-    if is_special_case(input_word):
+    if is_special_case(input_word, special_words):
         # Special case, leave as is
         result["inputType"] = "special_case"
         result["output"] = input_word
@@ -122,12 +122,13 @@ def single_word_quality_analyzer(
 
 def single_sentence_quality_analyzer(
     classifier: Inference,
-    coll_to_stand: CollToStandInference,
     input_text: str,
     results: list,
+    coll_to_stand: CollToStandInference = None,
     encoding: str = None,
     need_translation: bool = False,
     colloquial_to_standard: bool = False,
+    special_words: list = []
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -146,7 +147,7 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
+        result = single_word_quality_analyzer(classifier, word, word_id, encoding, special_words)
         results.append(result)
         word_id += 1
 
@@ -186,18 +187,19 @@ def single_sentence_quality_analyzer(
 
     output_text = " ".join([result["output"] for result in final_results])
 
-    if colloquial_to_standard:
+    if coll_to_stand and colloquial_to_standard:
         output_text = coll_to_stand.inference(output_text)
 
     return (output_text.strip(), final_results)
 
 def multi_sentence_quality_analyzer(
     classifier: Inference,
-    coll_to_stand: CollToStandInference,
     input_text: str,
+    coll_to_stand: CollToStandInference = None,
     encoding: str = None,
     need_translation: bool = False,
     colloquial_to_standard: bool = False,
+    special_words: list = []
 ):
     """
     Normalizes a block of text into Raw Tamil Unicode and tags the input type.
@@ -222,12 +224,13 @@ def multi_sentence_quality_analyzer(
         results = []
         output, sentence_result = single_sentence_quality_analyzer(
             classifier,
-            coll_to_stand,
             segment["sentence"],
             results,
+            coll_to_stand,
             encoding,
             need_translation,
             colloquial_to_standard,
+            special_words
         )
         # Add the processed sentence with its original punctuation
         punctuation = segment["punctuation"]

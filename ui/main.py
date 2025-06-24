@@ -240,6 +240,8 @@ with tabs[0]:
         "Colloquial to Standard", key="colloquial_to_standard"
     )
 
+    special_words = st.text_area("Enter special words (comma separated):", key="special_words")
+
     # Analyze button
     if st.button("Analyze", key="analyze_button"):
         if input_text:
@@ -253,6 +255,7 @@ with tabs[0]:
                         payload,
                         need_translation,
                         colloquial_to_standard,
+                        special_words,
                     )
                 )
 
@@ -269,6 +272,7 @@ with tabs[0]:
                             payload,
                             need_translation,
                             colloquial_to_standard,
+                            special_words,
                         )
                     )
 
@@ -291,6 +295,7 @@ with tabs[0]:
                     {"input_text": input_text, "encoding": selected_encoding},
                     need_translation,
                     colloquial_to_standard,
+                    special_words,
                 )
             )
     elif "confirmed" in st.session_state and st.session_state.confirmed:
@@ -303,6 +308,7 @@ with tabs[0]:
                 },
                 need_translation,
                 colloquial_to_standard,
+                special_words,
             )
         )
 
