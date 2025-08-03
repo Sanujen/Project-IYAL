@@ -4,15 +4,22 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-# Load IndicBERT
+# Load IndicBERT with slow tokenizer to avoid conversion issues
 model_name = "ai4bharat/indic-bert"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+try:
+    # Try with fast tokenizer first
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+except Exception as e:
+    print(f"Fast tokenizer failed, trying slow tokenizer: {e}")
+    # Fallback to slow tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+
 model = AutoModel.from_pretrained(model_name)
 model.eval()
 
 # Function to get CLS embedding
 def get_embedding(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     with torch.no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :]
@@ -37,13 +44,21 @@ for idx, row in tqdm(df.iterrows(), total=len(df)):
         similarities2.append(cosine_sim2)
     except Exception as e:
         print(f"Skipping row {idx} due to error: {e}")
+        # Add default values for failed rows
+        similarities.append(0.0)
+        similarities2.append(0.0)
 
-# Add to DataFrame
-df['similarity_gpt_actual'] = similarities
-df['similarity_system_actual'] = similarities2
+# create a new df with the similarities
+df_similarities = pd.DataFrame({
+    'similarity_gpt_actual': similarities,
+    'similarity_system_actual': similarities2
+})
 # Save with individual scores
-df.to_csv("tamil_sentence_similarity_and_actual_standardized.csv", index=False)
+df_similarities.to_csv("tamil_sentence_similarity_and_actual_standardized.csv", index=False)
 
 # Compute average similarity
-average_similarity = sum(similarities) / len(similarities)
-print(f"\n✅ Overall Average Similarity Score: {average_similarity:.4f}")
+if similarities:
+    average_similarity = sum(similarities) / len(similarities)
+    print(f"\n✅ Overall Average Similarity Score: {average_similarity:.4f}")
+else:
+    print("\n❌ No similarities computed successfully")
