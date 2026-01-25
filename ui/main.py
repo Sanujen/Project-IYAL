@@ -322,22 +322,22 @@ with tabs[0]:
     else:
         st.write("No output available yet. Please analyze the text first.")
 
-    # Feedback section
-    st.subheader("Feedback")
+    # # Feedback section
+    # st.subheader("Feedback")
 
-    feedback_text = st.text_area(
-        "Enter your feedback here:", key="feedback_text_analyze"
-    )
-    if st.button("Submit Feedback", key="feedback_button_analyze"):
-        if feedback_text:
-            output = st.session_state.get("output", None)
-            success, message = submit_feedback(output, feedback_text)
-            if success:
-                st.success(message)
-            else:
-                st.error(message)
-        else:
-            st.warning("Please enter your feedback before submitting.")
+    # feedback_text = st.text_area(
+    #     "Enter your feedback here:", key="feedback_text_analyze"
+    # )
+    # if st.button("Submit Feedback", key="feedback_button_analyze"):
+    #     if feedback_text:
+    #         output = st.session_state.get("output", None)
+    #         success, message = submit_feedback(output, feedback_text)
+    #         if success:
+    #             st.success(message)
+    #         else:
+    #             st.error(message)
+    #     else:
+    #         st.warning("Please enter your feedback before submitting.")
 
 # Convert Legacy to Unicode tab
 with tabs[1]:

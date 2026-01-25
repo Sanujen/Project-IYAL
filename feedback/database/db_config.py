@@ -14,4 +14,4 @@ def get_db_connection():
 
 
 # Export the db connection object (optional: create on import)
-db = get_db_connection()
+# db = get_db_connection()
