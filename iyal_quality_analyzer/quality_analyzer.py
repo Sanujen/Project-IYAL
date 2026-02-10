@@ -6,6 +6,7 @@ from iyal_quality_analyzer.inference_base.inference import Inference
 from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
     Inference as CollToStandInference,
 )
+import re
 
 __all__ = [
     "anjal2utf8",
@@ -52,8 +53,7 @@ def single_word_quality_analyzer(
         dict: A dictionary containing the input type and the normalized output.
 
     """
-    result = {"id": word_id, "inputWord": input_word,
-              "inputType": "", "output": ""}
+    result = {"id": word_id, "inputWord": input_word, "inputType": "", "output": ""}
     classification = classify_unicode(input_word)
 
     if is_special_case(input_word):
@@ -94,7 +94,7 @@ def single_word_quality_analyzer(
         # Check if it's English word by a simple check with corpus
         if is_english_word(input_word):
             # English word, leave as is for now
-            result["inputType"] = classification
+            result["inputType"] = "en"
             result["output"] = input_word
 
         else:
@@ -108,8 +108,7 @@ def single_word_quality_analyzer(
 
             elif input_type == "Legacy Font Encoding":
                 # Legacy Tamil, convert to Tamil Unicode
-                result["output"] = convert_legacy_to_unicode(
-                    input_word, encoding)
+                result["output"] = convert_legacy_to_unicode(input_word, encoding)
 
             else:
                 # handle other cases
@@ -147,8 +146,7 @@ def single_sentence_quality_analyzer(
     words = input_text.split()
     word_id = len(results)
     for word in words:
-        result = single_word_quality_analyzer(
-            classifier, word, word_id, encoding)
+        result = single_word_quality_analyzer(classifier, word, word_id, encoding)
         results.append(result)
         word_id += 1
 
@@ -158,7 +156,7 @@ def single_sentence_quality_analyzer(
         transalted_ids = []
 
         for i, result in enumerate(results):
-            if result["inputType"] == "english":
+            if result["inputType"] == "en":
                 to_be_translated.append(result["output"])
                 transalted_ids.append(result["id"])
 
@@ -166,8 +164,7 @@ def single_sentence_quality_analyzer(
                     continue
 
                 to_be_translated_text = " ".join(to_be_translated)
-                translated_text = translate_english_to_tamil(
-                    to_be_translated_text)
+                translated_text = translate_english_to_tamil(to_be_translated_text)
                 if len(transalted_ids) > 1:
                     id_range = transalted_ids[0], transalted_ids[-1]
                 else:
@@ -176,7 +173,7 @@ def single_sentence_quality_analyzer(
                     {
                         "id": id_range,
                         "inputWord": to_be_translated_text,
-                        "inputType": "english",
+                        "inputType": "en",
                         "output": translated_text,
                     }
                 )
@@ -193,7 +190,6 @@ def single_sentence_quality_analyzer(
         output_text = coll_to_stand.inference(output_text)
 
     return (output_text.strip(), final_results)
-
 
 def multi_sentence_quality_analyzer(
     classifier: Inference,
@@ -219,48 +215,68 @@ def multi_sentence_quality_analyzer(
     """
     output_text = ""
 
-    sentences = sentence_segmentation(input_text)
+    segmented_sentences = sentence_segmentation(input_text)
     sentence_results = []
-    for sentence in sentences:
+    
+    for segment in segmented_sentences:
         results = []
         output, sentence_result = single_sentence_quality_analyzer(
             classifier,
             coll_to_stand,
-            sentence,
+            segment["sentence"],
             results,
             encoding,
             need_translation,
             colloquial_to_standard,
         )
-        output_text += output + " "
+        # Add the processed sentence with its original punctuation
+        punctuation = segment["punctuation"]
+        output_text += output + punctuation + " "
         if sentence_result:
-            sentence_results.append(
-                {"sentence": sentence, "results": sentence_result})
+            sentence_results.append({
+                "input_sentence": segment["sentence"] + punctuation,
+                "output_sentence": output + punctuation,
+                "results": sentence_result
+            })
 
     return (output_text.strip(), sentence_results)
 
-
 def sentence_segmentation(input_text: str):
     """
-    Segment the input text into sentences. This function is a simple sentence segmentation
-    algorithm that splits the input text based on punctuation marks.
+    Segment the input text into sentences. This function handles sentence segmentation
+    while preserving email addresses and URLs that contain punctuation marks.
 
     Args:
         input_text (str): The input text to segment.
 
     Returns:
-        list: A list of segmented sentences
-
+        list: A list of dictionaries containing segmented sentences and their punctuation marks
     """
     # Define punctuation marks and wrapper marks
     punctuation_marks = [".", "?", "!"]
     wrapper_in_marks = ['"', "(", "[", "{"]
     wrapper_out_marks = ['"', ")", "]", "}"]
 
+    # Common patterns for email and URLs
+    email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
+
     temp = ""
     sentences = []
     check = 0
-    for char in input_text:
+    i = 0
+    while i < len(input_text):
+        char = input_text[i]
+        
+        # Check for email or URL patterns
+        if char == '.':
+            # Look ahead to check if this period is part of an email or URL
+            look_ahead = input_text[i-20:i+20]  # Look at surrounding context
+            if re.search(email_pattern, look_ahead) or re.search(url_pattern, look_ahead):
+                temp += char
+                i += 1
+                continue
+
         if char in wrapper_in_marks:
             check += 1
         elif char in wrapper_out_marks:
@@ -268,16 +284,31 @@ def sentence_segmentation(input_text: str):
 
         if char in punctuation_marks and check == 0:
             if temp.strip():
-                sentences.append(temp.strip())
+                # Store both sentence and its punctuation
+                sentences.append({
+                    "sentence": temp.strip(),
+                    "punctuation": char
+                })
             temp = ""
         else:
             temp += char
+        i += 1
 
     if temp.strip():
-        sentences.append(temp.strip())
+        # For the last sentence, check if it ends with punctuation
+        last_char = temp.strip()[-1]
+        if last_char in punctuation_marks:
+            sentences.append({
+                "sentence": temp.strip()[:-1],
+                "punctuation": last_char
+            })
+        else:
+            sentences.append({
+                "sentence": temp.strip(),
+                "punctuation": ""
+            })
 
     return sentences
-
 
 def get_encoding_fun(model: Inference, input_text: str):
     """

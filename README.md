@@ -9,6 +9,7 @@ CSE Final Year Research and Development Project
 [FastAPI](#fastapi)
 [Streamlit](#streamlit)
 [Usage for each functions](#usage-for-function)
+[Docker](#docker)
 [Notes on Translation and Transliteration](#notes-on-translation-and-transliteration)
 
 ## Steps to start the development
@@ -45,6 +46,16 @@ git checkout -b <name of the dev>/dev/<feature>
 
 ```env
 BASE_API_URL="http://127.0.0.1:8000"
+DATABASE_URL=postgres://PGUSER:PGPASSWORD@PGHOST/PGDATABASE?sslmode=require
+```
+
+The feedback option requires a Postgres connection with the following schema,
+
+```bash
+id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY
+created_at TIMESTAMP NOT NULL
+output JSON NOT NULL
+feedback TEXT NOT NULL
 ```
 
 ## FastAPI
@@ -72,6 +83,15 @@ streamlit run .\ui\main.py
 # The default port is 8501
 # if you want to specify the port
 streamlit run .\ui\main.py --server.port 8989
+```
+
+## installation
+
+```bash
+# install the package
+pip install https://github.com/Sanujen/Project-IYAL/releases/download/v1.0.0-alpha/iyal_quality_analyzer-1.0-py3-none-any.whl
+
+# Refer the usage for each functions to use the package in your code base.
 ```
 
 ## Usage for each functions
@@ -129,6 +149,46 @@ inference = Inference(model_name="model_name", model_version="model_version")
 
 5. The `Inference` class initializes by checking the cache directory for the model. If the model is not found in the cache, it automatically downloads the model from the server.
 
+## Docker
+
+1. The docker images are available in the docker hub.
+
+```bash
+docker pull sathveegan/iyal-input-normalizer-server:latest
+docker pull sathveegan/iyal-input-normalizer-ui:latest
+docker pull sathveegan/iyal-input-normalizer-docs:latest
+```
+
+2. Run the docker container
+
+```bash
+docker run -d -p 8000:8000 -e SERVER_PORT=8000 sathveegan/iyal-input-normalizer-server:latest
+docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<server-port> sathveegan/iyal-input-normalizer-ui:latest
+docker run -d -p 8080:80 sathveegan/iyal-input-normalizer-docs:latest
+```
+
+3. The server ip and port can be changed by changing the environment variables.
+
+```env
+SERVER_PORT=8000
+UI_PORT=8501
+DOCS_PORT=8080
+BASE_API_URL=http://<server-ip>:<server-port>
+```
+
+4. The docker container can be stopped by using the following command
+
+```bash
+docker stop <container-id>
+```
+
+5. The docker containers can be run by using the docker-compose file.
+
+```bash
+docker-compose up -d
+docker-compose down
+```
+
 ## Notes on Translation and Transliteration
 
 1. We have use google APIs for translation and transliteration.
@@ -136,3 +196,19 @@ inference = Inference(model_name="model_name", model_version="model_version")
    - This is not Google’s official library since Google has deprecated Input Tools API.
 3. Translation: https://github.com/ssut/py-googletrans
    - This is an unofficial library using the web API of translate.google.com and also is not associated with Google.
+
+## Build the package
+
+```bash
+# build the package
+python setup.py sdist bdist_wheel
+```
+
+## Create docs
+
+```bash
+pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+
+sphinx-apidoc -o docs/source ../iyal_quality_analyzer
+sphinx-quickstart
+```

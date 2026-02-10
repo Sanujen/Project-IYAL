@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iyal_quality_analyzer.quality_analyzer &mdash; Project IYAL 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Project IYAL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Project IYAL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">iyal_quality_analyzer.quality_analyzer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for iyal_quality_analyzer.quality_analyzer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">iyal_quality_analyzer.utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer.utils.legacy_converter.legacy_converter</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">auto_detect_encoding</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer.inference_base.inference</span> <span class="kn">import</span> <span class="n">Inference</span>
+<span class="kn">from</span> <span class="nn">iyal_quality_analyzer.inference_base.inference_coll_to_stand</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Inference</span> <span class="k">as</span> <span class="n">CollToStandInference</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;anjal2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bamini2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;boomi2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dinakaran2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dinathanthy2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kavipriya2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;murasoli2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mylai2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nakkeeran2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;roman2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tab2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tam2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tscii2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;indoweb2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;koeln2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;libi2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oldvikatan2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;webulagam2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;auto2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dinamani2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pallavar2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;diacritic2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shreelipi2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;softview2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tace2utf8&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vanavil2utf8&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="single_word_quality_analyzer">
+<a class="viewcode-back" href="../../iyal_quality_analyzer.html#iyal_quality_analyzer.single_word_quality_analyzer">[docs]</a>
+<span class="k">def</span> <span class="nf">single_word_quality_analyzer</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Inference</span><span class="p">,</span> <span class="n">input_word</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">word_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes a single word into Raw Tamil Unicode and tags the input type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Inference): The model to use for legacy font classification.</span>
+<span class="sd">        input_word (str): The input word to normalize.</span>
+<span class="sd">        encoding (str): The encoding of the input text (e.g., bamini2utf8, etc.).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing the input type and the normalized output.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">word_id</span><span class="p">,</span> <span class="s2">&quot;inputWord&quot;</span><span class="p">:</span> <span class="n">input_word</span><span class="p">,</span>
+              <span class="s2">&quot;inputType&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">classification</span> <span class="o">=</span> <span class="n">classify_unicode</span><span class="p">(</span><span class="n">input_word</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_special_case</span><span class="p">(</span><span class="n">input_word</span><span class="p">):</span>
+        <span class="c1"># Special case, leave as is</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;special_case&quot;</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_word</span>
+
+    <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;en_numeric&quot;</span><span class="p">:</span>
+        <span class="c1"># Mixed English and Numeric, extract the english part, transliterate to Tamil Unicode and add the numeric part again</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">classification</span>
+        <span class="n">en_part</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># if the next char not an en char then transliterate the en_part</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_word</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                <span class="n">en_part</span> <span class="o">+=</span> <span class="n">char</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">en_part</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">+=</span> <span class="n">transliterate</span><span class="p">(</span><span class="n">en_part</span><span class="p">)</span>
+                    <span class="n">en_part</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">output</span> <span class="o">+=</span> <span class="n">char</span>
+        <span class="k">if</span> <span class="n">en_part</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">transliterate</span><span class="p">(</span><span class="n">en_part</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span>
+
+    <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;numeric&quot;</span> <span class="ow">or</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;raw_tamil&quot;</span><span class="p">:</span>
+        <span class="c1"># Numeric or Raw Tamil, leave as is</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">classification</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_word</span>
+
+    <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;en_tamil&quot;</span><span class="p">:</span>
+        <span class="c1"># Mixed Tamil and English, transliterate to Tamil</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">classification</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transliterate</span><span class="p">(</span><span class="n">input_word</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span>
+        <span class="c1"># Could be English or Romanized Tamil or Legacy Tamil</span>
+        <span class="c1"># Check if it&#39;s English word by a simple check with corpus</span>
+        <span class="k">if</span> <span class="n">is_english_word</span><span class="p">(</span><span class="n">input_word</span><span class="p">):</span>
+            <span class="c1"># English word, leave as is for now</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">classification</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_word</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Could be Romanized Tamil or Legacy Tamil</span>
+            <span class="c1"># Using a classifier model to determine the type whether Romanized or Legacy</span>
+            <span class="n">input_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">input_word</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_type</span>
+            <span class="k">if</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;Romanized Text Encoding&quot;</span><span class="p">:</span>
+                <span class="c1"># Romanized Tamil, transliterate to Tamil Unicode</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transliterate</span><span class="p">(</span><span class="n">input_word</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;Legacy Font Encoding&quot;</span><span class="p">:</span>
+                <span class="c1"># Legacy Tamil, convert to Tamil Unicode</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_legacy_to_unicode</span><span class="p">(</span>
+                    <span class="n">input_word</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># handle other cases</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_word</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">single_sentence_quality_analyzer</span><span class="p">(</span>
+    <span class="n">classifier</span><span class="p">:</span> <span class="n">Inference</span><span class="p">,</span>
+    <span class="n">coll_to_stand</span><span class="p">:</span> <span class="n">CollToStandInference</span><span class="p">,</span>
+    <span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">need_translation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">colloquial_to_standard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes a block of text into Raw Tamil Unicode and tags the input type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Model (Inference): The model to use for legacy font classification.</span>
+<span class="sd">        input_text (str): The input text to normalize.</span>
+<span class="sd">        encoding (str): The encoding of the input text (e.g., bamini2utf8, etc.).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the normalized output and a list of single-word</span>
+<span class="sd">        quality analysis results.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">input_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">word_id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">single_word_quality_analyzer</span><span class="p">(</span>
+            <span class="n">classifier</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">word_id</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">word_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">need_translation</span><span class="p">:</span>
+        <span class="n">final_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_be_translated</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">transalted_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;english&quot;</span><span class="p">:</span>
+                <span class="n">to_be_translated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+                <span class="n">transalted_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="ow">and</span> <span class="n">results</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;inputType&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;en&quot;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">to_be_translated_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_be_translated</span><span class="p">)</span>
+                <span class="n">translated_text</span> <span class="o">=</span> <span class="n">translate_english_to_tamil</span><span class="p">(</span>
+                    <span class="n">to_be_translated_text</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transalted_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">id_range</span> <span class="o">=</span> <span class="n">transalted_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">transalted_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">id_range</span> <span class="o">=</span> <span class="n">transalted_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">final_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">id_range</span><span class="p">,</span>
+                        <span class="s2">&quot;inputWord&quot;</span><span class="p">:</span> <span class="n">to_be_translated_text</span><span class="p">,</span>
+                        <span class="s2">&quot;inputType&quot;</span><span class="p">:</span> <span class="s2">&quot;english&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="n">translated_text</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="n">to_be_translated</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">transalted_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">final_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">final_results</span> <span class="o">=</span> <span class="n">results</span>
+
+    <span class="n">output_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">final_results</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">colloquial_to_standard</span><span class="p">:</span>
+        <span class="n">output_text</span> <span class="o">=</span> <span class="n">coll_to_stand</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">output_text</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">output_text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">final_results</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="multi_sentence_quality_analyzer">
+<a class="viewcode-back" href="../../iyal_quality_analyzer.html#iyal_quality_analyzer.multi_sentence_quality_analyzer">[docs]</a>
+<span class="k">def</span> <span class="nf">multi_sentence_quality_analyzer</span><span class="p">(</span>
+    <span class="n">classifier</span><span class="p">:</span> <span class="n">Inference</span><span class="p">,</span>
+    <span class="n">coll_to_stand</span><span class="p">:</span> <span class="n">CollToStandInference</span><span class="p">,</span>
+    <span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">need_translation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">colloquial_to_standard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes a block of text into Raw Tamil Unicode and tags the input type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Inference): The model to use for legacy font classification.</span>
+<span class="sd">        input_text (str): The input text to normalize.</span>
+<span class="sd">        encoding (str): The encoding of the input text (e.g., bamini2utf8, etc.).</span>
+<span class="sd">        need_translation (bool): Flag to indicate if translation is needed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the normalized output and a list of sentence</span>
+<span class="sd">        quality analysis results.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">sentences</span> <span class="o">=</span> <span class="n">sentence_segmentation</span><span class="p">(</span><span class="n">input_text</span><span class="p">)</span>
+    <span class="n">sentence_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">sentence_result</span> <span class="o">=</span> <span class="n">single_sentence_quality_analyzer</span><span class="p">(</span>
+            <span class="n">classifier</span><span class="p">,</span>
+            <span class="n">coll_to_stand</span><span class="p">,</span>
+            <span class="n">sentence</span><span class="p">,</span>
+            <span class="n">results</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">,</span>
+            <span class="n">need_translation</span><span class="p">,</span>
+            <span class="n">colloquial_to_standard</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">output_text</span> <span class="o">+=</span> <span class="n">output</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+        <span class="k">if</span> <span class="n">sentence_result</span><span class="p">:</span>
+            <span class="n">sentence_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;sentence&quot;</span><span class="p">:</span> <span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">sentence_result</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">output_text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">sentence_results</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">sentence_segmentation</span><span class="p">(</span><span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Segment the input text into sentences. This function is a simple sentence segmentation</span>
+<span class="sd">    algorithm that splits the input text based on punctuation marks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_text (str): The input text to segment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: A list of segmented sentences</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define punctuation marks and wrapper marks</span>
+    <span class="n">punctuation_marks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="s2">&quot;!&quot;</span><span class="p">]</span>
+    <span class="n">wrapper_in_marks</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;{&quot;</span><span class="p">]</span>
+    <span class="n">wrapper_out_marks</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;}&quot;</span><span class="p">]</span>
+
+    <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">sentences</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">check</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">input_text</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">wrapper_in_marks</span><span class="p">:</span>
+            <span class="n">check</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">wrapper_out_marks</span><span class="p">:</span>
+            <span class="n">check</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">punctuation_marks</span> <span class="ow">and</span> <span class="n">check</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">temp</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">+=</span> <span class="n">char</span>
+
+    <span class="k">if</span> <span class="n">temp</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="n">sentences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">sentences</span>
+
+
+<div class="viewcode-block" id="get_encoding_fun">
+<a class="viewcode-back" href="../../iyal_quality_analyzer.html#iyal_quality_analyzer.get_encoding_fun">[docs]</a>
+<span class="k">def</span> <span class="nf">get_encoding_fun</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Inference</span><span class="p">,</span> <span class="n">input_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects the encoding of the input text.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Inference): The model to use for legacy font classification.</span>
+<span class="sd">        input_text (str): The input text to analyze.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The detected encoding.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">input_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="n">classification</span> <span class="o">=</span> <span class="n">classify_unicode</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">classification</span> <span class="o">==</span> <span class="s2">&quot;english&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_english_word</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="n">input_type</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;Legacy Font Encoding&quot;</span><span class="p">:</span>
+                <span class="n">font_style</span> <span class="o">=</span> <span class="n">auto_detect_encoding</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">font_style</span> <span class="ow">in</span> <span class="n">__all__</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">font_style</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Sanujen Premkumar, Sathveegan Yogendrarajah, Nisanthan Sivarasa.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

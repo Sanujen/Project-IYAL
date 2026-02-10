@@ -1,0 +1,560 @@
+=== CHATGPT PROMPTS FOR TAMIL CONVERSION ===
+
+Instructions:
+1. Copy each prompt below
+2. Paste it into ChatGPT
+3. Copy the response
+4. Add it to the results file
+
+==================================================
+
+PROMPT 1:
+Input: ajith anna fans oda vijay Anna fans dha alla adhigama erukku kano
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "ajith anna fans oda vijay Anna fans dha alla adhigama erukku kano"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 2:
+Input: Marana mass uh... Love you thalaivaa
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Marana mass uh... Love you thalaivaa"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 3:
+Input: Kerala pillarude mass kanikan #Kerala Surya Fanz Like Here
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Kerala pillarude mass kanikan #Kerala Surya Fanz Like Here"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 4:
+Input: Sarkar Teaser likes ah beat pana mudilayeda... Ama payale  Iththu ponavane
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Sarkar Teaser likes ah beat pana mudilayeda... Ama payale  Iththu ponavane"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 5:
+Input: Dislike pottavangalam sathiyama sollunga trailer nalla illa? Unga nengila Kai vachi sollunga trailer nalla illa?
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Dislike pottavangalam sathiyama sollunga trailer nalla illa? Unga nengila Kai vachi sollunga trailer nalla illa?"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 6:
+Input: Koovathoor Maama irukumbodhe theriyum indha padam yepdi irukumnu......
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Koovathoor Maama irukumbodhe theriyum indha padam yepdi irukumnu......"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 7:
+Input: நாயக்கர் சமுதாயத்தின் சார்பாக இத்திரைக்காவியம் மாபெரும் வெற்றி அடைய வாழ்த்துக்கள்
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "நாயக்கர் சமுதாயத்தின் சார்பாக இத்திரைக்காவியம் மாபெரும் வெற்றி அடைய வாழ்த்துக்கள்"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 8:
+Input: படம் வெற்றி பெற வாழ்த்துக்கள். அனைவரும் தியேட்டர்ல pooi parunga
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "படம் வெற்றி பெற வாழ்த்துக்கள். அனைவரும் தியேட்டர்ல pooi parunga"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 9:
+Input: Sari papa nee oru parayan pona kadu papa aprom nee neyaa tharamam pasu papa
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Sari papa nee oru parayan pona kadu papa aprom nee neyaa tharamam pasu papa"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 10:
+Input: mind blowing trailer. Vera vera level daa...
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "mind blowing trailer. Vera vera level daa..."
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 11:
+Input: kathi pesuratha thavira ivanuku ethume theriyathu mokkai same old
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "kathi pesuratha thavira ivanuku ethume theriyathu mokkai same old"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 12:
+Input: Dei #Pink padam paathurukeengala ilaya da fight lam vechirukeenga
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Dei #Pink padam paathurukeengala ilaya da fight lam vechirukeenga"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 13:
+Input: Thalaivar mass ah paththi theriyadhavanga yaarumey illa
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Thalaivar mass ah paththi theriyadhavanga yaarumey illa"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 14:
+Input: Rajani the great ... Hit like if you like thaliavar and get rajinified
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Rajani the great ... Hit like if you like thaliavar and get rajinified"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 15:
+Input: kk na kena koo koo** kedigala koondoda pudikravaru nu sola vanthan...
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "kk na kena koo koo** kedigala koondoda pudikravaru nu sola vanthan..."
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 16:
+Input: Anil fans online la irundha like podunga paa
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Anil fans online la irundha like podunga paa"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 17:
+Input: I like no dahunsh bolt majju
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "I like no dahunsh bolt majju"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 18:
+Input: varlam varlam vaaaa varlam vaa bairavaaaaa
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "varlam varlam vaaaa varlam vaa bairavaaaaa"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 19:
+Input: நாடக காதல் ஓகே ஆனா இதை பொள்ளாச்சி kadhal பத்தி பேசுங்க சேர்
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "நாடக காதல் ஓகே ஆனா இதை பொள்ளாச்சி kadhal பத்தி பேசுங்க சேர்"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 20:
+Input: Waiting to see u Kajal on screen
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Waiting to see u Kajal on screen"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 21:
+Input: leval surya pakka masss
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "leval surya pakka masss"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 22:
+Input: Super star ku semma nose cut..
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Super star ku semma nose cut.."
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 23:
+Input: நாடார் சார்பாக படம் வெற்றி பெற என் ஆதரவு உண்டு
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "நாடார் சார்பாக படம் வெற்றி பெற என் ஆதரவு உண்டு"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 24:
+Input: Intha nattula ovanum ovaru paithiyam avanuku intha naatu mele paithiyam
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Intha nattula ovanum ovaru paithiyam avanuku intha naatu mele paithiyam"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 25:
+Input: Marumalarchikku piraku veali vantha vanniya thiraippadam  By dineshkanna07dk@gmail.com
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Marumalarchikku piraku veali vantha vanniya thiraippadam  By dineshkanna07dk@gmail.com"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 26:
+Input: Wakeup anadhum teaser pathavangale like podunga
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Wakeup anadhum teaser pathavangale like podunga"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 27:
+Input: After watching Sirikki song...@ny one here?
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "After watching Sirikki song...@ny one here?"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 28:
+Input: இந்த திரைப்படம் வெற்றி பெற கம்மவார் நாயுடு மக்கள் சார்பாக வாழ்த்துக்கள். இந்த திரைப்படம் பத்தி பத்தி சமூக வலைத்தளங்களில் ட்ரெண்டிங் செய்யுங்கள்.
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "இந்த திரைப்படம் வெற்றி பெற கம்மவார் நாயுடு மக்கள் சார்பாக வாழ்த்துக்கள். இந்த திரைப்படம் பத்தி பத்தி சமூக வலைத்தளங்களில் ட்ரெண்டிங் செய்யுங்கள்."
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 29:
+Input: Oru thar Mela viswasam kaddurathukka ka enni oru thaingaala eathukku Asikingaa padduthiringaa ...#Nkp
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Oru thar Mela viswasam kaddurathukka ka enni oru thaingaala eathukku Asikingaa padduthiringaa ...#Nkp"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 30:
+Input: தமிழில் இது போல் பல படங்கள் வந்துள்ளன ஏன் அப்போது எதிர்ப்பு தெரிவிக்கவில்லை இந்த படத்திற்கு மட்டும் ஏன் இவ்வளவு எதிர்ப்பு சொல்லுங்கள்
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "தமிழில் இது போல் பல படங்கள் வந்துள்ளன ஏன் அப்போது எதிர்ப்பு தெரிவிக்கவில்லை இந்த படத்திற்கு மட்டும் ஏன் இவ்வளவு எதிர்ப்பு சொல்லுங்கள்"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 31:
+Input: I think Joseph kuruvila is from kerala (kottayam)
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "I think Joseph kuruvila is from kerala (kottayam)"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 32:
+Input: Un like pantravanlam kantippa paraiyanunga thaan
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Un like pantravanlam kantippa paraiyanunga thaan"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 33:
+Input: நான் அரசியலுக்கு வருவது உறுதி....இது 1996  ( இன்னுமாடா ரஜினியை நம்புகிறீர்கள் )
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "நான் அரசியலுக்கு வருவது உறுதி....இது 1996  ( இன்னுமாடா ரஜினியை நம்புகிறீர்கள் )"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 34:
+Input: Saathiya vachi easy ah govt job ku poiduranga just pass anavanga  Thiramai irunthum Nalla mark vangium nammala job ku poga mudiala  Thiramai yai Inga caste tha niranaikirathu avanoda padippu ila
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Saathiya vachi easy ah govt job ku poiduranga just pass anavanga  Thiramai irunthum Nalla mark vangium nammala job ku poga mudiala  Thiramai yai Inga caste tha niranaikirathu avanoda padippu ila"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 35:
+Input: Padam diwali kku vantha sottaian odiduvaan
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Padam diwali kku vantha sottaian odiduvaan"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 36:
+Input: Jii padam epo ji release agum
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Jii padam epo ji release agum"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 37:
+Input: Thala vera level BGM vera level
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Thala vera level BGM vera level"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 38:
+Input: ADHU 90 KIDS KU PERUMA DA PODRA PODRA
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "ADHU 90 KIDS KU PERUMA DA PODRA PODRA"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 39:
+Input: All the best to the team....super ah na Oru kadhai Karu...ippa irukura ponnugaluku Oru lesson ah irukum
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "All the best to the team....super ah na Oru kadhai Karu...ippa irukura ponnugaluku Oru lesson ah irukum"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 40:
+Input: Thala koda compare panna yarukum thakuthi kidaiyathu mind it
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Thala koda compare panna yarukum thakuthi kidaiyathu mind it"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 41:
+Input: Haterz Will See Our Rage On Aug24
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Haterz Will See Our Rage On Aug24"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 42:
+Input: நான் தேவர் சமூகத்தை சேர்ந்தவன் நாடக காதலை ஒழித்து கட்ட இந்த படம் வெள்ளி விழா கான வாழ்த்துகிறேன் நண்பா
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "நான் தேவர் சமூகத்தை சேர்ந்தவன் நாடக காதலை ஒழித்து கட்ட இந்த படம் வெள்ளி விழா கான வாழ்த்துகிறேன் நண்பா"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 43:
+Input: .5 % கூட அசுரன் படத்தின் வசூலை மிஞ்ச முடியாது
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: ".5 % கூட அசுரன் படத்தின் வசூலை மிஞ்ச முடியாது"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 44:
+Input: Sangar.... Sangar ra etha movie direct pannala
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Sangar.... Sangar ra etha movie direct pannala"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 45:
+Input: வேலூர் வன்னியச்சி சார்பாக படம் வெற்றி பெற வாழ்த்துக்கள்
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "வேலூர் வன்னியச்சி சார்பாக படம் வெற்றி பெற வாழ்த்துக்கள்"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 46:
+Input: Ayan Surya is back 4 getups
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Ayan Surya is back 4 getups"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 47:
+Input: Ajith surya rasigar pooram oompa vantanuka
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Ajith surya rasigar pooram oompa vantanuka"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 48:
+Input: Padam vera level dhanush vettri brilliant must watch
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Padam vera level dhanush vettri brilliant must watch"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 49:
+Input: Next sooraraipottru teaser marana waiting Suriya Anna
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Next sooraraipottru teaser marana waiting Suriya Anna"
+        
+        Standardized Tamil:
+------------------------------
+
+PROMPT 50:
+Input: Look like remake of pink movie
+Prompt: Please convert the following colloquial Tamil text to standardized Tamil. 
+        Maintain the meaning and context while making it more formal and grammatically correct.
+        Only provide the converted text, no explanations.
+
+        Colloquial Tamil: "Look like remake of pink movie"
+        
+        Standardized Tamil:
+------------------------------
+
