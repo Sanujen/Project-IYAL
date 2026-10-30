@@ -1,42 +1,27 @@
 services:
-  server:
-    image: sathveegan/iyal-input-normalizer-server:latest
+  iyal-monolith:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
-    ports:
-      - ${SERVER_PORT:-8000}:${SERVER_PORT:-8000}
-    command: fastapi dev --host 0.0.0.0 --port ${SERVER_PORT:-8000} --reload ./server/server.py
-    networks:
-      - app-network
-
-  ui:
-    image: sathveegan/iyal-input-normalizer-ui:latest
-    build:
-      context: ./ui
-      dockerfile: Dockerfile
+    container_name: iyal-monolith
+    restart: unless-stopped
     env_file:
       - .env
     environment:
-      - BASE_API_URL=http://server:${SERVER_PORT:-8000}
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=${SERVER_PORT:-8000}
+      - DATA_DIR=/app/data
+      - LOG_DIR=/app/logs
+      - HF_HOME=/app/model_cache
     ports:
-      - ${UI_PORT:-8501}:${UI_PORT:-8501}
-    command: streamlit run main.py --server.port ${UI_PORT:-8501} --server.address 0.0.0.0
+      - "${SERVER_PORT:-8000}:${SERVER_PORT:-8000}"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./model_cache:/app/model_cache
     networks:
-      - app-network
-    depends_on:
-      - server
-  docs:
-    image: sathveegan/iyal-input-normalizer-docs:latest
-    build:
-      context: ./docs
-      dockerfile: Dockerfile
-    ports:
-      - "${DOCS_PORT:-80}:${DOCS_PORT:-80}"
-    restart: unless-stopped 
+      - iyal-network
 
 networks:
-  app-network:
-    driver: bridge 
+  iyal-network:
+    driver: bridge

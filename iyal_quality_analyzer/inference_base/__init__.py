@@ -1,5 +1,4 @@
-"""
-TODO: make base inference class
-TODO: make two child classes for inference and inference_coll_to_stand
+from .inference import Inference
+from .inference_coll_to_stand import Inference as CollToStandInference
 
-"""
+__all__ = ["Inference", "CollToStandInference"]

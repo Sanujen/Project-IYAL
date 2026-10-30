@@ -1,25 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-##############################################################################
-#                                                                            #
-# Author : Arulalan.T <arulalant@gmail.com>                                  #
-# Date : 04.08.2014                                                          #
-#                                                                            #
-# This file is part of txt2uni                                               #
-#                                                                            #
-# txt2uni is free software: you can redistribute it and/or                   #
-# modify it under the terms of the GNU General Public License as published by#
-# the Free Software Foundation, either version 3 of the License, or (at your #
-# option) any later version. This program is distributed in the hope that it #
-# will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty#
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General#
-# Public License for more details. You should have received a copy of the GNU#
-# General Public License along with this program. If not, see                #
-# <http://www.gnu.org/licenses/>.                                            #
-#                                                                            #
-##############################################################################
-
 from collections import OrderedDict
 from iyal_quality_analyzer.utils.legacy_converter.encode2utf8 import (
     anjal2utf8,
@@ -48,75 +29,159 @@ from iyal_quality_analyzer.utils.legacy_converter.encode2utf8 import (
     tace2utf8,
     vanavil2utf8,
 )
+from iyal_quality_analyzer.utils.logger import setup_logging
+
+logger = setup_logging("iyal.legacy_converter")
+
+ALL_ENCODINGS = [
+    "anjal2utf8",
+    "bamini2utf8",
+    "boomi2utf8",
+    "dinakaran2utf8",
+    "dinathanthy2utf8",
+    "kavipriya2utf8",
+    "murasoli2utf8",
+    "mylai2utf8",
+    "nakkeeran2utf8",
+    "roman2utf8",
+    "tab2utf8",
+    "tam2utf8",
+    "tscii2utf8",
+    "indoweb2utf8",
+    "koeln2utf8",
+    "libi2utf8",
+    "oldvikatan2utf8",
+    "webulagam2utf8",
+    "auto2utf8",
+    "dinamani2utf8",
+    "pallavar2utf8",
+    "diacritic2utf8",
+    "shreelipi2utf8",
+    "softview2utf8",
+    "tace2utf8",
+    "vanavil2utf8",
+]
 
 __all__ = [
-    "anjal2unicode",
-    "bamini2unicode",
-    "boomi2unicode",
-    "dinakaran2unicode",
-    "dinathanthy2unicode",
-    "kavipriya2unicode",
-    "murasoli2unicode",
-    "mylai2unicode",
-    "nakkeeran2unicode",
-    "roman2unicode",
-    "tab2unicode",
-    "tam2unicode",
-    "tscii2unicode",
-    "indoweb2unicode",
-    "koeln2unicode",
-    "libi2unicode",
-    "oldvikatan2unicode",
-    "webulagam2unicode",
+    "ALL_ENCODINGS",
+    "encode2unicode",
     "auto2unicode",
-    "dinamani2unicode",
-    "pallavar2unicode",
-    "diacritic2unicode",
-    "shreelipi2unicode",
-    "softview2unicode",
-    "tace2unicode",
-    "vanavil2unicode",
+    "convert_legacy_to_unicode",
+    "auto_detect_encoding",
 ]
+
+
+def _normalize_charmap(charmap: OrderedDict) -> OrderedDict:
+    """
+    Normalizes regex-escaped keys (like '\\$', '\\[', '\\^', '\\/') in encode2utf8 dictionaries
+    so literal string replacement works accurately for all characters.
+    """
+    normalized = OrderedDict()
+    for key, val in charmap.items():
+        clean_key = (
+            key.replace(r"\[", "[")
+            .replace(r"\]", "]")
+            .replace(r"\$", "$")
+            .replace(r"\^", "^")
+            .replace(r"\/", "/")
+            .replace(r"\+", "+")
+            .replace(r"\*", "*")
+        )
+        normalized[clean_key] = val
+        if clean_key != key:
+            normalized[key] = val
+    return normalized
+
 
 _all_encodes_ = OrderedDict(
     [
-        ("anjal2utf8", anjal2utf8),
-        ("bamini2utf8", bamini2utf8),
-        ("boomi2utf8", boomi2utf8),
-        ("dinakaran2utf8", dinakaran2utf8),
-        ("dinamani2utf8", dinamani2utf8),
-        ("dinathanthy2utf8", dinathanthy2utf8),
-        ("kavipriya2utf8", kavipriya2utf8),
-        ("murasoli2utf8", murasoli2utf8),
-        ("mylai2utf8", mylai2utf8),
-        ("nakkeeran2utf8", nakkeeran2utf8),
-        ("roman2utf8", roman2utf8),
-        ("tab2utf8", tab2utf8),
-        ("tam2utf8", tam2utf8),
-        ("tscii2utf8", tscii2utf8),
-        ("pallavar2utf8", pallavar2utf8),
-        ("indoweb2utf8", indoweb2utf8),
-        ("koeln2utf8", koeln2utf8),
-        ("libi2utf8", libi2utf8),
-        ("oldvikatan2utf8", oldvikatan2utf8),
-        ("webulagam2utf8", webulagam2utf8),
-        ("diacritic2utf8", diacritic2utf8),
-        ("shreelipi2utf8", shreelipi2utf8),
-        ("softview2utf8", softview2utf8),
-        ("tace2utf8", tace2utf8),
-        ("vanavil2utf8", vanavil2utf8),
+        ("anjal2utf8", _normalize_charmap(anjal2utf8)),
+        ("bamini2utf8", _normalize_charmap(bamini2utf8)),
+        ("boomi2utf8", _normalize_charmap(boomi2utf8)),
+        ("dinakaran2utf8", _normalize_charmap(dinakaran2utf8)),
+        ("dinamani2utf8", _normalize_charmap(dinamani2utf8)),
+        ("dinathanthy2utf8", _normalize_charmap(dinathanthy2utf8)),
+        ("kavipriya2utf8", _normalize_charmap(kavipriya2utf8)),
+        ("murasoli2utf8", _normalize_charmap(murasoli2utf8)),
+        ("mylai2utf8", _normalize_charmap(mylai2utf8)),
+        ("nakkeeran2utf8", _normalize_charmap(nakkeeran2utf8)),
+        ("roman2utf8", _normalize_charmap(roman2utf8)),
+        ("tab2utf8", _normalize_charmap(tab2utf8)),
+        ("tam2utf8", _normalize_charmap(tam2utf8)),
+        ("tscii2utf8", _normalize_charmap(tscii2utf8)),
+        ("pallavar2utf8", _normalize_charmap(pallavar2utf8)),
+        ("indoweb2utf8", _normalize_charmap(indoweb2utf8)),
+        ("koeln2utf8", _normalize_charmap(koeln2utf8)),
+        ("libi2utf8", _normalize_charmap(libi2utf8)),
+        ("oldvikatan2utf8", _normalize_charmap(oldvikatan2utf8)),
+        ("webulagam2utf8", _normalize_charmap(webulagam2utf8)),
+        ("diacritic2utf8", _normalize_charmap(diacritic2utf8)),
+        ("shreelipi2utf8", _normalize_charmap(shreelipi2utf8)),
+        ("softview2utf8", _normalize_charmap(softview2utf8)),
+        ("tace2utf8", _normalize_charmap(tace2utf8)),
+        ("vanavil2utf8", _normalize_charmap(vanavil2utf8)),
     ]
 )
 
+# Support common aliases like "bamini2utf2" or "bamini"
+_ENCODING_ALIASES = {
+    "bamini2utf2": "bamini2utf8",
+    "bamini": "bamini2utf8",
+    "anjal": "anjal2utf8",
+    "tscii": "tscii2utf8",
+    "tab": "tab2utf8",
+    "tam": "tam2utf8",
+    "vanavil": "vanavil2utf8",
+}
 
-# By enable this flage, it will write individual encodes unique & common
-# characters in text file.
-__WRITE_CHARS_TXT = False
+
+def resolve_encoding_name(encoding: str = None) -> str:
+    if not encoding:
+        return None
+    enc = encoding.strip().lower()
+    if enc in _ENCODING_ALIASES:
+        return _ENCODING_ALIASES[enc]
+    if enc.endswith("2unicode"):
+        enc = enc.replace("2unicode", "2utf8")
+    return enc if enc in _all_encodes_ else encoding
+
+
+def _compute_unique_common_encodes():
+    """
+    Precomputes unique character sets per encoding and common compound characters
+    across all 25 legacy encodings once at module import time.
+    """
+    all_unique_encodes = []
+    all_unicode_encodes = {
+        name: set(encode.keys()) for name, encode in _all_encodes_.items()
+    }
+    all_unique_encodes_full = all_unicode_encodes.copy()
+    all_common_encodes = set()
+
+    for supname, super_encode in all_unicode_encodes.items():
+        unique_set = set(super_encode)
+        for subname, sub_encode in all_unicode_encodes.items():
+            if supname != subname:
+                unique_set -= sub_encode
+        common = all_unique_encodes_full[supname] - unique_set
+        all_common_encodes |= common
+        all_unique_encodes.append((supname, unique_set))
+
+    # Remove single characters from common compound characters
+    all_common_encodes = {ch for ch in all_common_encodes if len(ch) > 1}
+    return all_unique_encodes, all_common_encodes
+
+
+_PRECOMPUTED_UNIQUE_ENCODES, _PRECOMPUTED_COMMON_ENCODES = _compute_unique_common_encodes()
+
+
+def _get_unique_common_encodes():
+    return _PRECOMPUTED_UNIQUE_ENCODES, _PRECOMPUTED_COMMON_ENCODES
 
 
 def encode2unicode(text, charmap):
     """
-    charmap : dictionary which has both encode as key, unicode as value
+    Converts legacy font-encoded text to Tamil Unicode using the specified OrderedDict charmap.
     """
     if isinstance(text, (list, tuple)):
         unitxt = ""
@@ -125,223 +190,100 @@ def encode2unicode(text, charmap):
                 if key in line:
                     line = line.replace(key, val)
             unitxt += line
-
         return unitxt
     elif isinstance(text, str):
         for key, val in charmap.items():
             if key in text:
                 text = text.replace(key, val)
         return text
+    return text
 
 
 def _get_unique_ch(text, all_common_encodes):
-    """
-    text : encode sample strings
-
-    returns unique word / characters from input text encode strings.
-    """
-
-    unique_chars = ""
+    """Extracts unique character sequences from input text outside common compound characters."""
     if isinstance(text, str):
-        text = text.split("\n")
+        lines = text.split("\n")
     elif isinstance(text, (list, tuple)):
-        pass
+        lines = text
+    else:
+        return ""
 
-    special_chars = [".", ",", ";", ":", "", " ", "\r", "\t", "=", "\n"]
-    for line in text:
+    special_chars = {".", ",", ";", ":", "", " ", "\r", "\t", "=", "\n"}
+    for line in lines:
         for word in line.split(" "):
             for ch in all_common_encodes:
                 if ch in word:
                     word = word.replace(ch, "")
-            # end of for ch in _all_common_encodes_:
-
-            # if len of word is zero, then go for another word
             if not word:
                 continue
-
-            for ch in word:
+            for ch in list(word):
                 if ch.isdigit() or ch in special_chars:
-                    # remove special common chars
                     word = word.replace(ch, "")
-                    continue
-                # end of if ch.isdigit() or ...:
-                # Whola, got unique chars from user passed text
+            if word:
                 return word
-            # end of for ch in word:
-        # end of for word in line.split(' '):
-    # end of for line in text:
     return ""
 
 
-# end of def get_unique_ch(text):
-
-
-def _get_unique_common_encodes():
+def auto_detect_encoding(legacy_text: str) -> str:
     """
-    This function will return both unique_encodes and common_encodes as tuple.
-
-    unique_encodes : In dictionary with encodes name as key and its
-       corresponding encode's unique characters among other available encodes.
-    common_encodes : In set type which has all common encode compound
-       characters from all available encodes.
-       i.e. removed common encode single characters
-
-    Author : Arulalan.T
-
-    04.08.2014
-
-    """
-
-    _all_unique_encodes_ = []
-    _all_unicode_encodes_ = {}
-    _all_common_encodes_ = set([])
-    _all_common_encodes_single_char_ = set([])
-
-    for name, encode in _all_encodes_.items():
-        encode_utf8 = set([ch for ch in encode.keys()])
-        _all_unicode_encodes_[name] = encode_utf8
-    # end of for name, encode in _all_encodes_.items():
-
-    _all_unique_encodes_full_ = _all_unicode_encodes_.copy()
-
-    for supname, super_encode in _all_unicode_encodes_.items():
-        for subname, sub_encode in _all_unicode_encodes_.items():
-            if supname == subname:
-                continue
-            # get unique of super_encode among other encodings
-            super_encode = super_encode - sub_encode
-        # end of for sub_encode in _all_unicode_encodes_.items():
-        # get common for all over encodings
-        common = _all_unique_encodes_full_[supname] - super_encode
-        # merge common to all encodings common
-        _all_common_encodes_ = _all_common_encodes_.union(common)
-        # store super_encode's unique keys with its name
-        _all_unique_encodes_.append((supname, super_encode))
-    # end of for supname, super_encode in _all_unicode_encodes_.items():
-
-    for ch in _all_common_encodes_:
-        # collect single common chars
-        if len(ch) == 1:
-            _all_common_encodes_single_char_.add(ch)
-    # end of for ch in _all_common_encodes_:
-
-    # remove single common char from compound common chars
-    _all_common_encodes_ -= _all_common_encodes_single_char_
-
-    if __WRITE_CHARS_TXT:
-        # write common compound characters of all encodes
-        f = open("all.encodes.common.chars.txt", "w")
-        for ch in _all_common_encodes_:
-            ch = ch.encode("utf-8")
-            for encode_keys in _all_encodes_.values():
-                if ch in encode_keys:
-                    uni = encode_keys[ch]
-                    break
-                # end of if ch in encode_keys:
-            # end of for encode_keys in _all_encodes_.values():
-            f.write(ch + "  =>  " + uni + "\n")
-        # end of for ch in _all_common_encodes_:
-        f.close()
-        # write unique compound characters of all encodes
-        for encode_name, encode_keys in _all_unique_encodes_:
-            f = open(encode_name + ".unique.chars.txt", "w")
-            for ch in encode_keys:
-                ch = ch.encode("utf-8")
-                uni = _all_encodes_[encode_name][ch]
-                f.write(ch + "  =>  " + uni + "\n")
-            # end of for ch in encode_keys:
-            f.close()
-        # end of for encode_name, encode_keys in _all_unique_encodes_:
-    # end of if __WRITE_CHARS_TXT:
-
-    return (_all_unique_encodes_, _all_common_encodes_)
-
-
-# end of def _get_unique_common_encodes():
-
-
-def auto2unicode(text):
-    """
-    This function tries to identify encode in available encodings.
-    If it finds, then it will convert text into unicode string.
-
-    Author : Arulalan.T
-
-    04.08.2014
-
-    """
-
-    _all_unique_encodes_, _all_common_encodes_ = _get_unique_common_encodes()
-    # get unique word which falls under any one of available encodes from
-    # user passed text lines
-    unique_chars = _get_unique_ch(text, _all_common_encodes_)
-    # count common encode chars
-    clen = len(_all_common_encodes_)
-    msg = "Sorry, couldn't find encode :-(\n"
-    msg += "Need more words to find unique encode out side of %d " % clen
-    msg += "common compound characters"
-    if not unique_chars:
-        print(msg)
-        return ""
-    # end of if not unique_chars:
-
-    for encode_name, encode_keys in _all_unique_encodes_:
-        if not len(encode_keys):
-            continue
-        for ch in encode_keys:
-            # check either encode char is presnent in word
-            if ch in unique_chars:
-                # found encode
-                print("Whola! found encode : ", encode_name)
-                encode = _all_encodes_[encode_name]
-                return encode2unicode(text, encode)
-            # end of if ch in unique_chars:
-        # end of ifor ch in encode_keys:
-    else:
-        print(msg)
-        return ""
-    # end of for encode in _all_unique_encodes_:
-
-
-# end of def auto2unicode(text):
-
-
-def convert_legacy_to_unicode(legacy_text: str, encoding: str = None):
-    """
-    Converts legacy Tamil font-encoded text into Unicode.
+    Automatically identifies the legacy Tamil font encoding of the input text.
 
     Args:
         legacy_text (str): The legacy font-encoded text.
 
     Returns:
-        str: Converted Unicode text.
+        str: Detected encoding name (e.g. 'bamini2utf8') or 'Unknown'.
     """
-    if encoding in _all_encodes_:
-        print("encoding: ", encoding)
-        encode = _all_encodes_[encoding]
-        return encode2unicode(legacy_text, encode)
-    else:
-        print("No encoding specified. Trying to find automatically.")
-        return auto2unicode(legacy_text)
-
-def auto_detect_encoding(legacy_text: str):
-    """
-    Returns the encoding of the given legacy font-encoded text.
-
-    Args:
-        legacy_text (str): The legacy font-encoded text.
-
-    Returns:
-        str: The encoding of the given text.
-    """
-    _all_unique_encodes_, _all_common_encodes_ = _get_unique_common_encodes()
-    unique_chars = _get_unique_ch(legacy_text, _all_common_encodes_)
-    if not unique_chars:
+    if not legacy_text or not legacy_text.strip():
         return "Unknown"
-    for encode_name, encode_keys in _all_unique_encodes_:
-        if not len(encode_keys):
-            continue
-        for ch in encode_keys:
-            if ch in unique_chars:
-                return encode_name
+
+    # Bamini signature check: In Bamini, ';' is the pulli (்) character attached to
+    # consonants (e.g., 'k;'=ம், 'f;'=க், 'j;'=த், 'd;'=ன், 'y;'=ல், 'w;'=ற், 'o;'=ழ்).
+    # Because _get_unique_ch strips ';', checking the Bamini pulli pattern first prevents
+    # false positives like 'cyfk;' -> 'cyf' matching 'yf' in mylai2utf8.
+    import re
+    if re.search(r"[fjqrlzjeadkuyshwtobg];", legacy_text):
+        return "bamini2utf8"
+
+    unique_chars = _get_unique_ch(legacy_text, _PRECOMPUTED_COMMON_ENCODES)
+    if unique_chars:
+        for encode_name, encode_keys in _PRECOMPUTED_UNIQUE_ENCODES:
+            if not encode_keys:
+                continue
+            for ch in encode_keys:
+                if ch in unique_chars:
+                    return encode_name
+
+    if any(
+        pat in legacy_text for pat in ("fh", "fp", "nf", "Nf", "jp", "th", "jk", "tz")
+    ):
+        return "bamini2utf8"
+
     return "Unknown"
+
+
+def auto2unicode(text: str) -> str:
+    """Automatically detects the legacy encoding and converts the text into Tamil Unicode."""
+    detected = auto_detect_encoding(text)
+    if detected in _all_encodes_:
+        logger.debug(f"Auto-detected legacy encoding '{detected}' for text.")
+        return encode2unicode(text, _all_encodes_[detected])
+    # Fallback to Bamini if detection was inconclusive
+    return encode2unicode(text, _all_encodes_["bamini2utf8"])
+
+
+def convert_legacy_to_unicode(legacy_text: str, encoding: str = None) -> str:
+    """
+    Converts legacy Tamil font-encoded text into Tamil Unicode.
+
+    Args:
+        legacy_text (str): The legacy font-encoded text.
+        encoding (str, optional): Specific encoding name (e.g. 'bamini2utf8').
+
+    Returns:
+        str: Converted Tamil Unicode text.
+    """
+    resolved = resolve_encoding_name(encoding)
+    if resolved and resolved in _all_encodes_:
+        return encode2unicode(legacy_text, _all_encodes_[resolved])
+    return auto2unicode(legacy_text)

@@ -1,214 +1,177 @@
-# Project-IYAL
+# இயல் (Project IYAL) — Tamil Input Text Normalizer & Standardizer (v2.0)
 
-CSE Final Year Research and Development Project
+**Project IYAL** is a unified, lightweight, high-performance monolithic web application and Python NLP library that normalizes heterogeneous Tamil text inputs—combining **Raw Tamil Unicode**, **Mixed Tamil+English Unicode**, **Romanized Tanglish**, **25 Legacy Tamil Font Encodings (Bamini, Anjal, TSCII, TAB, TAM, Vanavil, etc.)**, and **English words**—into clean, standardized **Tamil Unicode**.
 
-## Table of Contents
+---
 
-[Steps to start the development](#steps-to-start-the-development)  
-[.env file](#env-file)
-[FastAPI](#fastapi)
-[Streamlit](#streamlit)
-[Usage for each functions](#usage-for-function)
-[Docker](#docker)
-[Notes on Translation and Transliteration](#notes-on-translation-and-transliteration)
+## 🌟 Key Highlights in v2.0
 
-## Steps to start the development
+1. **Unified Monolithic Server (`FastAPI` + Embedded SPA Frontend + `SQLite WAL`)**:
+   - Serves the Public Normalization App at `/`, the RBAC-protected Admin Portal at `/admin`, and the REST API at `/api/v1/*` (plus 100% backward compatibility with legacy routes `/analyze/`, `/get_encoding/`, `/legacy2unicode/`, `/colloquial_to_standard/`, `/feedback/`) from a **single process and port**.
+   - Uses a zero-cost embedded **SQLite (WAL Mode)** database (`./data/iyal.db`) out of the box—perfect for university server hosting with zero cloud database bills—while supporting seamless PostgreSQL override via `DATABASE_URL`.
+2. **Complete 11-Step Normalization Pipeline**:
+   - **Step 1**: Input multi-sentence paragraphs or upload `.docx`, `.txt`, and `.pdf` documents.
+   - **Step 2**: Sentence & token segmentation (preserving URLs, emails, phone numbers, and bracketed expressions).
+   - **Steps 3 & 4**: 5-type token classification (`Raw Tamil Unicode`, `Mixed Tamil+English`, `English / Protected Corpus`, `Legacy Font Encoding`, `Romanized Tanglish`).
+   - **Step 5**: $O(1)$ cached NLTK English vocabulary lookup + **User-Configurable Protected Words** via the UI (words that must never be transliterated or translated).
+   - **Step 6**: Fine-tuned BERT sequence classifier (`sanujen/Tamil_Legacy_Roman_Classifier_V2` / `sanujen/fyp_0`) to distinguish Legacy Font tokens from Romanized Tanglish tokens.
+   - **Step 7**: Automatic Legacy Font identification (`encode2unicode` across 25 Tamil legacy fonts) with an **interactive UI Confirmation Banner** showing live Tamil Unicode previews before converting.
+   - **Step 8**: Fast, LRU-cached Tamil transliteration for Romanized Tanglish words.
+   - **Step 9**: Sentence and paragraph restructuring with original punctuation.
+   - **Step 10**: Optional phrase-level English-to-Tamil translation (`need_translation`), automatically preserving user-protected words.
+   - **Step 11**: Optional Colloquial-to-Standard Tamil standardization (`colloquial_to_standard`) powered by our fine-tuned mBART model (`sanujen/mBART_Tamil_Colloquial_to_Standard`).
+3. **Public Feedback & Protected `/admin` Portal**:
+   - Users can submit categorized, rated feedback with full input/output context in one click.
+   - `/admin` is protected by a predefined **Superadmin** account and supports **Hybrid Gmail Authentication** (both Google OAuth 2.0 Sign-In and Gmail Invitation Tokens / Password login).
+   - **Role-Based Access Control (RBAC)**:
+     - `superadmin`: Full access + **Admin User Management** (invite admins by Gmail, activate/deactivate, delete).
+     - `admin`: Access to Feedback triage, Model Management, Protected Corpus, and Observability logs (cannot manage other admin users).
+4. **Dynamic Dual-Model Management**:
+   - Admins can switch either Model 1 (`classifier`) or Model 2 (`standardizer`) at runtime between:
+     - **`default`**: Local model inside the Python environment / HuggingFace cache.
+     - **`custom`**: Any custom hosted HTTP inference endpoint URL or custom HuggingFace repository URL (with optional Bearer API key) and test it live from `/admin`.
+5. **In-Monolith DDoS, Brute-Force & Observability Engine**:
+   - Sliding-window IP rate limiting across route tiers (`general`, `inference`, `feedback`) with automatic temporary IP bans for repeated violations.
+   - Brute-force login protection (locks out IP/account after 5 failed attempts for 15 minutes).
+   - Request payload size guards, ML inference concurrency semaphores, `X-Request-ID` tracing, rotating log files (`logs/app.log`, `logs/error.log`), and a live log/security dashboard in `/admin`.
 
-1. Clone the repository
-2. Create and activate a virtual environment
+---
 
-```bash
-python3 -m venv .venv
-# or
-python -m venv .venv
+## 📁 Repository Structure
 
-.venv\Scripts\activate
+```text
+Project-IYAL/
+├── context/                        # Persistent AI Agent context & session state
+│   ├── 00_PROJECT_OVERVIEW.md      # 11-step domain flow & system overview
+│   ├── 01_ARCHITECTURE_DECISIONS.md# Monolith, SQLite WAL, Hybrid Gmail Auth, DDoS ADRs
+│   ├── 02_API_AND_DATA_SCHEMA.md   # Database tables & REST API specifications
+│   ├── 03_SESSION_STATE.md         # Phase-by-phase progress & verification state
+│   └── 04_RECOMMENDED_ADDONS.md    # Phase 5 future high-value add-ons roadmap
+├── iyal_quality_analyzer/          # Core Python NLP Package (pip-installable)
+│   ├── __init__.py
+│   ├── quality_analyzer.py         # 11-step normalization pipeline
+│   ├── inference_base/
+│   │   ├── inference.py            # Model 1: Legacy vs. Romanized Classifier
+│   │   └── inference_coll_to_stand.py # Model 2: Colloquial-to-Standard mBART
+│   └── utils/
+│       ├── unicode_classifier.py   # Unicode range categorization
+│       ├── english_word_check.py   # Cached NLTK corpus + custom protected words
+│       ├── special_case_check.py   # URL, email, phone, bracket detection
+│       ├── transliteration.py      # Cached Google Input Tools Tamil transliterator
+│       ├── translator.py           # Cached English-to-Tamil translator
+│       ├── legacy_converter/       # 25 legacy Tamil font charmaps & auto-detector
+│       └── logger/                 # Rotating file + ring-buffer structured logger
+├── server/                         # Monolithic FastAPI Server + Static Web UI
+│   ├── server.py                   # FastAPI application entrypoint
+│   ├── config.py                   # Environment settings
+│   ├── database.py                 # SQLAlchemy 2.0 + SQLite WAL / PostgreSQL engine
+│   ├── models_db.py                # ORM models (AdminUser, Feedback, ModelConfig, etc.)
+│   ├── auth.py                     # PBKDF2, JWT, Google OAuth2 & RBAC dependencies
+│   ├── security.py                 # DDoS rate limiter, IP auto-ban & brute-force guard
+│   ├── model_manager.py            # Runtime dual-model manager (default vs. custom URL)
+│   ├── file_parser.py              # .docx, .txt, .pdf text extraction & .docx export
+│   └── static/                     # Frontend SPA for `/` and `/admin`
+├── docs/                           # Architecture & Implementation Report with Mermaid diagrams
+├── tests/                          # End-to-end automated test suite
+├── .env.example                    # Template environment configuration
+├── Dockerfile                      # Production CPU-optimized Docker image
+├── docker-compose.yml              # Single-command deployment with persistent volumes
+├── requirements.txt                # Clean, conflict-free Python dependencies
+└── setup.py                        # Package installer for `iyal_quality_analyzer`
 ```
 
-3. Install the requirements
+---
 
+## 🚀 Quick Start (Local Development)
+
+### 1. Clone & Set Up Virtual Environment
 ```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# Linux / macOS:
+source .venv/bin/activate
+
 pip install -r requirements.txt
 ```
 
-4. Create a branch from development branch
+### 2. Configure `.env`
+Copy `.env.example` to `.env` and customize if needed:
+```bash
+cp .env.example .env
+```
+Default predefined Superadmin credentials (override in `.env` for production):
+- **Username**: `superadmin` (or `superadmin@gmail.com`)
+- **Password**: `IyalAdmin@2026`
+
+### 3. Run the Monolithic Server
+```bash
+uvicorn server.server:app --host 0.0.0.0 --port 8000 --reload
+```
+- **Public Normalizer Web App**: `http://localhost:8000/`
+- **Protected Admin Portal**: `http://localhost:8000/admin`
+- **Interactive OpenAPI Docs**: `http://localhost:8000/api/docs`
+
+---
+
+## 🐳 Docker Compose Deployment (University Server Ready)
+
+Deploy the entire stack with persistent volumes for the SQLite database (`./data`), logs (`./logs`), and HuggingFace model cache (`./model_cache`):
 
 ```bash
-git checkout development
-git pull origin development
-git checkout -b <name of the dev>/dev/<feature>
+cp .env.example .env
+docker compose up -d --build
 ```
 
-## .env file
-
-1. Create a `.env` file in the root directory
-2. Add the following environment variables
-
-```env
-BASE_API_URL="http://127.0.0.1:8000"
-DATABASE_URL=postgres://PGUSER:PGPASSWORD@PGHOST/PGDATABASE?sslmode=require
-```
-
-The feedback option requires a Postgres connection with the following schema,
-
+To view logs or stop:
 ```bash
-id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-created_at TIMESTAMP NOT NULL
-output JSON NOT NULL
-feedback TEXT NOT NULL
+docker compose logs -f
+docker compose down
 ```
 
-## FastAPI
+---
 
-1. Run the FastAPI server
-
-```bash
-# you may need to,
-pip install "fastapi[standard]"
-
-fastapi dev .\server\server.py
-
-# The default port is 8000
-# if you want to specify the port
-fastapi dev .\server\server.py --port 8000
-```
-
-## Streamlit
-
-1. Run the Streamlit server
-
-```bash
-streamlit run .\ui\main.py
-
-# The default port is 8501
-# if you want to specify the port
-streamlit run .\ui\main.py --server.port 8989
-```
-
-## installation
-
-```bash
-# install the package
-pip install https://github.com/Sanujen/Project-IYAL/releases/download/v1.0.0-alpha/iyal_quality_analyzer-1.0-py3-none-any.whl
-
-# Refer the usage for each functions to use the package in your code base.
-```
-
-## Usage for each functions
-
-1. Import the required function
+## 📦 Using `iyal_quality_analyzer` as a Python Library
 
 ```python
-from iyal_quality_analyzer import convert_legacy_to_unicode
-from iyal_quality_analyzer import classify_unicode
-from iyal_quality_analyzer import transliterate
-from iyal_quality_analyzer import translate_english_to_tamil
-from iyal_quality_analyzer import is_english_word
-from iyal_quality_analyzer import Inference
-from iyal_quality_analyzer import quality_analyzer
-from iyal_quality_analyzer import single_word_quality_analyzer
-from iyal_quality_analyzer import multi_sentence_quality_analyzer
-from iyal_quality_analyzer import get_encoding_fun
+from iyal_quality_analyzer import (
+    Inference,
+    CollToStandInference,
+    detect_legacy_encoding_details,
+    multi_sentence_quality_analyzer,
+    convert_legacy_to_unicode,
+)
+
+classifier = Inference()
+standardizer = CollToStandInference()
+
+text = "Kaalai வணkkam உலகம் cyfk; Moratuwa."
+
+# Step 6 & 7: Detect Legacy Font & get preview samples
+enc_info = detect_legacy_encoding_details(
+    classifier, text, protected_words=["Moratuwa"]
+)
+print(enc_info)
+# {'encoding': 'bamini2utf8', 'requires_confirmation': True, 'legacy_samples': [{'word': 'cyfk;', 'preview_unicode': 'உலகம்'}]}
+
+# Full 11-Step Normalization
+normalized_text, details = multi_sentence_quality_analyzer(
+    classifier=classifier,
+    coll_to_stand=standardizer,
+    input_text=text,
+    encoding=enc_info["encoding"],
+    need_translation=False,
+    colloquial_to_standard=False,
+    protected_words=["Moratuwa"],
+)
+print(normalized_text)
+# காலை வணக்கம் உலகம் உலகம் Moratuwa.
 ```
 
-2. Usage
+---
 
-```python
-# convert_legacy_to_unicode
-convert_legacy_to_unicode("mfuk;", "bamini2utf2") # returns "அகரம்"
-classify_unicode("mfuk;") # returns "Legacy Font Encoding"
-transliterate("akaram") # returns "அகரம்"
-translate_english_to_tamil("Hello") # returns "வணக்கம்"
-is_english_word("Hello") # returns True
-
-# Inference
-inference = Inference()
-
-# quality_analyzer
-quality_analyzer(Inference, "Kaalai வணkkam உலகம் cyfk;", "bamini2utf2") # returns "காலை வணக்கம் உலகம் உலகம்"  AND also it will return an array of objects
-single_word_quality_analyzer(Inference, "வணkkam", "bamini2utf2") # returns "வணக்கம்" AND also it will return an object
-multi_sentence_quality_analyzer(Inference, "Kaalai வணkkam உலகம் cyfk;. இரவு வணkkam உலகம் cyfk;", "bamini2utf2") # returns "காலை வணக்கம் உலகம் உலகம். இரவு வணக்கம் உலகம் உலகம்" AND also it will return an array of  sentence objects
-get_encoding_fun("Kaalai வணkkam உலகம் cyfk;.") # Automatically detects the encoding and returns it.
-```
-
-##### Notes on Inference
-
-1. The Inference class is used to load the model
-2. Make sure you have internet connection before using the Inference class
-3. The model can be created with a custom path specified for storing the model. If a custom path is not provided, the model will be saved in the default directory, which is the absolute path of the directory where the `Inference` class is located, appended with /models/{model_version}.
-
-```python
-inference = Inference(cache_dir="path/to/model_dir")
-```
-
-4. Also you can give custom model name and model version
-
-```python
-inference = Inference(model_name="model_name", model_version="model_version")
-```
-
-5. The `Inference` class initializes by checking the cache directory for the model. If the model is not found in the cache, it automatically downloads the model from the server.
-
-## Docker
-
-1. The docker images are available in the docker hub.
+## 🧪 Running Automated Tests
 
 ```bash
-docker pull sathveegan/iyal-input-normalizer-server:latest
-docker pull sathveegan/iyal-input-normalizer-ui:latest
-docker pull sathveegan/iyal-input-normalizer-docs:latest
-```
-
-2. Run the docker container
-
-```bash
-docker run -d -p 8000:8000 -e SERVER_PORT=8000 sathveegan/iyal-input-normalizer-server:latest
-docker run -d -p 8501:8501 -e UI_PORT=8501 -e BASE_API_URL=http://<server-ip>:<server-port> sathveegan/iyal-input-normalizer-ui:latest
-docker run -d -p 8080:80 sathveegan/iyal-input-normalizer-docs:latest
-```
-
-3. The server ip and port can be changed by changing the environment variables.
-
-```env
-SERVER_PORT=8000
-UI_PORT=8501
-DOCS_PORT=8080
-BASE_API_URL=http://<server-ip>:<server-port>
-```
-
-4. The docker container can be stopped by using the following command
-
-```bash
-docker stop <container-id>
-```
-
-5. The docker containers can be run by using the docker-compose file.
-
-```bash
-docker-compose up -d
-docker-compose down
-```
-
-## Notes on Translation and Transliteration
-
-1. We have use google APIs for translation and transliteration.
-2. Transliteration: https://github.com/narVidhai/Google-Transliterate-API/blob/master/Languages.md
-   - This is not Google’s official library since Google has deprecated Input Tools API.
-3. Translation: https://github.com/ssut/py-googletrans
-   - This is an unofficial library using the web API of translate.google.com and also is not associated with Google.
-
-## Build the package
-
-```bash
-# build the package
-python setup.py sdist bdist_wheel
-```
-
-## Create docs
-
-```bash
-pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
-
-sphinx-apidoc -o docs/source ../iyal_quality_analyzer
-sphinx-quickstart
+python tests/test_all.py
 ```

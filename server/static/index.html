@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>இயல் (IYAL) — Tamil Input Text Normalizer & Standardizer</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-logo">இ</div>
+      <div>
+        <span class="brand-title">இயல் (IYAL) — Tamil Text Normalizer</span>
+        <span class="brand-subtitle">Hybrid Legacy Font, Tanglish &amp; Colloquial Tamil Normalization Engine</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="btn btn-secondary btn-sm" onclick="openFeedbackModal()">💬 Give Feedback</button>
+      <a href="/api/docs" target="_blank" class="btn btn-secondary btn-sm">📘 API Docs</a>
+      <a href="/admin" class="btn btn-primary btn-sm">🔒 Admin Portal</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Navigation Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab('analyze-tab', this)">
+        ✨ 1. Full Normalization Pipeline (11-Step Flow)
+      </button>
+      <button class="tab-btn" onclick="switchTab('legacy-tab', this)">
+        🔤 2. Direct Legacy-to-Unicode Converter
+      </button>
+      <button class="tab-btn" onclick="switchTab('guide-tab', this)">
+        📖 3. How the 11-Step Pipeline Works
+      </button>
+    </div>
+
+    <!-- Global Status Alert -->
+    <div id="global-alert" class="alert" style="display:none;"></div>
+
+    <!-- TAB 1: FULL NORMALIZATION PIPELINE -->
+    <section id="analyze-tab" class="tab-panel active">
+      <div class="grid-2">
+        <!-- Left Column: Input & Controls -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Step 1: Input Paragraph or Upload Document</span>
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="loadSample('mixed')">Sample: Mixed All Types</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadSample('bamini')">Sample: Bamini Legacy</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadSample('colloquial')">Sample: Colloquial Tamil</button>
+                <button class="btn btn-secondary btn-sm" onclick="clearInput()">Clear</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <textarea
+                id="input-text"
+                placeholder="Type or paste a Tamil paragraph containing Raw Tamil Unicode, Mixed Tamil+English (e.g., வணkkam), Romanized Tanglish (e.g., Kaalai vanakkam), Legacy Font text (e.g., Bamini cyfk; tzf;fk;), or English words..."
+                oninput="updateCharCount()"
+              ></textarea>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.35rem; font-size:0.8rem; color:var(--text-muted);">
+                <span id="char-count">0 / 15,000 characters</span>
+                <label style="cursor:pointer; color:var(--primary); font-weight:600;">
+                  📎 Upload .docx, .txt, or .pdf
+                  <input type="file" id="file-upload" accept=".txt,.docx,.pdf" style="display:none;" onchange="handleFileUpload(this)" />
+                </label>
+              </div>
+            </div>
+
+            <!-- Step 5: Custom Protected Corpus Words -->
+            <div class="form-group" style="background:var(--bg-subtle); padding:0.9rem; border-radius:8px; border:1px solid var(--border-color);">
+              <label class="form-label" style="margin-bottom:0.2rem;">
+                Step 5: Custom Protected English Corpus Words (Do Not Transliterate or Translate)
+              </label>
+              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">
+                Words added here are treated as protected English/proper-noun terms and will remain untouched during normalization.
+              </p>
+              <div style="display:flex; gap:0.5rem;">
+                <input
+                  type="text"
+                  id="protected-word-input"
+                  placeholder="Enter a word to protect (e.g., Moratuwa, Python, IYAL)..."
+                  onkeydown="if(event.key==='Enter'){event.preventDefault(); addProtectedWord();}"
+                />
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addProtectedWord()">+ Add Word</button>
+              </div>
+              <div id="protected-words-chips" class="chip-list"></div>
+            </div>
+
+            <!-- Steps 6-7 & 10-11 Options -->
+            <div class="form-group">
+              <label class="form-label">Step 6 &amp; 7: Legacy Font Detection Mode</label>
+              <div class="option-row">
+                <label class="check-label">
+                  <input type="radio" name="font-mode" value="auto" checked onchange="toggleFontMode()" />
+                  Auto-Detect Legacy Font (with UI Confirmation)
+                </label>
+                <label class="check-label">
+                  <input type="radio" name="font-mode" value="manual" onchange="toggleFontMode()" />
+                  Select Legacy Font Manually
+                </label>
+              </div>
+              <div id="manual-encoding-wrap" style="display:none; margin-top:0.5rem;">
+                <select id="manual-encoding-select" class="form-control"></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Step 10 &amp; 11: Optional Post-Processing</label>
+              <div class="option-row">
+                <label class="check-label">
+                  <input type="checkbox" id="need-translation" />
+                  Step 10: Translate English Words to Tamil
+                </label>
+                <label class="check-label">
+                  <input type="checkbox" id="colloquial-to-standard" />
+                  Step 11: Standardize Colloquial Tamil (mBART Standardizer)
+                </label>
+              </div>
+            </div>
+
+            <!-- Step 7 Confirmation Banner (Dynamic) -->
+            <div id="legacy-confirm-banner" class="confirm-banner" style="display:none;">
+              <h4>🔎 Step 7: Legacy Tamil Font Detected — Please Confirm Font Style</h4>
+              <p style="font-size:0.88rem; color:#78350f;">
+                Our classifier identified Legacy Font tokens in your text and auto-detected:
+                <strong id="detected-font-label">bamini2utf8</strong>
+              </p>
+              <div id="legacy-sample-previews" class="sample-preview-grid"></div>
+              <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap; margin-top:0.65rem;">
+                <select id="confirm-encoding-select" class="form-control" style="max-width:240px;"></select>
+                <button class="btn btn-primary btn-sm" onclick="confirmAndProceedAnalysis()">
+                  ✅ Confirm Font &amp; Proceed
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="dismissConfirmBanner()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <button id="analyze-btn" class="btn btn-primary" style="width:100%; padding:0.75rem; font-size:1rem;" onclick="startAnalyzeFlow()">
+              🚀 Analyze &amp; Normalize Paragraph
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Normalized Output & Token Breakdown -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Step 9–11: Normalized Tamil Unicode Output</span>
+              <span id="latency-badge" class="badge badge-en" style="display:none;"></span>
+            </div>
+
+            <div id="normalized-output" class="output-box">No output yet. Enter text and click "Analyze &amp; Normalize Paragraph".</div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.9rem;">
+              <button class="btn btn-secondary btn-sm" onclick="copyOutput()">📋 Copy Unicode</button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadDocx()">📄 Download .docx</button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadTxt()">📝 Download .txt</button>
+              <button class="btn btn-secondary btn-sm" onclick="openFeedbackModal(true)">🚩 Report Issue with Output</button>
+            </div>
+          </div>
+
+          <!-- Token-Level Classification Breakdown -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Steps 2–8: Sentence &amp; Word Classification Breakdown</span>
+            </div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.8rem;">
+              <span class="badge badge-raw_tamil">Raw Tamil Unicode</span>
+              <span class="badge badge-en_tamil">Tamil+English</span>
+              <span class="badge badge-Romanized">Romanized Tanglish</span>
+              <span class="badge badge-Legacy">Legacy Font</span>
+              <span class="badge badge-en">English Corpus</span>
+              <span class="badge badge-protected_en">Protected Word</span>
+              <span class="badge badge-en_translated">Translated English</span>
+            </div>
+            <div id="breakdown-container" style="font-size:0.9rem; color:var(--text-muted);">
+              Run an analysis to inspect sentence segmentation and per-word classification results.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DIRECT LEGACY TO UNICODE CONVERTER -->
+    <section id="legacy-tab" class="tab-panel">
+      <div class="grid-equal">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Input Legacy Font Text (Bamini, Anjal, TSCII, etc.)</span>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('legacy-direct-input').value='jkpo; nkhopapd; ,dpikAk; njhd;ikAk; cyfk; Nghw;Wk;.'">
+              Load Bamini Sample
+            </button>
+          </div>
+          <div class="form-group">
+            <textarea id="legacy-direct-input" placeholder="Paste legacy Tamil font text here (e.g., jkpo; வணக்கம் cyfk;)..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Legacy Encoding</label>
+            <select id="legacy-direct-encoding" class="form-control">
+              <option value="">Auto-Detect Legacy Encoding (auto2utf8)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="runDirectLegacyConvert()">
+            🔄 Convert Legacy to Tamil Unicode
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Converted Tamil Unicode</span>
+          </div>
+          <div id="legacy-direct-output" class="output-box">Converted Tamil Unicode will appear here...</div>
+          <div style="display:flex; gap:0.5rem; margin-top:0.9rem;">
+            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('legacy-direct-output').innerText)">
+              📋 Copy Converted Text
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openFeedbackModal()">
+              💬 Submit Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PIPELINE GUIDE -->
+    <section id="guide-tab" class="tab-panel">
+      <div class="card">
+        <h3 style="margin-bottom:0.75rem;">Project IYAL — 11-Step Normalization Architecture</h3>
+        <ol style="padding-left:1.35rem; display:grid; gap:0.55rem;">
+          <li><strong>Paragraph Input:</strong> Accept multi-sentence Tamil/Tanglish/Legacy/English text or uploaded <code>.docx</code>, <code>.txt</code>, and <code>.pdf</code> files.</li>
+          <li><strong>Sentence &amp; Token Segmentation:</strong> Segment text by sentence boundaries (preserving URLs, emails, and brackets) and tokenize word by word.</li>
+          <li><strong>5-Type Token Taxonomy:</strong> Distinguish Raw Tamil Unicode, Mixed Tamil+English Unicode, English Corpus/Protected words, Legacy Font Encoding, and Romanized Tanglish.</li>
+          <li><strong>Unicode Script Classification:</strong> Inspect codepoints (`U+0B80`–`U+0BFF`) for fast initial categorization.</li>
+          <li><strong>English &amp; Protected Corpus Check:</strong> Match non-Tamil tokens against the cached NLTK English corpus and user-supplied Protected Words.</li>
+          <li><strong>Trained Legacy vs. Romanized Classifier (Model 1):</strong> Non-English ASCII tokens are classified by our fine-tuned BERT classifier (<code>sanujen/Tamil_Legacy_Roman_Classifier_V2</code>).</li>
+          <li><strong>Legacy Font Detection &amp; UI Confirmation:</strong> Legacy tokens are matched across 25 Tamil font encodings (Bamini, Anjal, TSCII, etc.) via <code>encode2unicode</code> and confirmed by the user in the UI.</li>
+          <li><strong>Transliteration:</strong> Non-legacy Romanized Tamil tokens are transliterated to Tamil Unicode.</li>
+          <li><strong>Sentence &amp; Paragraph Restructuring:</strong> Normalized tokens are reassembled with original punctuation.</li>
+          <li><strong>Optional English Translation:</strong> Contiguous English words are translated into Tamil if requested (while skipping user-protected words).</li>
+          <li><strong>Optional Colloquial-to-Standard Tamil Standardizer (Model 2):</strong> Sentences are standardized into formal written Tamil via our fine-tuned mBART model (<code>sanujen/mBART_Tamil_Colloquial_to_Standard</code>).</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- Feedback Modal -->
+  <div id="feedback-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="card-header">
+        <span class="card-title">💬 Submit Feedback or Report an Issue</span>
+        <button class="btn btn-secondary btn-sm" onclick="closeFeedbackModal()">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Feedback Category</label>
+        <select id="fb-category" class="form-control">
+          <option value="general">General Feedback / Suggestion</option>
+          <option value="classification">Word Classification Issue (Legacy vs. Romanized vs. English)</option>
+          <option value="legacy_conversion">Legacy Font Conversion Issue (Bamini/Anjal/etc.)</option>
+          <option value="transliteration">Tanglish Transliteration Issue</option>
+          <option value="standardization">Colloquial-to-Standard Tamil Issue</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Experience Rating (1 = Poor, 5 = Excellent)</label>
+        <select id="fb-rating" class="form-control">
+          <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+          <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+          <option value="3">⭐⭐⭐ (3 - Average)</option>
+          <option value="2">⭐⭐ (2 - Needs Improvement)</option>
+          <option value="1">⭐ (1 - Broken / Incorrect Output)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Feedback / Expected Tamil Output</label>
+        <textarea id="fb-text" placeholder="Describe any issue you encountered or suggest how the output should look..."></textarea>
+      </div>
+      <div id="fb-status-msg" style="margin-bottom:0.75rem; font-size:0.88rem;"></div>
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button class="btn btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitUserFeedback()">Submit Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
+

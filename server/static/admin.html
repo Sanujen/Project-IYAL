@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project IYAL — Admin &amp; Observability Portal (/admin)</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-logo">இ</div>
+      <div>
+        <span class="brand-title">Project IYAL — Admin Portal</span>
+        <span class="brand-subtitle">Feedback, Dual-Model Hot-Swap, Gmail RBAC &amp; Observability</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/" class="btn btn-secondary btn-sm">← Back to Public App</a>
+      <span id="admin-user-pill" class="badge badge-protected_en" style="display:none;"></span>
+      <button id="logout-btn" class="btn btn-danger btn-sm" style="display:none;" onclick="logoutAdmin()">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="admin-alert" class="alert" style="display:none;"></div>
+
+    <!-- =============================================================== -->
+    <!-- VIEW 1: LOGIN / AUTHENTICATION SCREEN                           -->
+    <!-- =============================================================== -->
+    <section id="login-view" style="max-width:480px; margin:2.5rem auto;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔒 Administrator Authentication</span>
+        </div>
+
+        <div class="tabs-bar" style="margin-bottom:1rem;">
+          <button class="tab-btn active" onclick="switchAuthSubtab('subtab-password', this)">Password Login</button>
+          <button class="tab-btn" onclick="switchAuthSubtab('subtab-google', this)">Gmail / Google OAuth</button>
+          <button class="tab-btn" onclick="switchAuthSubtab('subtab-invite', this)">Accept Gmail Invite</button>
+        </div>
+
+        <!-- Subtab 1: Email/Username + Password -->
+        <div id="subtab-password" class="auth-subpanel">
+          <form onsubmit="event.preventDefault(); submitPasswordLogin();">
+            <div class="form-group">
+              <label class="form-label">Admin Gmail / Username</label>
+              <input type="text" id="login-identifier" placeholder="superadmin or admin@gmail.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="login-password" placeholder="Enter your password" required />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">Sign In to Admin Portal</button>
+          </form>
+        </div>
+
+        <!-- Subtab 2: Google / Gmail Sign-In -->
+        <div id="subtab-google" class="auth-subpanel" style="display:none;">
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:0.85rem;">
+            Invited Gmail administrators can sign in directly with Google OAuth 2.0 (when <code>GOOGLE_CLIENT_ID</code> is configured on the server) or use their invited Gmail + password.
+          </p>
+          <div id="google-signin-button-container" style="margin:1rem 0; display:flex; justify-content:center;"></div>
+          <div id="google-oauth-status" class="alert alert-info" style="font-size:0.83rem;">
+            Checking Google OAuth configuration...
+          </div>
+        </div>
+
+        <!-- Subtab 3: Accept Gmail Invitation Token -->
+        <div id="subtab-invite" class="auth-subpanel" style="display:none;">
+          <form onsubmit="event.preventDefault(); submitAcceptInvite();">
+            <div class="form-group">
+              <label class="form-label">Invited Gmail Address</label>
+              <input type="email" id="invite-email" placeholder="yourname@gmail.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">One-Time Invitation Token</label>
+              <input type="text" id="invite-token" placeholder="Paste invite token from Superadmin" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Choose New Password (min 8 chars)</label>
+              <input type="password" id="invite-new-password" placeholder="Create strong password" minlength="8" required />
+            </div>
+            <button type="submit" class="btn btn-success" style="width:100%;">Activate Admin Account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================================== -->
+    <!-- VIEW 2: AUTHENTICATED ADMIN DASHBOARD                           -->
+    <!-- =============================================================== -->
+    <section id="dashboard-view" style="display:none;">
+      <div class="tabs-bar">
+        <button class="tab-btn active" onclick="switchAdminTab('admin-feedback-tab', this)">
+          📬 1. User Feedback
+        </button>
+        <button class="tab-btn" onclick="switchAdminTab('admin-models-tab', this)">
+          🧠 2. Model Management (2 Models)
+        </button>
+        <button class="tab-btn" id="users-tab-btn" onclick="switchAdminTab('admin-users-tab', this)">
+          👥 3. Admin Users (Superadmin)
+        </button>
+        <button class="tab-btn" onclick="switchAdminTab('admin-corpus-tab', this)">
+          🛡️ 4. Protected English Corpus
+        </button>
+        <button class="tab-btn" onclick="switchAdminTab('admin-observability-tab', this)">
+          📊 5. Observability, Security &amp; Logs
+        </button>
+      </div>
+
+      <!-- 1. FEEDBACK TAB -->
+      <div id="admin-feedback-tab" class="tab-panel active">
+        <div class="grid-4">
+          <div class="stat-card">
+            <div class="stat-label">Total Feedback</div>
+            <div class="stat-value" id="fb-stat-total">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">New / Unread</div>
+            <div class="stat-value" id="fb-stat-new" style="color:var(--warning);">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-value" id="fb-stat-resolved" style="color:var(--success);">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Submitted User Feedback</span>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <select id="fb-filter-status" class="form-control" style="width:auto;" onchange="loadAdminFeedback()">
+                <option value="all">All Statuses</option>
+                <option value="new">New</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="resolved">Resolved</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" onclick="loadAdminFeedback()">🔄 Refresh</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Timestamp</th>
+                  <th>Category &amp; Rating</th>
+                  <th>Input &amp; Feedback</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-feedback-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DUAL MODEL MANAGEMENT TAB -->
+      <div id="admin-models-tab" class="tab-panel">
+        <div class="alert alert-info">
+          <strong>Dynamic Model Hot-Swap:</strong> Project IYAL uses two trained models. By default, both run locally from the Python environment cache. You can switch either model between <strong>Default (Local Model)</strong> and <strong>Custom Model (Hosted HTTP Endpoint URL or HuggingFace Repo URL)</strong> at runtime without restarting the server.
+        </div>
+
+        <div class="grid-equal">
+          <!-- Model 1: Classifier -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Model 1: Legacy vs. Romanized Classifier</span>
+              <span id="clf-status-badge" class="badge badge-raw_tamil">ready</span>
+            </div>
+            <div id="clf-meta" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:1rem;"></div>
+
+            <div class="form-group">
+              <label class="form-label">Model Mode</label>
+              <select id="clf-mode" class="form-control" onchange="toggleCustomModelFields('clf')">
+                <option value="default">Default Model (Local Venv: sanujen/Tamil_Legacy_Roman_Classifier_V2)</option>
+                <option value="custom">Custom Model (Hosted Endpoint URL or HuggingFace Repo URL)</option>
+              </select>
+            </div>
+            <div id="clf-custom-fields" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Hosted Model URL or HuggingFace Repository URL</label>
+                <input type="text" id="clf-custom-url" placeholder="https://api-inference.huggingface.co/models/... or https://huggingface.co/org/model" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Optional API Bearer Token</label>
+                <input type="password" id="clf-api-key" placeholder="hf_... or custom API token (optional)" />
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="saveModelConfig('classifier', 'clf')">💾 Save Classifier Config</button>
+              <button class="btn btn-secondary btn-sm" onclick="resetModelToDefault('classifier')">↩ Reset to Default</button>
+            </div>
+
+            <hr style="margin:1.1rem 0; border:none; border-top:1px solid var(--border-color);" />
+            <div class="form-group" style="margin-bottom:0.5rem;">
+              <label class="form-label">Live Classifier Diagnostic Test</label>
+              <div style="display:flex; gap:0.5rem;">
+                <input type="text" id="clf-test-input" value="tzf;fk;" placeholder="Enter test word (e.g., tzf;fk; or vanakkam)" />
+                <button class="btn btn-secondary btn-sm" onclick="runModelTest('classifier', 'clf-test-input', 'clf-test-output')">▶ Test</button>
+              </div>
+              <div id="clf-test-output" style="margin-top:0.45rem; font-size:0.85rem; color:var(--primary);"></div>
+            </div>
+          </div>
+
+          <!-- Model 2: Standardizer -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Model 2: Colloquial-to-Standard Tamil Standardizer</span>
+              <span id="std-status-badge" class="badge badge-raw_tamil">ready</span>
+            </div>
+            <div id="std-meta" style="font-size:0.84rem; color:var(--text-muted); margin-bottom:1rem;"></div>
+
+            <div class="form-group">
+              <label class="form-label">Model Mode</label>
+              <select id="std-mode" class="form-control" onchange="toggleCustomModelFields('std')">
+                <option value="default">Default Model (Local Venv: sanujen/mBART_Tamil_Colloquial_to_Standard)</option>
+                <option value="custom">Custom Model (Hosted Endpoint URL or HuggingFace Repo URL)</option>
+              </select>
+            </div>
+            <div id="std-custom-fields" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">Hosted Model URL or HuggingFace Repository URL</label>
+                <input type="text" id="std-custom-url" placeholder="https://my-model-server.edu/standardize or https://huggingface.co/org/model" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Optional API Bearer Token</label>
+                <input type="password" id="std-api-key" placeholder="hf_... or custom API token (optional)" />
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="saveModelConfig('standardizer', 'std')">💾 Save Standardizer Config</button>
+              <button class="btn btn-secondary btn-sm" onclick="resetModelToDefault('standardizer')">↩ Reset to Default</button>
+            </div>
+
+            <hr style="margin:1.1rem 0; border:none; border-top:1px solid var(--border-color);" />
+            <div class="form-group" style="margin-bottom:0.5rem;">
+              <label class="form-label">Live Standardizer Diagnostic Test</label>
+              <div style="display:flex; gap:0.5rem;">
+                <input type="text" id="std-test-input" value="என்ன பண்றீங்க" placeholder="Enter colloquial Tamil sentence" />
+                <button class="btn btn-secondary btn-sm" onclick="runModelTest('standardizer', 'std-test-input', 'std-test-output')">▶ Test</button>
+              </div>
+              <div id="std-test-output" style="margin-top:0.45rem; font-size:0.85rem; color:var(--primary);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SUPERADMIN USER MANAGEMENT TAB -->
+      <div id="admin-users-tab" class="tab-panel">
+        <div id="non-superadmin-notice" class="alert alert-warning" style="display:none;">
+          🔒 <strong>Superadmin Permission Required:</strong> You are signed in with the <code>admin</code> role. You have full access to Feedback, Model Configuration, Corpus, and Observability, but only the <code>superadmin</code> can invite or manage administrator accounts.
+        </div>
+
+        <div id="superadmin-users-content">
+          <div class="grid-2">
+            <!-- Invite New Admin by Gmail -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">✉️ Invite New Admin via Gmail</span>
+              </div>
+              <form onsubmit="event.preventDefault(); inviteAdminByGmail();">
+                <div class="form-group">
+                  <label class="form-label">Gmail / Email Address</label>
+                  <input type="email" id="new-admin-email" placeholder="colleague@gmail.com" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Username (Optional)</label>
+                  <input type="text" id="new-admin-username" placeholder="Auto-generated from email if blank" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Role</label>
+                  <select id="new-admin-role" class="form-control">
+                    <option value="admin">Admin (Feedback, Models, Corpus, Logs)</option>
+                    <option value="superadmin">Superadmin (Full Access + User Management)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Initial Temporary Password (Optional)</label>
+                  <input type="text" id="new-admin-password" placeholder="Auto-generated if left blank" />
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">➕ Invite Administrator</button>
+              </form>
+              <div id="invite-result-box" class="alert alert-success" style="display:none; margin-top:1rem; word-break:break-all;"></div>
+            </div>
+
+            <!-- Existing Admin Users Table -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">Registered Administrators</span>
+                <button class="btn btn-secondary btn-sm" onclick="loadAdminUsers()">🔄 Refresh</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Gmail / Username</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-users-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PROTECTED CORPUS TAB -->
+      <div id="admin-corpus-tab" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Global Protected English Corpus Words</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; max-width:460px; margin-bottom:1rem;">
+            <input type="text" id="admin-new-protected-word" placeholder="Add global protected word (e.g., University)" />
+            <button class="btn btn-primary btn-sm" onclick="adminAddProtectedWord()">+ Add</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Protected Word</th>
+                  <th>Added By</th>
+                  <th>Created At</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-corpus-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. OBSERVABILITY, SECURITY & LOGS TAB -->
+      <div id="admin-observability-tab" class="tab-panel">
+        <div class="grid-4">
+          <div class="stat-card">
+            <div class="stat-label">Server Uptime</div>
+            <div class="stat-value" id="obs-uptime">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Process RAM (RSS)</div>
+            <div class="stat-value" id="obs-memory">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Rate-Limited / Blocked</div>
+            <div class="stat-value" id="obs-ratelimited" style="color:var(--warning);">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Brute-Force Blocks</div>
+            <div class="stat-value" id="obs-bruteforce" style="color:var(--danger);">0</div>
+          </div>
+        </div>
+
+        <div class="grid-equal">
+          <!-- Active IP Bans & Security Telemetry -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🛡️ DDoS &amp; Brute-Force Defense Status</span>
+              <button class="btn btn-secondary btn-sm" onclick="loadObservability()">🔄 Refresh</button>
+            </div>
+            <div id="security-bans-container" style="font-size:0.88rem;"></div>
+          </div>
+
+          <!-- Security & Admin Audit Logs -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📜 Security &amp; Admin Audit Trail</span>
+            </div>
+            <div class="table-wrap" style="max-height:290px; overflow-y:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Level</th>
+                    <th>Event</th>
+                    <th>Actor &amp; Details</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-logs-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Application Log Ring Buffer -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🖥️ Live Application Log Stream (logs/app.log)</span>
+            <div style="display:flex; gap:0.5rem;">
+              <select id="obs-log-level" class="form-control" style="width:auto;" onchange="loadObservability()">
+                <option value="ALL">All Levels</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" onclick="loadObservability()">🔄 Refresh Logs</button>
+            </div>
+          </div>
+          <div id="app-log-terminal" class="log-terminal"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>
+
