@@ -21,8 +21,10 @@
   - Built In-Monolith DDoS Rate Limiter, Auto-IP Ban, Brute-Force Lockout, and Payload/Concurrency Guards in `server/security.py`.
   - Built Dynamic Dual-Model Manager in `server/model_manager.py`.
 - [x] **Phase 4: Frontend SPA (`/` and `/admin`), Containerization, Docs & End-to-End Verification**
-  - Built Public Normalizer SPA (`server/static/index.html`, `js/app.js`) implementing all 11 pipeline steps, legacy font confirmation banner, protected words editor, file upload/export, and feedback modal.
+  - Built Public Normalizer SPA (`server/static/index.html`, `js/app.js`) implementing all 11 pipeline steps, legacy font confirmation banner, protected words editor, file upload/export, ResearchGate paper button (`RESEARCHGATE_PAPER_URL` via `.env`), and feedback modal.
   - Built Admin Portal (`server/static/admin.html`, `js/admin.js`) with Feedback triage, Dual-Model hot-swap & live tester, Superadmin Gmail user invitation & RBAC, Protected Corpus manager, and Observability/Security dashboard.
+  - Fixed English-to-Tamil translation pipeline (`translator.py` multi-endpoint failover + non-poisoning cache, `english_word_check.py` morphological inflection stemmer, and `app.js` reactive post-processing & confirmation state).
+  - Optimized Docker build & container startup (`.dockerignore`, non-blocking background model warmup, `HF_HUB_DISABLE_XET=1`, populated `model_cache/`, and published `sathveegan/project-iyal:latest` to Docker Hub).
   - Updated `Dockerfile`, `docker-compose.yml`, `requirements.txt`, `setup.py`, `.env.example`, `README.md`, and `docs/IMPLEMENTATION_REPORT.md`.
   - Verified all 7 end-to-end test suites in `tests/test_all.py`.
 - [ ] **Phase 5: Recommended High-Value Add-Ons (Future Roadmap — Intentionally Not Implemented Initially)**

@@ -114,8 +114,18 @@ uvicorn server.server:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## 🐳 Docker Compose Deployment (University Server Ready)
+## 🐳 Docker Compose & Docker Hub Deployment (University Server Ready)
 
+### Option A: Pull Pre-Built Public Image from Docker Hub
+Anyone can pull and run the official public Docker image directly from Docker Hub (`sathveegan/project-iyal:latest`):
+
+```bash
+docker pull sathveegan/project-iyal:latest
+cp .env.example .env
+docker compose up -d
+```
+
+### Option B: Build & Run Locally with Docker Compose
 Deploy the entire stack with persistent volumes for the SQLite database (`./data`), logs (`./logs`), and HuggingFace model cache (`./model_cache`):
 
 ```bash
@@ -128,6 +138,8 @@ To view logs or stop:
 docker compose logs -f
 docker compose down
 ```
+
+> **Tip**: Set `RESEARCHGATE_PAPER_URL` in `.env` to customize the target link of the **📄 ResearchGate Paper** button in the web UI.
 
 ---
 

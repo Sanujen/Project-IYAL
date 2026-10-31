@@ -17,6 +17,16 @@
       </div>
     </a>
     <div class="nav-actions">
+      <a
+        id="researchgate-btn"
+        href="https://www.researchgate.net/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-researchgate btn-sm"
+        title="Read our Research Paper on ResearchGate"
+      >
+        📄 ResearchGate Paper
+      </a>
       <button class="btn btn-secondary btn-sm" onclick="openFeedbackModal()">💬 Give Feedback</button>
       <a href="/api/docs" target="_blank" class="btn btn-secondary btn-sm">📘 API Docs</a>
       <a href="/admin" class="btn btn-primary btn-sm">🔒 Admin Portal</a>
@@ -50,6 +60,7 @@
               <span class="card-title">Step 1: Input Paragraph or Upload Document</span>
               <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
                 <button class="btn btn-secondary btn-sm" onclick="loadSample('mixed')">Sample: Mixed All Types</button>
+                <button class="btn btn-secondary btn-sm" onclick="loadSample('english')">Sample: English Translation</button>
                 <button class="btn btn-secondary btn-sm" onclick="loadSample('bamini')">Sample: Bamini Legacy</button>
                 <button class="btn btn-secondary btn-sm" onclick="loadSample('colloquial')">Sample: Colloquial Tamil</button>
                 <button class="btn btn-secondary btn-sm" onclick="clearInput()">Clear</button>
@@ -113,11 +124,11 @@
               <label class="form-label">Step 10 &amp; 11: Optional Post-Processing</label>
               <div class="option-row">
                 <label class="check-label">
-                  <input type="checkbox" id="need-translation" />
+                  <input type="checkbox" id="need-translation" onchange="onPostProcessingOptionChange()" />
                   Step 10: Translate English Words to Tamil
                 </label>
                 <label class="check-label">
-                  <input type="checkbox" id="colloquial-to-standard" />
+                  <input type="checkbox" id="colloquial-to-standard" onchange="onPostProcessingOptionChange()" />
                   Step 11: Standardize Colloquial Tamil (mBART Standardizer)
                 </label>
               </div>
@@ -232,13 +243,24 @@
     <!-- TAB 3: PIPELINE GUIDE -->
     <section id="guide-tab" class="tab-panel">
       <div class="card">
-        <h3 style="margin-bottom:0.75rem;">Project IYAL — 11-Step Normalization Architecture</h3>
+        <div class="card-header">
+          <h3 style="margin:0;">Project IYAL — 11-Step Normalization Architecture</h3>
+          <a
+            id="researchgate-guide-btn"
+            href="https://www.researchgate.net/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-researchgate btn-sm"
+          >
+            📄 Read Our Research Paper on ResearchGate
+          </a>
+        </div>
         <ol style="padding-left:1.35rem; display:grid; gap:0.55rem;">
           <li><strong>Paragraph Input:</strong> Accept multi-sentence Tamil/Tanglish/Legacy/English text or uploaded <code>.docx</code>, <code>.txt</code>, and <code>.pdf</code> files.</li>
           <li><strong>Sentence &amp; Token Segmentation:</strong> Segment text by sentence boundaries (preserving URLs, emails, and brackets) and tokenize word by word.</li>
           <li><strong>5-Type Token Taxonomy:</strong> Distinguish Raw Tamil Unicode, Mixed Tamil+English Unicode, English Corpus/Protected words, Legacy Font Encoding, and Romanized Tanglish.</li>
-          <li><strong>Unicode Script Classification:</strong> Inspect codepoints (`U+0B80`–`U+0BFF`) for fast initial categorization.</li>
-          <li><strong>English &amp; Protected Corpus Check:</strong> Match non-Tamil tokens against the cached NLTK English corpus and user-supplied Protected Words.</li>
+          <li><strong>Unicode Script Classification:</strong> Inspect codepoints (<code>U+0B80</code>–<code>U+0BFF</code>) for fast initial categorization.</li>
+          <li><strong>English &amp; Protected Corpus Check:</strong> Match non-Tamil tokens against the cached NLTK English corpus (including morphological inflections) and user-supplied Protected Words.</li>
           <li><strong>Trained Legacy vs. Romanized Classifier (Model 1):</strong> Non-English ASCII tokens are classified by our fine-tuned BERT classifier (<code>sanujen/Tamil_Legacy_Roman_Classifier_V2</code>).</li>
           <li><strong>Legacy Font Detection &amp; UI Confirmation:</strong> Legacy tokens are matched across 25 Tamil font encodings (Bamini, Anjal, TSCII, etc.) via <code>encode2unicode</code> and confirmed by the user in the UI.</li>
           <li><strong>Transliteration:</strong> Non-legacy Romanized Tamil tokens are transliterated to Tamil Unicode.</li>
@@ -292,4 +314,3 @@
   <script src="/static/js/app.js"></script>
 </body>
 </html>
-

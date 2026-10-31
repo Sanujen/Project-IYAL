@@ -31,8 +31,12 @@ class ModelManager:
         self.classifier: ClassifierInference = None
         self.standardizer: StandardizerInference = None
 
-    def initialize_from_db(self, db: Session):
-        """Seeds default model rows if missing and loads both models according to DB settings."""
+    def initialize_from_db(self, db: Session, background_warmup: bool = True):
+        """
+        Seeds default model rows if missing and initializes both models.
+        Uses non-blocking background warmup by default so the FastAPI server
+        starts accepting HTTP requests immediately without hanging on startup.
+        """
         with self._lock:
             clf_cfg = (
                 db.query(ModelConfig)
@@ -70,21 +74,34 @@ class ModelManager:
             db.refresh(clf_cfg)
             db.refresh(std_cfg)
 
-            logger.info("Initializing Classifier Model...")
             self.classifier = ClassifierInference(
                 model_name=clf_cfg.default_model_name,
                 mode=clf_cfg.mode,
                 custom_url=clf_cfg.custom_url,
                 api_key=clf_cfg.api_key,
+                defer_load=background_warmup,
             )
 
-            logger.info("Initializing Colloquial-to-Standard Model...")
             self.standardizer = StandardizerInference(
                 model_name=std_cfg.default_model_name,
                 mode=std_cfg.mode,
                 custom_url=std_cfg.custom_url,
                 api_key=std_cfg.api_key,
+                defer_load=background_warmup,
             )
+
+            if background_warmup:
+                def _warmup():
+                    try:
+                        logger.info("Background warmup: Initializing Classifier Model...")
+                        self.classifier.ensure_loaded()
+                        logger.info("Background warmup: Initializing Colloquial-to-Standard Model...")
+                        self.standardizer.ensure_loaded()
+                        logger.info("Background warmup: All models initialized and ready.")
+                    except Exception as exc:
+                        logger.error(f"Error during background model warmup: {exc}")
+
+                threading.Thread(target=_warmup, daemon=True, name="iyal-model-warmup").start()
 
     def update_model_config(
         self,
@@ -188,4 +205,3 @@ class ModelManager:
 
 
 model_manager = ModelManager()
-

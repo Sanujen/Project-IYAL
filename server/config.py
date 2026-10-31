@@ -30,6 +30,12 @@ class Settings:
     JWT_EXPIRE_HOURS: int = int(os.getenv("JWT_EXPIRE_HOURS", "12"))
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
 
+    # ResearchGate Paper URL & HuggingFace Hub Token
+    RESEARCHGATE_PAPER_URL: str = os.getenv(
+        "RESEARCHGATE_PAPER_URL", "https://www.researchgate.net/"
+    )
+    HF_TOKEN: str = os.getenv("HF_TOKEN", "")
+
     # DDoS, Rate Limiting & Brute-Force Protection
     RATE_LIMIT_GENERAL_PER_MIN: int = int(os.getenv("RATE_LIMIT_GENERAL_PER_MIN", "120"))
     RATE_LIMIT_INFERENCE_PER_MIN: int = int(os.getenv("RATE_LIMIT_INFERENCE_PER_MIN", "30"))
@@ -44,6 +50,10 @@ class Settings:
     MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_MB", "5")) * 1024 * 1024
     MAX_CONCURRENT_INFERENCES: int = int(os.getenv("MAX_CONCURRENT_INFERENCES", "4"))
 
+    def get_researchgate_url(self) -> str:
+        load_dotenv(override=True)
+        url = os.getenv("RESEARCHGATE_PAPER_URL", self.RESEARCHGATE_PAPER_URL).strip()
+        return url or "https://www.researchgate.net/"
+
 
 settings = Settings()
-

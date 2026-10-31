@@ -1,18 +1,31 @@
-from functools import lru_cache
+from typing import Dict
 import requests
 from iyal_quality_analyzer.utils.logger import setup_logging
 
 logger = setup_logging("iyal.transliteration")
 
 _SESSION = requests.Session()
+_SESSION.headers.update(
+    {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/plain, */*",
+    }
+)
 _INPUTTOOLS_URL = "https://inputtools.google.com/request"
 
+# Only cache successful transliterations so transient network errors are never cached
+_TRANSLITERATION_CACHE: Dict[str, str] = {}
+_MAX_CACHE_SIZE = 8192
 
-@lru_cache(maxsize=4096)
+
 def transliterate(input_text: str) -> str:
     """
     Transliterates Romanized Tamil (Tanglish) text into Tamil Unicode using
-    Google Input Tools API with connection pooling and LRU caching.
+    Google Input Tools API with connection pooling and failure-safe caching.
 
     Args:
         input_text (str): The Romanized Tamil text to transliterate.
@@ -22,6 +35,9 @@ def transliterate(input_text: str) -> str:
     """
     if not input_text or not input_text.strip():
         return input_text
+
+    if input_text in _TRANSLITERATION_CACHE:
+        return _TRANSLITERATION_CACHE[input_text]
 
     try:
         response = _SESSION.get(
@@ -49,7 +65,11 @@ def transliterate(input_text: str) -> str:
                     elif len(item) >= 1:
                         out_parts.append(item[0])
                 if out_parts:
-                    return "".join(out_parts)
+                    result = "".join(out_parts)
+                    if len(_TRANSLITERATION_CACHE) >= _MAX_CACHE_SIZE:
+                        _TRANSLITERATION_CACHE.clear()
+                    _TRANSLITERATION_CACHE[input_text] = result
+                    return result
         logger.warning(
             f"Transliteration returned non-success for '{input_text}': status={response.status_code}"
         )
@@ -60,6 +80,11 @@ def transliterate(input_text: str) -> str:
     try:
         from google.transliteration import transliterate_text
 
-        return transliterate_text(input_text, lang_code="ta")
+        result = transliterate_text(input_text, lang_code="ta")
+        if result:
+            _TRANSLITERATION_CACHE[input_text] = result
+            return result
     except Exception:
-        return input_text
+        pass
+
+    return input_text

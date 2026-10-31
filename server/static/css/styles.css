@@ -238,6 +238,18 @@ body {
   color: #fff;
 }
 
+.btn-researchgate {
+  background: #00ccbb;
+  color: #042f2e;
+  border-color: #00b3a4;
+  font-weight: 700;
+}
+
+.btn-researchgate:hover:not(:disabled) {
+  background: #00b3a4;
+  color: #ffffff;
+}
+
 .btn-sm {
   padding: 0.35rem 0.75rem;
   font-size: 0.82rem;

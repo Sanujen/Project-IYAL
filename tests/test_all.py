@@ -51,6 +51,12 @@ class TestProjectIYALMonolith(unittest.TestCase):
         r1 = requests.get(f"{self.base_url}/")
         self.assertEqual(r1.status_code, 200)
         self.assertIn("இயல் (IYAL)", r1.text)
+        self.assertIn('id="researchgate-btn"', r1.text)
+
+        cfg_res = requests.get(f"{self.base_url}/api/v1/public-config")
+        self.assertEqual(cfg_res.status_code, 200)
+        self.assertIn("researchgate_paper_url", cfg_res.json())
+        self.assertTrue(cfg_res.json()["researchgate_paper_url"].startswith("http"))
 
         r2 = requests.get(f"{self.base_url}/admin")
         self.assertEqual(r2.status_code, 200)
@@ -102,6 +108,24 @@ class TestProjectIYALMonolith(unittest.TestCase):
         self.assertEqual(type_by_word["உலகம்"], "raw_tamil")
         self.assertEqual(type_by_word["cyfk;"], "Legacy Font Encoding")
         self.assertEqual(type_by_word["Moratuwa"], "protected_en")
+
+        # Test Step 10: English-to-Tamil translation with inflected words & protected word preservation
+        r_trans = requests.post(
+            f"{self.base_url}/api/v1/analyze",
+            json={
+                "input_text": "Vanakkam! I am translating English words for students in Moratuwa.",
+                "encoding": "legacy_font_not_found",
+                "need_translation": True,
+                "colloquial_to_standard": False,
+                "protected_words": ["Moratuwa"],
+            },
+        )
+        self.assertEqual(r_trans.status_code, 200)
+        trans_data = r_trans.json()
+        self.assertIn("Moratuwa", trans_data["output"])
+        sent2_tokens = trans_data["result"][1]["results"]
+        self.assertTrue(any(t["inputType"] == "en_translated" for t in sent2_tokens))
+        self.assertTrue(any(t["inputType"] == "protected_en" and t["output"] == "Moratuwa" for t in sent2_tokens))
 
     def test_04_colloquial_to_standard_model(self):
         r = requests.post(

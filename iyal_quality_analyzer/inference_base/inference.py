@@ -1,10 +1,15 @@
 import os
 import re
+import threading
 import time
 import torch
 import requests
 from transformers import AutoTokenizer, BertForSequenceClassification
 from iyal_quality_analyzer.utils.logger import setup_logging
+
+# Disable Xet chunked CAS staging & symlink warnings for fast, reliable Docker volume caching
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
 logger = setup_logging("iyal.classifier_model")
 
@@ -20,9 +25,7 @@ def _extract_hf_repo_from_url(url_or_repo: str) -> str:
         return None
     val = url_or_repo.strip()
     if not val.startswith(("http://", "https://")):
-        # Looks like a direct repo ID 'org/model' or local directory path
         return val
-    # If it is huggingface.co/<org>/<repo> (and NOT api-inference.huggingface.co)
     match = re.match(r"^https?://huggingface\.co/([^/]+/[^/?#]+)/?$", val)
     if match:
         return match.group(1)
@@ -51,9 +54,10 @@ class Inference:
         mode: str = "default",
         custom_url: str = None,
         api_key: str = None,
+        defer_load: bool = False,
     ):
         self.model_version = model_version
-        self.cache_dir = cache_dir  # None uses default ~/.cache/huggingface/hub
+        self.cache_dir = cache_dir
         self.model_name = model_name or self.DEFAULT_PRIMARY_REPO
         self.mode = mode if mode in ("default", "custom") else "default"
         self.custom_url = custom_url.strip() if custom_url else None
@@ -77,13 +81,28 @@ class Inference:
         self.total_calls = 0
         self.last_latency_ms = 0.0
         self.avg_latency_ms = 0.0
+        self._load_lock = threading.RLock()
+        self._loaded = False
 
-        self._load_or_configure()
+        if not defer_load:
+            self.ensure_loaded()
+
+    def ensure_loaded(self):
+        """Thread-safe model initialization (can be called from background warmup or on first request)."""
+        if self._loaded:
+            return
+        with self._load_lock:
+            if self._loaded:
+                return
+            self._load_or_configure()
+            self._loaded = True
 
     def _load_local_hf_model(self, repo_candidates: list):
         """Attempts to load tokenizer & model from local cache first, then HF Hub."""
         if self.cache_dir:
             os.makedirs(self.cache_dir, exist_ok=True)
+
+        hf_token = os.getenv("HF_TOKEN") or None
 
         # 1. Try local HuggingFace cache first (instant, zero network calls)
         for repo in repo_candidates:
@@ -108,10 +127,10 @@ class Inference:
             try:
                 logger.info(f"Downloading classifier model from HuggingFace Hub: {repo}...")
                 self.tokenizer = AutoTokenizer.from_pretrained(
-                    repo, cache_dir=self.cache_dir
+                    repo, cache_dir=self.cache_dir, token=hf_token
                 )
                 self.model = BertForSequenceClassification.from_pretrained(
-                    repo, cache_dir=self.cache_dir
+                    repo, cache_dir=self.cache_dir, token=hf_token
                 )
                 self.model.eval()
                 self.model = self.model.to(self.device)
@@ -137,7 +156,6 @@ class Inference:
                     f"Failed to load custom HuggingFace classifier model '{hf_repo}': {self.last_error}"
                 )
             else:
-                # Remote HTTP endpoint URL
                 self.active_source = f"remote_url:{self.custom_url}"
                 self.status = "ready_remote"
                 logger.info(f"Configured classifier to use custom remote URL: {self.custom_url}")
@@ -164,7 +182,6 @@ class Inference:
         legacy_indicators = set(";`\\[]{}^~@#$%&*+=<>|")
         if any(ch in legacy_indicators for ch in word):
             return "Legacy Font Encoding"
-        # Mixed internal capitalization (e.g., 'Nfh', 'nkh') indicates legacy encoding
         cleaned = word.strip(".,!?'\"()")
         if cleaned and not (cleaned.islower() or cleaned.isupper() or cleaned.istitle()):
             return "Legacy Font Encoding"
@@ -181,7 +198,6 @@ class Inference:
         resp.raise_for_status()
         data = resp.json()
 
-        # Parse HuggingFace Inference API format: [[{"label": "LABEL_0", "score": 0.99}, ...]]
         if isinstance(data, list) and data:
             first = data[0]
             if isinstance(first, list) and first:
@@ -190,7 +206,6 @@ class Inference:
                 lbl = first["label"]
                 return self.label_mapping.get(lbl, str(lbl))
 
-        # Parse custom JSON format: {"label": ...} or {"prediction": ...} or {"inputType": ...}
         if isinstance(data, dict):
             for key in ("label", "prediction", "inputType", "output", "encoding_type"):
                 if key in data:
@@ -203,6 +218,7 @@ class Inference:
         """
         Performs inference on the given word and returns 'Legacy Font Encoding' or 'Romanized Text Encoding'.
         """
+        self.ensure_loaded()
         t0 = time.perf_counter()
         try:
             if self.mode == "custom" and self.custom_url and self.status == "ready_remote":

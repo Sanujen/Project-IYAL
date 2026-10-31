@@ -1,5 +1,6 @@
 services:
   iyal-monolith:
+    image: sathveegan/project-iyal:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,6 +14,10 @@ services:
       - DATA_DIR=/app/data
       - LOG_DIR=/app/logs
       - HF_HOME=/app/model_cache
+      - HF_HUB_DISABLE_XET=1
+      - HF_HUB_DISABLE_SYMLINKS_WARNING=1
+      - HF_TOKEN=${HF_TOKEN:-}
+      - RESEARCHGATE_PAPER_URL=${RESEARCHGATE_PAPER_URL:-https://www.researchgate.net/}
     ports:
       - "${SERVER_PORT:-8000}:${SERVER_PORT:-8000}"
     volumes:

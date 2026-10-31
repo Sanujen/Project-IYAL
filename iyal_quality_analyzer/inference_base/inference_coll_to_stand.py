@@ -1,10 +1,15 @@
 import os
 import re
+import threading
 import time
 import torch
 import requests
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from iyal_quality_analyzer.utils.logger import setup_logging
+
+# Disable Xet chunked CAS staging & symlink warnings for fast, reliable Docker volume caching
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
 logger = setup_logging("iyal.standardizer_model")
 
@@ -41,9 +46,10 @@ class Inference:
         mode: str = "default",
         custom_url: str = None,
         api_key: str = None,
+        defer_load: bool = False,
     ):
         self.model_version = model_version
-        self.cache_dir = cache_dir  # None uses default ~/.cache/huggingface/hub
+        self.cache_dir = cache_dir
         self.model_name = model_name or self.DEFAULT_REPO
         self.mode = mode if mode in ("default", "custom") else "default"
         self.custom_url = custom_url.strip() if custom_url else None
@@ -58,12 +64,27 @@ class Inference:
         self.total_calls = 0
         self.last_latency_ms = 0.0
         self.avg_latency_ms = 0.0
+        self._load_lock = threading.RLock()
+        self._loaded = False
 
-        self._load_or_configure()
+        if not defer_load:
+            self.ensure_loaded()
+
+    def ensure_loaded(self):
+        """Thread-safe model initialization (can be called from background warmup or on first request)."""
+        if self._loaded:
+            return
+        with self._load_lock:
+            if self._loaded:
+                return
+            self._load_or_configure()
+            self._loaded = True
 
     def _load_local_hf_model(self, repo: str) -> bool:
         if self.cache_dir:
             os.makedirs(self.cache_dir, exist_ok=True)
+
+        hf_token = os.getenv("HF_TOKEN") or None
 
         # 1. Try local HuggingFace cache first
         try:
@@ -85,8 +106,12 @@ class Inference:
         # 2. Download from HuggingFace Hub
         try:
             logger.info(f"Downloading mBART standardizer from HuggingFace Hub: {repo}...")
-            self.tokenizer = AutoTokenizer.from_pretrained(repo, cache_dir=self.cache_dir)
-            self.model = AutoModelForSeq2SeqLM.from_pretrained(repo, cache_dir=self.cache_dir)
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                repo, cache_dir=self.cache_dir, token=hf_token
+            )
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(
+                repo, cache_dir=self.cache_dir, token=hf_token
+            )
             self.model.eval()
             self.model = self.model.to(self.device)
             self.active_source = f"hf_hub:{repo}"
@@ -131,7 +156,6 @@ class Inference:
         resp.raise_for_status()
         data = resp.json()
 
-        # Parse HuggingFace Inference API format: [{"generated_text": "..."}] or [{"translation_text": "..."}]
         if isinstance(data, list) and data and isinstance(data[0], dict):
             for k in ("generated_text", "translation_text", "standard_tamil", "output"):
                 if k in data[0]:
@@ -151,6 +175,7 @@ class Inference:
         if not sentence or not sentence.strip():
             return sentence
 
+        self.ensure_loaded()
         t0 = time.perf_counter()
         try:
             if self.mode == "custom" and self.custom_url and self.status == "ready_remote":

@@ -230,6 +230,16 @@ async def serve_admin_ui():
 # =====================================================================
 # Public Normalization & Core Domain Pipeline Endpoints
 # =====================================================================
+@app.get("/api/v1/public-config")
+def get_public_config():
+    """Returns public UI configuration parameters (such as the ResearchGate paper link from .env)."""
+    return {
+        "project_name": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "researchgate_paper_url": settings.get_researchgate_url(),
+    }
+
+
 @app.get("/api/v1/health")
 def health_check(db: Session = Depends(get_db)):
     uptime_s = round(time.time() - STARTUP_TIME, 1)
@@ -240,6 +250,7 @@ def health_check(db: Session = Depends(get_db)):
         "uptime_seconds": uptime_s,
         "models": models_status,
         "protected_words_count": len(get_global_protected_words()),
+        "researchgate_paper_url": settings.get_researchgate_url(),
     }
 
 

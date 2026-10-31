@@ -3,12 +3,34 @@
 let supportedEncodings = [];
 let userProtectedWords = JSON.parse(localStorage.getItem("iyal_protected_words") || '["Moratuwa", "IYAL"]');
 let lastAnalysisResponse = null;
+let lastConfirmedText = null;
+let lastConfirmedEncoding = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   renderProtectedWordChips();
-  await loadEncodings();
-  await syncServerProtectedWords();
+  await Promise.all([
+    loadPublicConfig(),
+    loadEncodings(),
+    syncServerProtectedWords(),
+  ]);
 });
+
+async function loadPublicConfig() {
+  try {
+    const res = await fetch("/api/v1/public-config");
+    if (res.ok) {
+      const cfg = await res.json();
+      if (cfg.researchgate_paper_url) {
+        const navBtn = document.getElementById("researchgate-btn");
+        const guideBtn = document.getElementById("researchgate-guide-btn");
+        if (navBtn) navBtn.href = cfg.researchgate_paper_url;
+        if (guideBtn) guideBtn.href = cfg.researchgate_paper_url;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not load public config:", err);
+  }
+}
 
 function showAlert(message, type = "info") {
   const el = document.getElementById("global-alert");
@@ -30,14 +52,25 @@ function switchTab(tabId, btn) {
 function updateCharCount() {
   const txt = document.getElementById("input-text").value || "";
   document.getElementById("char-count").textContent = `${txt.length.toLocaleString()} / 15,000 characters`;
+  if (txt.trim() !== lastConfirmedText) {
+    lastConfirmedText = null;
+    lastConfirmedEncoding = null;
+  }
 }
 
 function loadSample(type) {
   const box = document.getElementById("input-text");
   dismissConfirmBanner();
+  lastConfirmedText = null;
+  lastConfirmedEncoding = null;
+
   if (type === "mixed") {
     box.value = "Kaalai வணkkam உலகம் cyfk;! Good morning from Moratuwa.";
-    document.getElementById("need-translation").checked = false;
+    document.getElementById("need-translation").checked = true;
+    document.getElementById("colloquial-to-standard").checked = false;
+  } else if (type === "english") {
+    box.value = "Vanakkam! I am translating English words for students in Moratuwa.";
+    document.getElementById("need-translation").checked = true;
     document.getElementById("colloquial-to-standard").checked = false;
   } else if (type === "bamini") {
     box.value = "jkpo; nkhopapd; ,dpikAk; njhd;ikAk; cyfk; Nghw;Wk;.";
@@ -45,6 +78,7 @@ function loadSample(type) {
     document.getElementById("colloquial-to-standard").checked = false;
   } else if (type === "colloquial") {
     box.value = "என்ன பண்றீங்க எல்லாரும் நல்லா இருக்கீங்களா.";
+    document.getElementById("need-translation").checked = false;
     document.getElementById("colloquial-to-standard").checked = true;
   }
   updateCharCount();
@@ -52,8 +86,28 @@ function loadSample(type) {
 
 function clearInput() {
   document.getElementById("input-text").value = "";
+  lastConfirmedText = null;
+  lastConfirmedEncoding = null;
   updateCharCount();
   dismissConfirmBanner();
+}
+
+async function onPostProcessingOptionChange() {
+  const inputText = (document.getElementById("input-text").value || "").trim();
+  if (!inputText) return;
+
+  // If the confirmation banner is currently open, confirm & run immediately with the new checkbox option
+  const banner = document.getElementById("legacy-confirm-banner");
+  if (banner && banner.style.display !== "none") {
+    await confirmAndProceedAnalysis();
+    return;
+  }
+
+  // If the user has already analyzed this text, re-run automatically when toggling Step 10 or Step 11
+  if (lastAnalysisResponse && lastAnalysisResponse.input_text === inputText) {
+    const enc = lastConfirmedEncoding || lastAnalysisResponse.encoding_used || "legacy_font_not_found";
+    await executeFullAnalysis(enc);
+  }
 }
 
 async function loadEncodings() {
@@ -204,6 +258,17 @@ async function startAnalyzeFlow() {
     return;
   }
 
+  // If the Step 7 confirmation banner is already open, or user already confirmed font for this exact text, proceed directly
+  const banner = document.getElementById("legacy-confirm-banner");
+  if (banner && banner.style.display !== "none") {
+    await confirmAndProceedAnalysis();
+    return;
+  }
+  if (lastConfirmedText === inputText && lastConfirmedEncoding) {
+    await executeFullAnalysis(lastConfirmedEncoding);
+    return;
+  }
+
   // Step 6 & 7: Auto-detect Legacy Font and show confirmation banner if Legacy Font is found
   btn.disabled = true;
   btn.textContent = "🔍 Detecting Encodings...";
@@ -243,6 +308,8 @@ async function startAnalyzeFlow() {
     } else {
       // No legacy font found — proceed immediately
       dismissConfirmBanner();
+      lastConfirmedText = inputText;
+      lastConfirmedEncoding = "legacy_font_not_found";
       await executeFullAnalysis("legacy_font_not_found");
     }
   } catch (err) {
@@ -254,7 +321,10 @@ async function startAnalyzeFlow() {
 }
 
 async function confirmAndProceedAnalysis() {
+  const inputText = (document.getElementById("input-text").value || "").trim();
   const confirmedEncoding = document.getElementById("confirm-encoding-select").value;
+  lastConfirmedText = inputText;
+  lastConfirmedEncoding = confirmedEncoding;
   dismissConfirmBanner();
   await executeFullAnalysis(confirmedEncoding);
 }
@@ -506,4 +576,3 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
-

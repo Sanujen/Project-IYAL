@@ -84,8 +84,10 @@
   - Lists globally configured protected corpus words.
 - `POST /api/v1/feedback` (and legacy `POST /feedback/`)
   - Submits user feedback with rate-limit protection.
+- `GET /api/v1/public-config`
+  - Returns public UI configuration (`project_name`, `version`, `researchgate_paper_url` configured via `RESEARCHGATE_PAPER_URL` in `.env`).
 - `GET /api/v1/health`
-  - Returns server health, database status, model status, and uptime.
+  - Returns server health, database status, model status, `researchgate_paper_url`, and uptime.
 
 ### Admin & Authentication Endpoints (`/api/v1/admin/*` & `/api/v1/auth/*`)
 - `POST /api/v1/auth/login` — Email/Username + Password login (with brute-force protection).
