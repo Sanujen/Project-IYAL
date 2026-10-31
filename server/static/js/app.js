@@ -26,6 +26,12 @@ async function loadPublicConfig() {
         if (navBtn) navBtn.href = cfg.researchgate_paper_url;
         if (guideBtn) guideBtn.href = cfg.researchgate_paper_url;
       }
+      if (cfg.github_repo_url) {
+        const ghNavBtn = document.getElementById("github-btn");
+        const ghGuideBtn = document.getElementById("github-guide-btn");
+        if (ghNavBtn) ghNavBtn.href = cfg.github_repo_url;
+        if (ghGuideBtn) ghGuideBtn.href = cfg.github_repo_url;
+      }
     }
   } catch (err) {
     console.warn("Could not load public config:", err);

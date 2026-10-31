@@ -232,11 +232,12 @@ async def serve_admin_ui():
 # =====================================================================
 @app.get("/api/v1/public-config")
 def get_public_config():
-    """Returns public UI configuration parameters (such as the ResearchGate paper link from .env)."""
+    """Returns public UI configuration parameters (such as ResearchGate paper & GitHub repo links from .env)."""
     return {
         "project_name": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "researchgate_paper_url": settings.get_researchgate_url(),
+        "github_repo_url": settings.get_github_url(),
     }
 
 
@@ -251,6 +252,7 @@ def health_check(db: Session = Depends(get_db)):
         "models": models_status,
         "protected_words_count": len(get_global_protected_words()),
         "researchgate_paper_url": settings.get_researchgate_url(),
+        "github_repo_url": settings.get_github_url(),
     }
 
 

@@ -17,7 +17,8 @@ services:
       - HF_HUB_DISABLE_XET=1
       - HF_HUB_DISABLE_SYMLINKS_WARNING=1
       - HF_TOKEN=${HF_TOKEN:-}
-      - RESEARCHGATE_PAPER_URL=${RESEARCHGATE_PAPER_URL:-https://www.researchgate.net/}
+      - RESEARCHGATE_PAPER_URL=${RESEARCHGATE_PAPER_URL:-https://www.researchgate.net/publication/397403935_IYAL_Input_Text_Normalizer_for_Tamil_Language}
+      - GITHUB_REPO_URL=${GITHUB_REPO_URL:-https://github.com/Sanujen/Project-IYAL}
     ports:
       - "${SERVER_PORT:-8000}:${SERVER_PORT:-8000}"
     volumes:

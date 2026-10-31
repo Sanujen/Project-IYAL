@@ -52,11 +52,14 @@ class TestProjectIYALMonolith(unittest.TestCase):
         self.assertEqual(r1.status_code, 200)
         self.assertIn("இயல் (IYAL)", r1.text)
         self.assertIn('id="researchgate-btn"', r1.text)
+        self.assertIn('id="github-btn"', r1.text)
 
         cfg_res = requests.get(f"{self.base_url}/api/v1/public-config")
         self.assertEqual(cfg_res.status_code, 200)
         self.assertIn("researchgate_paper_url", cfg_res.json())
+        self.assertIn("github_repo_url", cfg_res.json())
         self.assertTrue(cfg_res.json()["researchgate_paper_url"].startswith("http"))
+        self.assertTrue(cfg_res.json()["github_repo_url"].startswith("http"))
 
         r2 = requests.get(f"{self.base_url}/admin")
         self.assertEqual(r2.status_code, 200)

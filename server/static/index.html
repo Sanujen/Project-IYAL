@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>இயல் (IYAL) — Tamil Input Text Normalizer & Standardizer</title>
-  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="stylesheet" href="/static/css/styles.css?v=2.1" />
 </head>
 <body>
   <!-- Top Navbar -->
@@ -19,13 +19,26 @@
     <div class="nav-actions">
       <a
         id="researchgate-btn"
-        href="https://www.researchgate.net/"
+        href="https://www.researchgate.net/publication/397403935_IYAL_Input_Text_Normalizer_for_Tamil_Language"
         target="_blank"
         rel="noopener noreferrer"
         class="btn btn-researchgate btn-sm"
         title="Read our Research Paper on ResearchGate"
       >
         📄 ResearchGate Paper
+      </a>
+      <a
+        id="github-btn"
+        href="https://github.com/Sanujen/Project-IYAL"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-github btn-sm"
+        title="View Project IYAL on GitHub"
+      >
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+        </svg>
+        GitHub Repo
       </a>
       <button class="btn btn-secondary btn-sm" onclick="openFeedbackModal()">💬 Give Feedback</button>
       <a href="/api/docs" target="_blank" class="btn btn-secondary btn-sm">📘 API Docs</a>
@@ -245,15 +258,29 @@
       <div class="card">
         <div class="card-header">
           <h3 style="margin:0;">Project IYAL — 11-Step Normalization Architecture</h3>
-          <a
-            id="researchgate-guide-btn"
-            href="https://www.researchgate.net/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-researchgate btn-sm"
-          >
-            📄 Read Our Research Paper on ResearchGate
-          </a>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a
+              id="researchgate-guide-btn"
+              href="https://www.researchgate.net/publication/397403935_IYAL_Input_Text_Normalizer_for_Tamil_Language"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-researchgate btn-sm"
+            >
+              📄 Read Our Research Paper on ResearchGate
+            </a>
+            <a
+              id="github-guide-btn"
+              href="https://github.com/Sanujen/Project-IYAL"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-github btn-sm"
+            >
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+              </svg>
+              View Source on GitHub
+            </a>
+          </div>
         </div>
         <ol style="padding-left:1.35rem; display:grid; gap:0.55rem;">
           <li><strong>Paragraph Input:</strong> Accept multi-sentence Tamil/Tanglish/Legacy/English text or uploaded <code>.docx</code>, <code>.txt</code>, and <code>.pdf</code> files.</li>
@@ -311,6 +338,6 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js?v=2.1"></script>
 </body>
 </html>

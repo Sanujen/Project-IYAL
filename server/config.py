@@ -30,9 +30,13 @@ class Settings:
     JWT_EXPIRE_HOURS: int = int(os.getenv("JWT_EXPIRE_HOURS", "12"))
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
 
-    # ResearchGate Paper URL & HuggingFace Hub Token
+    # ResearchGate Paper URL, GitHub Repository URL & HuggingFace Hub Token
     RESEARCHGATE_PAPER_URL: str = os.getenv(
-        "RESEARCHGATE_PAPER_URL", "https://www.researchgate.net/"
+        "RESEARCHGATE_PAPER_URL",
+        "https://www.researchgate.net/publication/397403935_IYAL_Input_Text_Normalizer_for_Tamil_Language",
+    )
+    GITHUB_REPO_URL: str = os.getenv(
+        "GITHUB_REPO_URL", "https://github.com/Sanujen/Project-IYAL"
     )
     HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 
@@ -53,7 +57,12 @@ class Settings:
     def get_researchgate_url(self) -> str:
         load_dotenv(override=True)
         url = os.getenv("RESEARCHGATE_PAPER_URL", self.RESEARCHGATE_PAPER_URL).strip()
-        return url or "https://www.researchgate.net/"
+        return url or "https://www.researchgate.net/publication/397403935_IYAL_Input_Text_Normalizer_for_Tamil_Language"
+
+    def get_github_url(self) -> str:
+        load_dotenv(override=True)
+        url = os.getenv("GITHUB_REPO_URL", self.GITHUB_REPO_URL).strip()
+        return url or "https://github.com/Sanujen/Project-IYAL"
 
 
 settings = Settings()
