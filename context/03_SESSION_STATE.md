@@ -1,7 +1,7 @@
 # Project IYAL — AI Agent Session State
 
-## Current Version: `v2.0.0` (Monolithic Overhaul Complete)
-**Last Updated**: 2026-10-31
+## Current Version: `v2.1.0` (Monolithic Overhaul + Server Retention Policy Complete)
+**Last Updated**: 2026-11-02
 
 ---
 
@@ -26,7 +26,9 @@
   - Fixed English-to-Tamil translation pipeline (`translator.py` multi-endpoint failover + non-poisoning cache, `english_word_check.py` morphological inflection stemmer, and `app.js` reactive post-processing & confirmation state).
   - Optimized Docker build & container startup (`.dockerignore`, non-blocking background model warmup, `HF_HUB_DISABLE_XET=1`, populated `model_cache/`, and published `sathveegan/project-iyal:latest` to Docker Hub).
   - Updated `Dockerfile`, `docker-compose.yml`, `requirements.txt`, `setup.py`, `.env.example`, `README.md`, and `docs/IMPLEMENTATION_REPORT.md`.
-  - Verified all 7 end-to-end test suites in `tests/test_all.py`.
+  - Built Server-Level Storage Capacity & Data Retention Policy Engine (`server/retention.py`, `RetentionConfig` table, and Admin Portal `/admin` telemetry card).
+  - Supports dynamic configuration of audit log retention days, resolved feedback retention days, automated background execution interval, and SQLite `VACUUM` / WAL checkpointing to physically reclaim disk space.
+  - Verified all 8 end-to-end test suites in `tests/test_all.py` including `test_08_storage_capacity_and_retention_policy`.
 - [ ] **Phase 5: Recommended High-Value Add-Ons (Future Roadmap — Intentionally Not Implemented Initially)**
   - See `context/04_RECOMMENDED_ADDONS.md` for detailed specifications (Active Learning feedback export, Browser Extension, ONNX INT8 quantization & offline transliteration fallback, OCR PDF support, and Batch Dialect Analytics).
 

@@ -2,9 +2,14 @@ import os
 import re
 import threading
 import time
-import torch
 import requests
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+try:
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+except ImportError:
+    torch = None
+    AutoTokenizer = None
+    AutoModelForSeq2SeqLM = None
 from iyal_quality_analyzer.utils.logger import setup_logging
 
 # Disable Xet chunked CAS staging & symlink warnings for fast, reliable Docker volume caching
@@ -55,7 +60,7 @@ class Inference:
         self.custom_url = custom_url.strip() if custom_url else None
         self.api_key = api_key.strip() if api_key else None
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if torch else "cpu"
         self.tokenizer = None
         self.model = None
         self.active_source = "uninitialized"

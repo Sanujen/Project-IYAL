@@ -4,7 +4,24 @@
 
 ### `admin_users`
 | Column | Type | Description |
+|
+### `retention_configs`
+| Column | Type | Description |
 |---|---|---|
+| `id` | `Integer` (PK) | Auto-increment ID |
+| `audit_log_retention_days` | `Integer` | Days to retain audit logs (default: 30) |
+| `feedback_retention_days` | `Integer` | Days to retain resolved feedback (default: 90; 0 = forever) |
+| `cleanup_interval_hours` | `Integer` | Background cleanup interval in hours (default: 24) |
+| `auto_vacuum` | `Boolean` | Whether to physically vacuum SQLite DB on cleanup |
+| `last_cleanup_at` | `DateTime` (Nullable) | Timestamp of last retention cleanup execution |
+| `last_cleaned_audit_count` | `Integer` | Number of audit logs pruned in last cleanup |
+| `last_cleaned_feedback_count` | `Integer` | Number of feedbacks pruned in last cleanup |
+| `last_reclaimed_bytes` | `Integer` | Disk space in bytes reclaimed in last cleanup |
+| `updated_by` | `String(255)` | User email or 'system' who last modified policy |
+| `updated_at` | `DateTime` | Last policy update timestamp |
+
+---
+|---|---|
 | `id` | `Integer` (PK) | Auto-increment ID |
 | `email` | `String(255)` (Unique) | Admin Gmail / email address |
 | `username` | `String(100)` (Unique) | Username |
@@ -106,4 +123,8 @@
 - `DELETE /api/v1/admin/users/{id}` — Remove an admin user (`superadmin` only).
 - `GET /api/v1/admin/observability` — System metrics, recent audit logs, application log tail, and rate-limiter stats.
 - `POST /api/v1/admin/protected-words` & `DELETE /api/v1/admin/protected-words/{id}` — Manage global protected English corpus words.
+- `GET /api/v1/admin/retention` — Comprehensive storage capacity, database metrics, log files, disk usage, and retention settings.
+- `PUT /api/v1/admin/retention` — Update retention policy (audit log days, feedback days, cleanup schedule, auto-vacuum).
+- `POST /api/v1/admin/retention/run` — Manually trigger retention cleanup, WAL checkpoint, and SQLite VACUUM to reclaim disk space.
+
 

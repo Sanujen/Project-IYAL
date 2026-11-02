@@ -32,7 +32,21 @@ from iyal_quality_analyzer.utils.logger import setup_logging, get_recent_logs
 
 from server.config import settings
 from server.database import Base, SessionLocal, engine, get_db
-from server.models_db import AdminUser, AuditLog, Feedback, ModelConfig, ProtectedWord
+from server.models_db import (
+    AdminUser,
+    AuditLog,
+    Feedback,
+    ModelConfig,
+    ProtectedWord,
+    RetentionConfig,
+)
+from server.retention import (
+    get_storage_telemetry,
+    execute_retention_cleanup,
+    get_or_create_retention_config,
+    update_retention_config,
+    retention_worker,
+)
 from server.auth import (
     create_access_token,
     get_current_admin,
@@ -72,17 +86,20 @@ async def lifespan(app: FastAPI):
         seed_superadmin(db)
         _sync_protected_words(db)
         model_manager.initialize_from_db(db)
+        get_or_create_retention_config(db)
+        retention_worker.start()
         record_audit_log(
             db,
             event_type="server_startup",
             actor="system",
-            details="Project IYAL monolithic server initialized successfully.",
+            details="Project IYAL monolithic server initialized successfully with automated retention worker.",
             level="INFO",
         )
     finally:
         db.close()
     logger.info("Project IYAL Server is ready to accept requests.")
     yield
+    await retention_worker.stop()
     logger.info("Shutting down Project IYAL Server...")
 
 
@@ -193,6 +210,18 @@ class UpdateModelConfigRequest(BaseModel):
 
 class TestModelRequest(BaseModel):
     sample_input: Optional[str] = None
+
+
+class RetentionPolicyUpdateRequest(BaseModel):
+    audit_log_retention_days: int = Field(30, ge=1, le=3650)
+    feedback_retention_days: int = Field(90, ge=0, le=3650)
+    cleanup_interval_hours: int = Field(24, ge=1, le=720)
+    auto_vacuum: bool = True
+
+
+class RetentionRunOptions(BaseModel):
+    clear_active_logs: bool = False
+    clear_all_audit_logs: bool = False
 
 
 class UnbanIpRequest(BaseModel):
@@ -1049,6 +1078,8 @@ def admin_observability_dashboard(
         db.query(AuditLog).order_by(desc(AuditLog.timestamp)).limit(100).all()
     )
 
+    storage_telemetry = get_storage_telemetry(db)
+
     return {
         "system": {
             "uptime_seconds": uptime_s,
@@ -1056,6 +1087,16 @@ def admin_observability_dashboard(
             "cpu_percent": cpu_pct,
             "pid": os.getpid(),
             "database_engine": "SQLite (WAL Mode)" if "sqlite" in settings.DATABASE_URL else "PostgreSQL",
+        },
+        "storage": {
+            "database_total_formatted": storage_telemetry["database"]["total_size_formatted"],
+            "logs_total_formatted": storage_telemetry["logs"]["total_size_formatted"],
+            "disk_free_gb": storage_telemetry["disk"]["free_gb"],
+            "disk_percent_used": storage_telemetry["disk"]["percent_used"],
+            "audit_expired": storage_telemetry["tables"]["audit_logs"]["expired_pending_cleanup"],
+            "feedback_expired": storage_telemetry["tables"]["feedback"]["expired_pending_cleanup"],
+            "last_cleanup_at": storage_telemetry["policy"]["last_cleanup_at"],
+            "last_reclaimed_formatted": storage_telemetry["policy"]["last_reclaimed_formatted"],
         },
         "security": security_engine.get_security_stats(),
         "models": model_manager.get_all_models_status(db),
@@ -1089,3 +1130,98 @@ def admin_unban_ip(
         level="INFO",
     )
     return {"success": True, "was_banned": removed}
+
+
+# =====================================================================
+# Storage Capacity & Data Retention Policy (/api/v1/admin/retention)
+# =====================================================================
+@app.get("/api/v1/admin/retention")
+def admin_get_retention_status(
+    current_user: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Returns storage telemetry, database metrics, disk capacity, and retention settings."""
+    return get_storage_telemetry(db)
+
+
+@app.put("/api/v1/admin/retention")
+def admin_update_retention_policy(
+    req: RetentionPolicyUpdateRequest,
+    current_user: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Updates retention policy settings (audit log days, feedback days, schedule, auto-vacuum)."""
+    cfg = update_retention_config(
+        db,
+        audit_log_retention_days=req.audit_log_retention_days,
+        feedback_retention_days=req.feedback_retention_days,
+        cleanup_interval_hours=req.cleanup_interval_hours,
+        auto_vacuum=req.auto_vacuum,
+        actor=current_user.email,
+    )
+    return {
+        "success": True,
+        "message": "Retention policy updated successfully.",
+        "policy": {
+            "audit_log_retention_days": cfg.audit_log_retention_days,
+            "feedback_retention_days": cfg.feedback_retention_days,
+            "cleanup_interval_hours": cfg.cleanup_interval_hours,
+            "auto_vacuum": cfg.auto_vacuum,
+            "updated_by": cfg.updated_by,
+            "updated_at": cfg.updated_at.isoformat() if cfg.updated_at else None,
+        },
+    }
+
+
+@app.post("/api/v1/admin/retention/run")
+def admin_trigger_retention_cleanup(
+    options: Optional[RetentionRunOptions] = None,
+    current_user: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Manually triggers an immediate retention cleanup, WAL checkpoint, and vacuum."""
+    clear_active = options.clear_active_logs if options else False
+    clear_audit = options.clear_all_audit_logs if options else False
+    res = execute_retention_cleanup(
+        db,
+        actor=current_user.email,
+        clear_active_logs=clear_active,
+        clear_all_audit_logs=clear_audit,
+    )
+    return res
+
+
+@app.post("/api/v1/admin/logs/clear")
+def admin_clear_application_logs(
+    current_user: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Truncates active log files (app.log, error.log) and flushes the in-memory log stream."""
+    from iyal_quality_analyzer.utils.logger import truncate_log_files
+    result = truncate_log_files()
+    record_audit_log(
+        db,
+        event_type="logs_truncated",
+        actor=current_user.email,
+        details="Active application log files truncated and in-memory terminal cleared.",
+        level="INFO",
+    )
+    return {"success": True, "message": "Active application logs truncated and live stream cleared.", "details": result}
+
+
+@app.post("/api/v1/admin/audit-logs/clear")
+def admin_clear_audit_trail(
+    current_user: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Clears historical audit trail entries."""
+    count = db.query(AuditLog).delete()
+    db.commit()
+    record_audit_log(
+        db,
+        event_type="audit_trail_cleared",
+        actor=current_user.email,
+        details=f"Cleared {count} historical audit log records.",
+        level="INFO",
+    )
+    return {"success": True, "pruned_count": count}

@@ -6,10 +6,17 @@ from iyal_quality_analyzer.utils.legacy_converter.legacy_converter import (
 from iyal_quality_analyzer.utils.unicode_classifier import classify_unicode
 from iyal_quality_analyzer.utils.transliteration import transliterate
 from iyal_quality_analyzer.utils.translator import translate_english_to_tamil
-from iyal_quality_analyzer.inference_base.inference import Inference
-from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
-    Inference as CollToStandInference,
-)
+try:
+    from iyal_quality_analyzer.inference_base.inference import Inference
+except ImportError:
+    Inference = None
+
+try:
+    from iyal_quality_analyzer.inference_base.inference_coll_to_stand import (
+        Inference as CollToStandInference,
+    )
+except ImportError:
+    CollToStandInference = None
 from iyal_quality_analyzer.quality_analyzer import (
     quality_analyzer,
     multi_sentence_quality_analyzer,

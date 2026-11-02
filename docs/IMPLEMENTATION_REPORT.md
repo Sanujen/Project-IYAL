@@ -160,3 +160,40 @@ sequenceDiagram
    - *Finding*: On HuggingFace Hub, `sanujen/mBART_Tamil_Colloquial_to_Standard` has `optimizer.pt` (4.88 GB) committed in the repo alongside `model.safetensors` (2.44 GB), and its HF Hub `pipeline_tag` is `text-generation` rather than `text2text-generation`.
    - *Fix & Recommendation*: Switched `inference_coll_to_stand.py` to use `AutoTokenizer` + `AutoModelForSeq2SeqLM.from_pretrained` (which downloads only `model.safetensors` and ignores the 4.88 GB `optimizer.pt`) and checks the local HuggingFace cache (`local_files_only=True`) first before attempting network downloads. **Recommendation for repo owners**: Delete `optimizer.pt`, `scheduler.pt`, and `rng_state.pth` from the HuggingFace repo `sanujen/mBART_Tamil_Colloquial_to_Standard` to keep the HuggingFace repository clean.
 
+
+---
+
+## 6. Storage Capacity, Server-Level Retention Policy & Database VACUUM Architecture
+
+### Problem Analysis
+When self-hosting Project IYAL on a server or within a Docker container, storage growth is governed by two local targets:
+1. **SQLite Database (`data/iyal.db`)**:
+   - `audit_logs` records all health checks, auth attempts, brute-force security incidents, and model hot-swaps.
+   - `feedback` stores original input texts, user ratings, and full serialized token analysis JSON structures.
+   - **The SQLite Freelist Trap**: In SQLite, deleting records via `DELETE FROM ...` merely marks database pages as "free" internally on an internal freelist for future writes; it does **not** shrink the `.db` file on disk or return storage to the host operating system. Over time, without `VACUUM` and WAL checkpointing (`PRAGMA wal_checkpoint(TRUNCATE)`), disk space remains occupied indefinitely.
+2. **Rotating File Logs (`logs/app.log`, `logs/error.log`)**:
+   - Rotated backups (`.1`, `.2`, etc.) consume disk space if not bounded by a strict rotation size and backup count.
+
+### Implemented Solution & Key Components
+- **Server-Level Default Policy (`server/config.py` & `.env.example`)**:
+  - `RETENTION_AUDIT_LOG_DAYS=30` (default 30 days)
+  - `RETENTION_FEEDBACK_RESOLVED_DAYS=90` (default 90 days for resolved feedback; 0 keeps forever; `new` unresolved feedback is never purged)
+  - `RETENTION_CLEANUP_INTERVAL_HOURS=24` (background execution interval)
+  - `RETENTION_AUTO_VACUUM=true` (physically vacuums SQLite database)
+  - `LOG_ROTATION_MAX_BYTES=5242880` (5 MB per log file)
+  - `LOG_ROTATION_BACKUP_COUNT=3` (up to 3 rotated backups per logger)
+- **Database Model (`retention_configs` table in `server/models_db.py`)**:
+  - Persists dynamic retention configuration in the database, allowing administrators to modify retention days and schedules at runtime without redeploying the server.
+- **Automated Background Retention Worker (`BackgroundRetentionWorker` in `server/retention.py`)**:
+  - Non-blocking `asyncio` task launched in FastAPI `lifespan` that executes periodic cleanup cycles every N hours.
+- **Physical Disk Reclamation**:
+  - Commits row deletions, issues `PRAGMA wal_checkpoint(TRUNCATE);`, and executes `VACUUM;` inside an autocommit session to release free pages back to the filesystem.
+  - Automatically scans and purges old rotated log backup archives.
+- **Admin Portal UI & Observability**:
+  - Under `/admin`, a dedicated "💾 Storage Capacity & Data Retention Policy" card provides real-time telemetry:
+    - Host Disk Available (Free GB, % used)
+    - SQLite DB Size (Main, WAL, Freelist reclaimable estimate)
+    - Total Log Files Size
+    - Pending Prunable Rows (Audit & Feedback)
+    - Form to update policy settings
+    - "🧹 Run Cleanup Now" button for instant manual purge and vacuum.

@@ -43,7 +43,7 @@ function switchAdminTab(panelId, btn) {
   if (panelId === "admin-models-tab") loadAdminModels();
   if (panelId === "admin-users-tab" && currentAdminUser?.role === "superadmin") loadAdminUsers();
   if (panelId === "admin-corpus-tab") loadAdminCorpus();
-  if (panelId === "admin-observability-tab") loadObservability();
+  if (panelId === "admin-observability-tab") { loadObservability(); loadRetentionStatus(); }
 }
 
 async function checkAuthConfig() {
@@ -612,3 +612,211 @@ function esc(str) {
     .replace(/"/g, "&quot;");
 }
 
+
+
+// =====================================================================
+// 6. Storage Capacity & Data Retention Policy
+// =====================================================================
+async function loadRetentionStatus() {
+  try {
+    const res = await fetch("/api/v1/admin/retention", {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+
+    // Stats Cards
+    const diskFreeEl = document.getElementById("ret-disk-free");
+    if (diskFreeEl) {
+      diskFreeEl.textContent = `${data.disk.free_gb} GB`;
+      document.getElementById("ret-disk-bar").textContent = `Total: ${data.disk.total_gb} GB (${data.disk.percent_used}% used)`;
+      document.getElementById("ret-db-size").textContent = data.database.total_size_formatted;
+      document.getElementById("ret-db-freelist").textContent = `Freelist: ${data.database.reclaimable_freelist_formatted}`;
+      document.getElementById("ret-logs-size").textContent = data.logs.total_size_formatted;
+      document.getElementById("ret-logs-count").textContent = `Files: ${data.logs.files ? data.logs.files.length : 0}`;
+      
+      const auditExpired = data.tables?.audit_logs?.expired_pending_cleanup || 0;
+      const fbExpired = data.tables?.feedback?.expired_pending_cleanup || 0;
+      document.getElementById("ret-pending-prune").textContent = auditExpired + fbExpired;
+      document.getElementById("ret-pending-detail").textContent = `Audit: ${auditExpired} | Feedback: ${fbExpired}`;
+
+      // Config Form values
+      document.getElementById("ret-audit-days").value = data.policy.audit_log_retention_days;
+      document.getElementById("ret-feedback-days").value = data.policy.feedback_retention_days;
+      document.getElementById("ret-interval-hours").value = data.policy.cleanup_interval_hours;
+      document.getElementById("ret-auto-vacuum").checked = data.policy.auto_vacuum;
+
+      // Breakdown Details
+      document.getElementById("ret-db-main-size").textContent = data.database.main_size_formatted;
+      document.getElementById("ret-db-wal-size").textContent = data.database.wal_size_formatted;
+      document.getElementById("ret-db-pages").textContent = data.database.page_count;
+      document.getElementById("ret-db-freelist-pages").textContent = data.database.freelist_pages;
+      document.getElementById("ret-last-cleanup").textContent = data.policy.last_cleanup_at
+        ? `${new Date(data.policy.last_cleanup_at).toLocaleString()} (Freed ${data.policy.last_reclaimed_formatted})`
+        : "Never";
+
+      // Log Archives Table
+      const logsTbody = document.getElementById("ret-logs-tbody");
+      if (logsTbody) {
+        if (!data.logs.files || data.logs.files.length === 0) {
+          logsTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">No log files found.</td></tr>`;
+        } else {
+          logsTbody.innerHTML = data.logs.files
+            .map(
+              (f) => `
+              <tr>
+                <td><code>${esc(f.name)}</code></td>
+                <td><strong>${esc(f.size_formatted)}</strong></td>
+                <td style="color:var(--text-muted); font-size:0.72rem;">${new Date(f.modified_at).toLocaleString()}</td>
+              </tr>
+            `
+            )
+            .join("");
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load retention status:", err);
+  }
+}
+
+async function saveRetentionPolicy(event) {
+  event.preventDefault();
+  const btn = document.getElementById("btn-save-retention");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+
+  const payload = {
+    audit_log_retention_days: parseInt(document.getElementById("ret-audit-days").value, 10),
+    feedback_retention_days: parseInt(document.getElementById("ret-feedback-days").value, 10),
+    cleanup_interval_hours: parseInt(document.getElementById("ret-interval-hours").value, 10),
+    auto_vacuum: document.getElementById("ret-auto-vacuum").checked,
+  };
+
+  try {
+    const res = await fetch("/api/v1/admin/retention", {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      showRetentionBanner("✅ Retention policy updated and saved to database successfully.", "success");
+      loadRetentionStatus();
+    } else {
+      showRetentionBanner(`❌ Error: ${result.detail || "Failed to update retention policy"}`, "error");
+    }
+  } catch (err) {
+    showRetentionBanner(`❌ Network error: ${err.message}`, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 Save Retention Policy";
+  }
+}
+
+async function runManualRetentionCleanup() {
+  const btn = document.getElementById("btn-run-retention");
+  const clearActive = document.getElementById("ret-clear-active-logs")?.checked || false;
+
+  let confirmMsg = "Are you sure you want to run retention cleanup now? This will prune expired audit logs and resolved feedback, checkpoint WAL, and vacuum the SQLite database to reclaim disk space.";
+  if (clearActive) {
+    confirmMsg += "\n\nNotice: 'Also truncate active logs' is checked. This will also truncate logs/app.log and logs/error.log and clear the live log stream.";
+  }
+
+  if (!confirm(confirmMsg)) {
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "🧹 Cleaning & Vacuuming...";
+
+  try {
+    const res = await fetch("/api/v1/admin/retention/run", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ clear_active_logs: clearActive }),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      let msg = `✅ Cleanup complete! Pruned ${result.audit_logs_pruned} audit logs and ${result.feedback_pruned} feedbacks. Reclaimed ${result.reclaimed_formatted} of disk space. (Vacuum: ${result.vacuum_executed ? 'Executed' : 'Skipped'})`;
+      if (result.active_logs_truncated) {
+        msg += " Active logs were truncated and live terminal was reset.";
+      }
+      showRetentionBanner(msg, "success");
+      loadRetentionStatus();
+      loadObservability();
+    } else {
+      showRetentionBanner(`❌ Cleanup error: ${result.detail || "Unknown error"}`, "error");
+    }
+  } catch (err) {
+    showRetentionBanner(`❌ Network error: ${err.message}`, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🧹 Run Cleanup Now";
+  }
+}
+
+async function clearApplicationLogs() {
+  if (!confirm("Are you sure you want to truncate logs/app.log and logs/error.log and clear the live log stream terminal?")) {
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/v1/admin/logs/clear", {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      showRetentionBanner("✅ Active application log files truncated and live stream cleared.", "success");
+      loadObservability();
+      loadRetentionStatus();
+    } else {
+      showRetentionBanner(`❌ Error: ${result.detail || "Failed to clear logs"}`, "error");
+    }
+  } catch (err) {
+    showRetentionBanner(`❌ Network error: ${err.message}`, "error");
+  }
+}
+
+async function clearAuditTrail() {
+  if (!confirm("Are you sure you want to clear historical audit logs? This action will permanently remove all past audit trail events.")) {
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/v1/admin/audit-logs/clear", {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    const result = await res.json();
+    if (res.ok) {
+      showRetentionBanner(`✅ Audit trail cleared. Pruned ${result.pruned_count} historical audit events.`, "success");
+      loadObservability();
+      loadRetentionStatus();
+    } else {
+      showRetentionBanner(`❌ Error: ${result.detail || "Failed to clear audit logs"}`, "error");
+    }
+  } catch (err) {
+    showRetentionBanner(`❌ Network error: ${err.message}`, "error");
+  }
+}
+
+function showRetentionBanner(msg, type) {
+  const banner = document.getElementById("retention-result-banner");
+  if (!banner) return;
+  banner.style.display = "block";
+  if (type === "success") {
+    banner.style.background = "#dcfce7";
+    banner.style.color = "#166534";
+    banner.style.border = "1px solid #86efac";
+  } else {
+    banner.style.background = "#fee2e2";
+    banner.style.color = "#991b1b";
+    banner.style.border = "1px solid #fca5a5";
+  }
+  banner.textContent = msg;
+  setTimeout(() => {
+    banner.style.display = "none";
+  }, 10000);
+}

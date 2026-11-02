@@ -70,3 +70,19 @@ class AuditLog(Base):
     actor = Column(String(255), nullable=False, default="system")
     details = Column(Text, nullable=False)
 
+
+
+class RetentionConfig(Base):
+    __tablename__ = "retention_configs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    audit_log_retention_days = Column(Integer, nullable=False, default=30)
+    feedback_retention_days = Column(Integer, nullable=False, default=90)  # 0 = keep forever
+    cleanup_interval_hours = Column(Integer, nullable=False, default=24)
+    auto_vacuum = Column(Boolean, nullable=False, default=True)
+    last_cleanup_at = Column(DateTime, nullable=True)
+    last_cleaned_audit_count = Column(Integer, nullable=False, default=0)
+    last_cleaned_feedback_count = Column(Integer, nullable=False, default=0)
+    last_reclaimed_bytes = Column(Integer, nullable=False, default=0)
+    updated_by = Column(String(255), nullable=False, default="system")
+    updated_at = Column(DateTime, nullable=False, default=utcnow)

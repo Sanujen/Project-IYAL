@@ -2,9 +2,14 @@ import os
 import re
 import threading
 import time
-import torch
 import requests
-from transformers import AutoTokenizer, BertForSequenceClassification
+try:
+    import torch
+    from transformers import AutoTokenizer, BertForSequenceClassification
+except ImportError:
+    torch = None
+    AutoTokenizer = None
+    BertForSequenceClassification = None
 from iyal_quality_analyzer.utils.logger import setup_logging
 
 # Disable Xet chunked CAS staging & symlink warnings for fast, reliable Docker volume caching
@@ -72,7 +77,7 @@ class Inference:
             "Romanized Text Encoding": "Romanized Text Encoding",
         }
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if torch else "cpu"
         self.tokenizer = None
         self.model = None
         self.active_source = "uninitialized"

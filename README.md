@@ -68,6 +68,7 @@ Project-IYAL/
 │   ├── models_db.py                # ORM models (AdminUser, Feedback, ModelConfig, etc.)
 │   ├── auth.py                     # PBKDF2, JWT, Google OAuth2 & RBAC dependencies
 │   ├── security.py                 # DDoS rate limiter, IP auto-ban & brute-force guard
+│   ├── retention.py                # Server retention policy engine & SQLite VACUUM
 │   ├── model_manager.py            # Runtime dual-model manager (default vs. custom URL)
 │   ├── file_parser.py              # .docx, .txt, .pdf text extraction & .docx export
 │   └── static/                     # Frontend SPA for `/` and `/admin`
@@ -181,6 +182,23 @@ print(normalized_text)
 ```
 
 ---
+
+---
+
+## 💾 Storage Capacity & Data Retention Policy
+
+When self-hosting on a server or Docker container, Project IYAL provides an automated, zero-cost retention engine to prevent disk space exhaustion (`ENOSPC`):
+
+- **Server-Level Defaults (`.env`)**:
+  - `RETENTION_AUDIT_LOG_DAYS=30`: Automatically purges audit logs older than 30 days.
+  - `RETENTION_FEEDBACK_RESOLVED_DAYS=90`: Automatically purges resolved/reviewed feedback older than 90 days (`new` feedback is never deleted).
+  - `RETENTION_CLEANUP_INTERVAL_HOURS=24`: Periodic background task executes cleanup daily.
+  - `RETENTION_AUTO_VACUUM=true`: Automatically executes SQLite WAL checkpoint and `VACUUM` to release freed pages back to the filesystem.
+  - `LOG_ROTATION_MAX_BYTES=5242880` & `LOG_ROTATION_BACKUP_COUNT=3`: Limits log file size to 5 MB per file with up to 3 rotated backups.
+- **Admin Portal UI (`/admin`)**:
+  - Displays real-time host disk capacity (Free / Total GB), SQLite DB size (Main, WAL, Freelist estimate), and log directory size.
+  - Allows administrators to dynamically update retention periods and schedules at runtime without restarting the server.
+  - Provides a one-click **"🧹 Run Cleanup Now"** button for immediate manual cleanup and disk space reclamation.
 
 ## 🧪 Running Automated Tests
 

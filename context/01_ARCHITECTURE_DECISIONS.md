@@ -43,3 +43,17 @@
   3. **Concurrency Semaphore & Payload Limits**: Limits max request body size (5 MB), max text input length (15,000 chars default), and concurrent heavy ML inference executions via `asyncio.Semaphore` / thread lock to prevent CPU/RAM exhaustion.
   4. **Security Headers**: Adds `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `X-Request-ID` tracing headers to every response.
 
+
+
+## ADR-06: Storage Capacity, Server-Level Retention Policy & Zero-Cost Disk Reclamation
+- **Context**: In production server hosting (e.g., university server or containerized deployment), SQLite and application logs reside locally on disk. Unmanaged growth creates two major storage vulnerabilities:
+  1. `audit_logs` records all health checks, auth attempts, rate limits, and model changes, while `feedback` stores user inputs and serialized output JSON trees. Over time, these tables grow without bound.
+  2. In SQLite, deleting records via `DELETE` does **not** shrink the `.db` file or return disk space to the OS; pages are kept in an internal freelist for future reuse. Without physical `VACUUM` and WAL truncation (`PRAGMA wal_checkpoint(TRUNCATE)`), disk space remains occupied.
+  3. File logs (`logs/app.log`, `logs/error.log`) and rotated backup archives consume disk space if not purged.
+- **Decision**: Implement a **Dual-Layer Retention & Storage Management System**:
+  1. **Server-Level Default Policy (`server/config.py`)**: Environment variables establish safe defaults out-of-the-box (`RETENTION_AUDIT_LOG_DAYS=30`, `RETENTION_FEEDBACK_RESOLVED_DAYS=90`, `RETENTION_CLEANUP_INTERVAL_HOURS=24`, `RETENTION_AUTO_VACUUM=true`, `LOG_ROTATION_MAX_BYTES=5MB`, `LOG_ROTATION_BACKUP_COUNT=3`).
+  2. **Database-Backed Dynamic Configuration (`RetentionConfig`)**: Initialized from server defaults, allowing administrators to tune retention periods and schedules at runtime via the Admin Portal without server restart or redeployment.
+  3. **Automated Non-Blocking Background Worker (`BackgroundRetentionWorker`)**: An `asyncio` background task integrated into FastAPI lifespan runs the cleanup cycle periodically.
+  4. **True Physical Space Reclamation (`VACUUM` + WAL Truncate)**: After deleting expired rows, SQLite executes `PRAGMA wal_checkpoint(TRUNCATE)` and `VACUUM` (via autocommit session) to physically return reclaimed pages to the host filesystem.
+  5. **Admin Portal Observability & Manual Trigger**: Displays host disk capacity (Free/Total GB), SQLite WAL file sizes, reclaimable freelist estimate, log file breakdowns, and a one-click "Run Retention Cleanup Now" button.
+- **Benefits**: Zero cost (no Celery, Redis, or external cron), zero out-of-disk-space outages (`ENOSPC`), non-destructive (unresolved `new` feedback is never deleted), and full admin transparency.

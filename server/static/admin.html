@@ -361,6 +361,122 @@
           </div>
         </div>
 
+        <!-- Storage Capacity & Data Retention Policy -->
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div>
+              <span class="card-title">💾 Storage Capacity &amp; Data Retention Policy</span>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+                Server-level retention for SQLite database tables, WAL checkpointing, database vacuuming, and log rotation.
+              </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span id="retention-status-badge" class="badge badge-raw_tamil" style="font-size:0.75rem;">Status: Ready</span>
+              <label style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.78rem; cursor:pointer; margin-right:0.25rem;">
+                <input type="checkbox" id="ret-clear-active-logs">
+                <span>Also truncate active logs (app.log)</span>
+              </label>
+              <button class="btn btn-secondary btn-sm" onclick="loadRetentionStatus()">🔄 Refresh Storage</button>
+              <button class="btn btn-danger btn-sm" onclick="runManualRetentionCleanup()" id="btn-run-retention">🧹 Run Cleanup Now</button>
+            </div>
+          </div>
+
+          <div class="grid-4" style="margin-bottom:1rem;">
+            <div class="stat-card">
+              <div class="stat-label">Host Disk Available</div>
+              <div class="stat-value" id="ret-disk-free" style="color:var(--success);">-</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="ret-disk-bar">Total: -</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">SQLite DB Size (WAL)</div>
+              <div class="stat-value" id="ret-db-size">-</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="ret-db-freelist">Reclaimable: -</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Application Logs Total</div>
+              <div class="stat-value" id="ret-logs-size">-</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="ret-logs-count">Files: -</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pending Prunable Rows</div>
+              <div class="stat-value" id="ret-pending-prune" style="color:var(--warning);">0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="ret-pending-detail">Audit &amp; Feedback</div>
+            </div>
+          </div>
+
+          <div id="retention-result-banner" style="display:none; padding:0.75rem 1rem; border-radius:6px; margin-bottom:1rem; font-size:0.85rem;"></div>
+
+          <div class="grid-equal">
+            <!-- Left: Retention Policy Configuration Form -->
+            <div style="background:var(--bg-subtle, #f8fafc); padding:1rem; border-radius:6px; border:1px solid var(--border-color, #e2e8f0);">
+              <h4 style="margin-top:0; margin-bottom:0.8rem; font-size:0.95rem;">⚙️ Retention Configuration</h4>
+              <form id="retention-config-form" onsubmit="saveRetentionPolicy(event)">
+                <div class="form-group" style="margin-bottom:0.8rem;">
+                  <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:0.25rem;">
+                    Audit Logs Retention (Days)
+                  </label>
+                  <input type="number" id="ret-audit-days" class="form-control" min="1" max="3650" required style="width:100%;">
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Audit log events older than this are purged automatically.</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0.8rem;">
+                  <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:0.25rem;">
+                    Resolved Feedback Retention (Days)
+                  </label>
+                  <input type="number" id="ret-feedback-days" class="form-control" min="0" max="3650" required style="width:100%;">
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Resolved/reviewed user feedbacks older than this are purged. Set 0 to keep forever. (New feedback is never deleted).</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0.8rem;">
+                  <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:0.25rem;">
+                    Background Cleanup Interval (Hours)
+                  </label>
+                  <input type="number" id="ret-interval-hours" class="form-control" min="1" max="720" required style="width:100%;">
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Server background task executes retention purge and WAL checkpoint every X hours.</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom:1rem;">
+                  <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; cursor:pointer;">
+                    <input type="checkbox" id="ret-auto-vacuum" checked>
+                    <span><strong>Auto-Vacuum SQLite Database:</strong> Physically reclaims free pages from disk filesystem after purging.</span>
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm" id="btn-save-retention" style="width:100%;">
+                  💾 Save Retention Policy
+                </button>
+              </form>
+            </div>
+
+            <!-- Right: Storage Breakdown & Log Files Table -->
+            <div style="background:var(--bg-subtle, #f8fafc); padding:1rem; border-radius:6px; border:1px solid var(--border-color, #e2e8f0);">
+              <h4 style="margin-top:0; margin-bottom:0.8rem; font-size:0.95rem;">📁 Storage Breakdown &amp; Log Archives</h4>
+              
+              <div style="font-size:0.82rem; margin-bottom:0.8rem;">
+                <div><strong>SQLite Database:</strong> <span id="ret-db-main-size">-</span> (Main) + <span id="ret-db-wal-size">-</span> (WAL)</div>
+                <div><strong>Database Pages:</strong> <span id="ret-db-pages">-</span> pages (<span id="ret-db-freelist-pages">0</span> free on disk)</div>
+                <div><strong>Last Cleanup:</strong> <span id="ret-last-cleanup">-</span></div>
+              </div>
+
+              <div style="font-size:0.82rem; font-weight:600; margin-bottom:0.4rem;">Log Files (logs/):</div>
+              <div class="table-wrap" style="max-height:160px; overflow-y:auto; background:#fff; border:1px solid var(--border-color, #e2e8f0); border-radius:4px;">
+                <table style="font-size:0.75rem;">
+                  <thead>
+                    <tr>
+                      <th>File</th>
+                      <th>Size</th>
+                      <th>Modified</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ret-logs-tbody">
+                    <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Loading logs...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid-equal">
           <!-- Active IP Bans & Security Telemetry -->
           <div class="card">
@@ -375,6 +491,7 @@
           <div class="card">
             <div class="card-header">
               <span class="card-title">📜 Security &amp; Admin Audit Trail</span>
+              <button class="btn btn-secondary btn-sm" onclick="clearAuditTrail()">🗑️ Clear Audit Trail</button>
             </div>
             <div class="table-wrap" style="max-height:290px; overflow-y:auto;">
               <table>
@@ -404,6 +521,7 @@
                 <option value="ERROR">ERROR</option>
               </select>
               <button class="btn btn-secondary btn-sm" onclick="loadObservability()">🔄 Refresh Logs</button>
+              <button class="btn btn-danger btn-sm" onclick="clearApplicationLogs()">🗑️ Clear Log Stream &amp; File</button>
             </div>
           </div>
           <div id="app-log-terminal" class="log-terminal"></div>

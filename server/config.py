@@ -49,6 +49,15 @@ class Settings:
     IP_BAN_VIOLATION_THRESHOLD: int = int(os.getenv("IP_BAN_VIOLATION_THRESHOLD", "10"))
     IP_BAN_DURATION_SECONDS: int = int(os.getenv("IP_BAN_DURATION_SECONDS", "600"))
 
+    # Storage Capacity & Data Retention Policy (Server-Level Defaults)
+    RETENTION_AUDIT_LOG_DAYS: int = int(os.getenv("RETENTION_AUDIT_LOG_DAYS", "30"))
+    RETENTION_FEEDBACK_RESOLVED_DAYS: int = int(os.getenv("RETENTION_FEEDBACK_RESOLVED_DAYS", "90"))
+    RETENTION_CLEANUP_INTERVAL_HOURS: int = int(os.getenv("RETENTION_CLEANUP_INTERVAL_HOURS", "24"))
+    RETENTION_AUTO_VACUUM: bool = os.getenv("RETENTION_AUTO_VACUUM", "true").lower() in ("true", "1", "yes")
+    LOG_ROTATION_MAX_BYTES: int = int(os.getenv("LOG_ROTATION_MAX_BYTES", str(5 * 1024 * 1024)))
+    LOG_ROTATION_BACKUP_COUNT: int = int(os.getenv("LOG_ROTATION_BACKUP_COUNT", "3"))
+    LOG_DIR: str = os.getenv("LOG_DIR", os.path.join(os.getcwd(), "logs"))
+
     # Payload & Concurrency Guards
     MAX_INPUT_CHARS: int = int(os.getenv("MAX_INPUT_CHARS", "15000"))
     MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_MB", "5")) * 1024 * 1024

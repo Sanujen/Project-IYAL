@@ -63,10 +63,13 @@ def setup_logging(module_name: str = "iyal", log_level: int = logging.INFO) -> l
         log_dir = os.getenv("LOG_DIR", os.path.join(os.getcwd(), "logs"))
         os.makedirs(log_dir, exist_ok=True)
 
+        max_bytes = int(os.getenv("LOG_ROTATION_MAX_BYTES", str(5 * 1024 * 1024)))
+        backup_count = int(os.getenv("LOG_ROTATION_BACKUP_COUNT", "3"))
+
         app_file_handler = RotatingFileHandler(
             os.path.join(log_dir, "app.log"),
-            maxBytes=5 * 1024 * 1024,
-            backupCount=3,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
             encoding="utf-8",
         )
         app_file_handler.setLevel(log_level)
@@ -75,8 +78,8 @@ def setup_logging(module_name: str = "iyal", log_level: int = logging.INFO) -> l
 
         err_file_handler = RotatingFileHandler(
             os.path.join(log_dir, "error.log"),
-            maxBytes=5 * 1024 * 1024,
-            backupCount=3,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
             encoding="utf-8",
         )
         err_file_handler.setLevel(logging.WARNING)
@@ -99,3 +102,27 @@ def get_recent_logs(limit: int = 100, level: str = None) -> list:
     if level and level.upper() != "ALL":
         items = [x for x in items if x["level"] == level.upper()]
     return list(reversed(items))[:limit]
+
+
+def clear_recent_logs():
+    """Clears the in-memory ring buffer of logs for the admin terminal stream."""
+    RECENT_LOGS.clear()
+
+
+def truncate_log_files() -> dict:
+    """
+    Truncates active app.log and error.log files on disk and clears the in-memory ring buffer.
+    """
+    clear_recent_logs()
+    log_dir = os.getenv("LOG_DIR", os.path.join(os.getcwd(), "logs"))
+    truncated = []
+    for fname in ("app.log", "error.log"):
+        p = os.path.join(log_dir, fname)
+        if os.path.exists(p):
+            try:
+                with open(p, "w", encoding="utf-8") as f:
+                    f.truncate(0)
+                truncated.append(fname)
+            except OSError:
+                pass
+    return {"truncated_files": truncated}

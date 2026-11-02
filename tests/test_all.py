@@ -275,6 +275,108 @@ class TestProjectIYALMonolith(unittest.TestCase):
         self.assertIn("security", obs_data)
         self.assertIn("audit_logs", obs_data)
         self.assertIn("app_logs", obs_data)
+        self.assertIn("storage", obs_data)
+
+    def test_08_storage_capacity_and_retention_policy(self):
+        # 1. Unauthenticated request must fail
+        unauth_res = requests.get(f"{self.base_url}/api/v1/admin/retention")
+        self.assertEqual(unauth_res.status_code, 401)
+
+        # 2. Login as superadmin
+        login_res = requests.post(
+            f"{self.base_url}/api/v1/auth/login",
+            json={
+                "identifier": settings.SUPERADMIN_USERNAME,
+                "password": settings.SUPERADMIN_PASSWORD,
+            },
+        )
+        self.assertEqual(login_res.status_code, 200)
+        super_token = login_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {super_token}"}
+
+        # 3. GET /api/v1/admin/retention telemetry
+        ret_res = requests.get(f"{self.base_url}/api/v1/admin/retention", headers=headers)
+        self.assertEqual(ret_res.status_code, 200)
+        data = ret_res.json()
+        self.assertIn("database", data)
+        self.assertIn("tables", data)
+        self.assertIn("logs", data)
+        self.assertIn("disk", data)
+        self.assertIn("policy", data)
+        self.assertTrue(data["disk"]["free_gb"] > 0)
+        self.assertTrue(data["database"]["total_size_bytes"] > 0)
+
+        # 4. PUT /api/v1/admin/retention update policy
+        update_res = requests.put(
+            f"{self.base_url}/api/v1/admin/retention",
+            headers=headers,
+            json={
+                "audit_log_retention_days": 14,
+                "feedback_retention_days": 45,
+                "cleanup_interval_hours": 12,
+                "auto_vacuum": True,
+            },
+        )
+        self.assertEqual(update_res.status_code, 200)
+        self.assertTrue(update_res.json()["success"])
+        self.assertEqual(update_res.json()["policy"]["audit_log_retention_days"], 14)
+        self.assertEqual(update_res.json()["policy"]["feedback_retention_days"], 45)
+
+        # 5. Insert simulated expired records to verify retention cleanup and SQLite vacuum
+        import datetime
+        from server.database import SessionLocal
+        from server.models_db import AuditLog, Feedback, utcnow
+
+        db = SessionLocal()
+        try:
+            old_time = utcnow() - datetime.timedelta(days=60)
+            dummy_audit = AuditLog(
+                timestamp=old_time,
+                level="INFO",
+                event_type="test_expired_event",
+                actor="test_user",
+                details="Expired audit log for retention verification",
+            )
+            dummy_feedback = Feedback(
+                created_at=old_time,
+                category="general",
+                rating=5,
+                input_text="old test text",
+                output={"output": "test"},
+                feedback="Old resolved feedback for retention verification",
+                status="resolved",
+            )
+            db.add(dummy_audit)
+            db.add(dummy_feedback)
+            db.commit()
+        finally:
+            db.close()
+
+        # 6. POST /api/v1/admin/retention/run manual cleanup
+        run_res = requests.post(f"{self.base_url}/api/v1/admin/retention/run", headers=headers)
+        self.assertEqual(run_res.status_code, 200)
+        cleanup_data = run_res.json()
+        self.assertTrue(cleanup_data["success"])
+        self.assertGreaterEqual(cleanup_data["audit_logs_pruned"], 1)
+        self.assertGreaterEqual(cleanup_data["feedback_pruned"], 1)
+        self.assertTrue(cleanup_data["vacuum_executed"])
+
+        # 7. Verify subsequent telemetry shows last cleanup
+        post_res = requests.get(f"{self.base_url}/api/v1/admin/retention", headers=headers)
+        self.assertEqual(post_res.status_code, 200)
+        post_data = post_res.json()
+        self.assertIsNotNone(post_data["policy"]["last_cleanup_at"])
+        self.assertGreaterEqual(post_data["policy"]["last_cleaned_audit_count"], 1)
+
+        # 8. Test active log file truncation endpoint
+        clear_logs_res = requests.post(f"{self.base_url}/api/v1/admin/logs/clear", headers=headers)
+        self.assertEqual(clear_logs_res.status_code, 200)
+        self.assertTrue(clear_logs_res.json()["success"])
+
+        # 9. Test historical audit trail clear endpoint
+        clear_audit_res = requests.post(f"{self.base_url}/api/v1/admin/audit-logs/clear", headers=headers)
+        self.assertEqual(clear_audit_res.status_code, 200)
+        self.assertTrue(clear_audit_res.json()["success"])
 
 
 if __name__ == "__main__":
